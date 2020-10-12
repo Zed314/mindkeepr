@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block extra_headers %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.formset/1.2.2/jquery.formset.min.js"></script>
+{% endblock %}
+{% block body_content %}
+
+
+<div class="container">
+    <div class="card">
+        <div class="card-header">
+            Project
+        </div>
+        <div class="card-body">
+            <nav class="nav nav-tabs">
+                <a class="nav-item nav-link active" href="#p0" data-toggle="tab">Project</a>
+                <a class="nav-item nav-link" href="#pelements" data-toggle="tab">Elements</a>
+                {% block extra_event_tabs%}{% endblock %}
+            </nav>
+            <div class="tab-content">
+                <div class="tab-pane active" id="p0">
+                    <form enctype="multipart/form-data" method="post">
+                        {% csrf_token %}
+                        <table>
+                            {{ form.as_p }}
+                        </table>
+                            {% if  request.resolver_match.kwargs.pk %}
+                            <input type="submit" value="Update">
+                            {% else %}
+                            <input type="submit" value="Save">
+                            {% endif %}
+                    </form>
+                </div>
+                <div class="tab-pane" id="pelements">
+
+                    <table>
+                    <tr><th>Element</th><th>Quantity</th><th>Location</th><th>Status</th><th>Project</th>
+                    </tr>
+                    {% for rep in form.instance.stock_repartitions.all %}
+                    <tr>
+                        <td><a href="/element/{{rep.element.id}}">{{rep.element.name}}</a></td>
+                        <td>{{rep.quantity}}</td>
+                        <td><a href="/location/{{rep.location.id}}">{{rep.location.name}}</a></td>
+                        <td>{{rep.status}}</td>
+                        <td><a href="/project/{{rep.project.id}}">{{rep.project}}</a></td>
+                    </tr>
+                    {% endfor %}
+                    </table>
+                </div>
+            </div>
+
+
+        </div>
+    </div>
+</div>
+
+
+{% endblock %}

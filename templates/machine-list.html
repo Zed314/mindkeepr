@@ -1,0 +1,10 @@
+{% extends 'element-list.html' %}
+{% load static %}
+{% block extracolumns %}
+{
+    data: 'status',
+    title: 'Status',
+},
+{% endblock %}
+{% block typeapi %}machines{% endblock %}
+{% block title_extra %} - Machines{% endblock %}

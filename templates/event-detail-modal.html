@@ -1,0 +1,69 @@
+{% load static %}
+
+{% load crispy_forms_tags %}
+
+  {% block form_js %}
+    {# Extra header stuff (scripts, styles, metadata, etc) #}
+  {% endblock %}
+
+
+
+<div class="modal-dialog modal-sm">
+<form class="well event-form" method="post" action="{% block formaction %}/event/{{form.instance.id}}{% endblock %}">
+ <div class="modal-content">
+  <div class="modal-header">
+    <h5 class="modal-title">{% block name_event %}Event{% endblock %}</h5>
+    <button type="button" class="close" data-dismiss="modal">×</button>
+  </div>
+
+  <div class="modal-body">
+
+       {% csrf_token %}
+       {{form|crispy}}
+
+  </div>
+  <div class="modal-footer">
+    <input class="btn btn-primary" type="submit" value="Save" {% if not perms.Mindkeepr.change_event and form.instance.pk %}disabled{% endif %} />
+    <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+  </div>
+</div>
+    </form>
+</div>
+<script>
+            $('.event-form').on('submit', function() {
+            // TODO Add close of modal on valid submission
+            $.ajax({
+                type: $(this).attr('method'),
+                url: this.action,
+                data: $(this).serialize(),
+                context: this,
+                success: function(data, status) {
+                    console.log(data);
+                    console.log(status);
+                    if ($(data).find("input").hasClass("is-invalid")||
+                    $(data).find("select").hasClass("is-invalid"))
+                    {
+                      console.log("invalid feedback");
+                      $('#eventModal').html(data);
+                    }
+                    else
+                    {
+                      console.log("Ok");
+                      $('#eventModal').modal('toggle');
+                    }
+
+
+                },
+                fail: function(data,status){
+                  console.log(status);
+                },
+                statusCode: {
+                  500: function() {
+                    alert("ERROR 500");
+                  }
+                }
+                });
+            return false;
+            });
+
+</script>

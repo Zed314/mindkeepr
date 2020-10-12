@@ -1,0 +1,4 @@
+{% extends 'event-detail-modal.html' %}
+
+{% block name_event %}Maintenance{% endblock %}
+{% block formaction %}/formmaintenanceeventmodal{% if form.instance.pk %}/{{ form.instance.pk }}{% endif %}{% endblock %}

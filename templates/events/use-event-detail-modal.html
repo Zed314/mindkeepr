@@ -1,0 +1,49 @@
+{% extends 'event-detail-modal.html' %}
+
+{% block name_event %}Use{% endblock %}
+{% block formaction %}/formuseeventmodal{% endblock %}
+{% block form_js %}
+<script>
+$(document).ready(function(){
+    $('select[name=element]').change(function(){
+        if(typeof $('select[name=element]').attr("disabled") == undefined || $('select[name=element]').attr("disabled") == false)
+        {
+            return;
+        }
+        element_id = $(this).val();
+        if(element_id == "")
+        {
+            return;
+        }
+        request_url = '/api/v1/elements/' + element_id ;
+        $.ajax({
+            url: request_url,
+            success: function(data){
+                $('select[name=location_source]').empty();
+                $('select[name=location_source]').append($('<option></option>').val("").html("--------"));
+                dict_qty = {}
+                for (var i = 0 ; i<data["stock_repartitions"].length;i++)
+                {
+                    if(data["stock_repartitions"][i]["status"]=="FREE")
+                    {
+                        $('select[name=location_source]').append(
+                         $('<option></option>').val(data["stock_repartitions"][i]["location"]["id"]).html(data["stock_repartitions"][i]["location"]["name"])
+                     );
+                    dict_qty[data["stock_repartitions"][i]["location"]["id"]]=data["stock_repartitions"][i]["quantity"];
+                    }
+                }
+                $('select[name=location_source]').change(function()
+                {
+                    $('input[name=quantity]').attr("max",dict_qty[$(this).val()]);
+                });
+            }
+        });
+        return false;
+    });
+
+    $('select[name=element]').change();
+
+});
+</script>
+
+{% endblock %}

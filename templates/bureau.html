@@ -1,0 +1,116 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block extra_headers %}
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.21/css/jquery.dataTables.css">
+<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.21/js/jquery.dataTables.js"></script>
+{% endblock %}
+{% block body_content %}
+
+<h1>Bureau</h1>
+<a href="/borrowings">Emprunts</a>
+<div class="modal hide" id="showEventModal">
+</div>
+<div class="container">
+    <div class="row">
+      <div class="col-md-12">
+        <table id="events-table" class="table table-striped table-bordered" style="width:100%">
+          <thead>
+            <tr>
+              <div id="jstree_demo_div"></div>
+
+            </tr>
+          </thead>
+        </table>
+      </div>
+    </div>
+  </div>
+<script type="text/javascript">
+
+$('#events-table').DataTable({
+              'serverSide': true,
+              'ajax': '/api/v1/{% block typeapi %}events{% endblock %}/?format=datatables',
+               "order": [[ 0, "desc" ]],
+              'columns': [
+                  { data: 'id', title: "ID" },
+                  {% block extracolumns %}
+                  {
+                      data:"type",
+                      title: "Type",
+                      bSearchable:false
+                  },
+                  {
+                      data:"creator.get_full_name",
+                      title: "Creator",
+                              render: function(data, type, row, meta){
+                              if(data){
+                                  return data;
+                              }
+                              else
+                              {
+                                return "";
+                              }
+
+                              //return data;
+                            },
+                            orderable: false,
+                  },
+                  {
+                      data:"comment",
+                      title: "Comment",
+                      orderable: true,
+                  },
+                  {
+                      data:"recording_date",
+                      title: "Date",
+                      render: function (data, type, row, meta) {
+                          if (type === 'display') {
+                              if(data){
+                                  return convertISO8601ToHuman(data);
+                              }
+                              else
+                              {
+                                  return "Undefined";
+                              }
+                          } else {
+                              return data;
+                          }
+                      },
+                      orderable: true,
+                  },
+                  {
+                            data: 'id',
+                            title: 'View',
+                            render: function(data, type, row, meta){
+                            if(type === 'display'){
+                                url = "/event/"+data
+                                data='<button type="button" class="btn btn-primary showevent" href="#" data-form="'+url+'" title="View" >View</button>'
+                            }
+
+                            return data;
+                          },
+                          orderable: false,
+
+                  },
+
+                  {% endblock %}
+
+              ],
+              "drawCallback": function(settings, json) {
+                $(".showevent").click(function(ev) { // for each edit contact url
+                  ev.preventDefault(); // prevent navigation
+                  var url = $(this).data("form"); // get the contact form url
+                  $("#showEventModal").load(url, function() { // load the url into the modal
+                    $(this).modal('show'); // display the modal on url load
+                  });
+                return false; // prevent the click propagation
+                });
+
+              }
+
+          });
+
+
+</script>
+
+
+{% endblock %}

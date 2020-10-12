@@ -1,0 +1,70 @@
+<div class="container">
+    <div class="row">
+        <div class="col-sm-12">
+            <table id="event-table" class="table table-striped table-bordered" style="width:100%">
+                <thead>
+                <tr>
+
+
+                </tr>
+                </thead>
+            </table>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+
+    $('#event-table').DataTable({
+        'serverSide': true,
+        'ajax': '/api/v1/{% block typeapi %}events{% endblock %}/by_creator/{{ object.id }}?format=datatables',
+        'columns': [
+             {
+                data: 'type',
+                title: 'Action',
+                render: function (data, type, row, meta) {
+                    EventInFrench = {}
+                    return data;
+                }
+
+            },
+            {
+                data: 'element',
+                title: 'Element',
+                render: function (data, type, row, meta) {
+                    if (type === 'display') {
+                        if(data){
+                            url = "/element/" + data.id
+                            data = '<a href="' + url + '">' + data.name + '</a>';
+                            return data;
+                        }
+                        return "Undefined"
+                    } else {
+                        return data.name;
+                    }
+                }
+
+            },
+            {
+                data: 'recording_date', title: "Date", render: function (data, type, row, meta) {
+                    if (type === 'display') {
+                        if(data){
+                            return convertISO8601ToHuman(data);
+                        }
+                        else
+                        {
+                            return "Undefined";
+                        }
+                    } else {
+                        return data;
+                    }
+                }
+            },
+            {data: 'comment', title: "Comment"},
+
+
+        ]
+
+    });
+
+</script>
+

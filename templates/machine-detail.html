@@ -1,0 +1,50 @@
+{% extends 'element-detail.html' %}
+
+
+
+  {% block extra_event_tabs %}
+<a class="nav-item nav-link" href="#maintenance" data-toggle="tab">Maintenance History</a>
+<a class="nav-item nav-link" href="#incident" data-toggle="tab">Incident History</a>
+{% endblock %}
+{% block extra_event_tabs_content%}
+
+  <div class="tab-pane" id="maintenance">
+
+    <button class="btn btn-primary event" type="button" href="#" data-form="/formmaintenanceeventmodal?element={{form.instance.id}}" title="Maintenance"
+    {% if not perms.Mindkeepr.add_maintenanceevent %}disabled{% endif %}>Add Maintenance</button>
+
+    <table>
+    <tr><th>Date</th><th>Scheduled date</th><th>Is done</th><th>Comment</th><th>Created by</th><th>Completed on : </th><th>Complete maintenance</th></tr>
+
+    {% for maintenance in form.instance.maintenance_history.all %}
+    <tr>
+        <td>{{maintenance.recording_date}}</td>
+        <td>{{maintenance.scheduled_date}}</td>
+        <td>{{maintenance.is_done}}</td>
+        <td>{{maintenance.comment}}</td>
+        <td>{{maintenance.creator.get_full_name}}</td>
+        <td>{{maintenance.completion_date}}</td>
+        <td><button type="button" class="btn btn-primary event" href="#" data-form="/formmaintenanceeventmodal/{{maintenance.id}}" title="Proceed" {% if maintenance.is_done %}disabled{% endif %} >Proceed</button></td>
+    </tr>
+    {% endfor %}
+    </table>
+  </div>
+
+  <div class="tab-pane" id="incident">
+    <button class="btn btn-primary event" type="button" href="#" data-form="/formincidenteventmodal?element={{form.instance.id}}" title="Incident"
+    {% if not perms.Mindkeepr.add_incidentevent %}disabled{% endif %}>Declare new Incident</button>
+
+    <table>
+    <tr><th>Date</th><th>New status</th><th>Comment</th><th>Created by</th></tr>
+
+    {% for incident in form.instance.incident_history.all %}
+    <tr>
+        <td>{{incident.recording_date}}</td>
+        <td>{{incident.get_new_status_display}}</td>
+        <td>{{incident.comment}}</td>
+        <td>{{incident.creator.get_full_name}}</td>
+    </tr>
+    {% endfor %}
+    </table>
+  </div>
+{% endblock %}

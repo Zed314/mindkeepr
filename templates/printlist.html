@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block extra_headers %}
+{% endblock %}
+{% block body_content %}
+
+<h1>Print list</h1>
+<ul>
+{% for print in print_list %}
+    <li>{{ print.element.name }} : {{ print.quantity }} <a class="btn btn-primary" href="/element/print/add/{{print.element.id}}/1" role="button">+1</a>
+        <a class="btn btn-primary" href="/element/print/remove/{{print.element.id}}/1" role="button">-1</a></li>
+
+  {% endfor %}
+</ul>
+
+<a class="btn btn-primary" href="/element/print/all" role="button">PRINT</a>
+{% endblock %}

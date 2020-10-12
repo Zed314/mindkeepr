@@ -1,0 +1,17 @@
+{% extends '../base.html' %}
+
+{% block body_content %}
+<h2>Login</h2>
+
+{% if user.is_authenticated %}
+<p>Current user: {{ user.email }}</p>
+<form action="{% url 'oidc_logout' %}" method="post">
+  {% csrf_token %}
+  <input type="submit" value="logout">
+</form>
+{% else %}
+  You must be logged in to see this page.
+<a href="{% url 'oidc_authentication_init' %}">Login using CAS</a>
+<a href="{% url 'loginlocal' %}">Login (using local database).</a>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,18 @@
+{% extends 'element-list.html' %}
+{% load static %}
+{% block extracolumns %}
+{
+    data: 'datasheet',
+    title: 'Datasheet',
+    render: function(data, type, row, meta){
+            if(type === 'display'){
+                if(data != null){
+                    data = '<a href="' + data + '">' + 'Doc' + '</a>';
+                }
+            }
+            return data;
+        },
+    },
+{% endblock %}
+{% block typeapi %}components{% endblock %}
+{% block title_extra %} - Components{% endblock %}

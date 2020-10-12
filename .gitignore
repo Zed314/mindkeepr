@@ -1,0 +1,16 @@
+venv
+db.sqlite3
+.idea
+__pycache__/
+.pyc
+media/
+iclogo/
+footprint/
+Temporary/
+.keep
+PartAttachment/
+settings-secrets.py
+.env.prod
+.env.prod.db
+data/
+static/

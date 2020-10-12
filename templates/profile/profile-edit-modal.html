@@ -1,0 +1,72 @@
+{% load static %}
+
+{% load crispy_forms_tags %}
+
+  {% block form_js %}
+    {# Extra header stuff (scripts, styles, metadata, etc) #}
+  {% endblock %}
+
+
+
+<div class="modal-dialog modal-sm">
+<form class="well profile-form" enctype='multipart/form-data' method="POST" action="{% url 'edit_profile' object.id %}">
+ <div class="modal-content">
+  <div class="modal-header">
+    <h5 class="modal-title">Edit profile</h5>
+    <button type="button" class="close" data-dismiss="modal">×</button>
+  </div>
+
+  <div class="modal-body">
+
+       {% csrf_token %}
+       {{ form.as_p }}
+
+  </div>
+  <div class="modal-footer">
+    <input class="btn btn-primary" type="submit" value="Save" {% if not perms.Mindkeepr.change_userprofile %}disabled{% endif %} />
+    <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+  </div>
+</div>
+    </form>
+</div>
+<script>
+        var form = new FormData($(".profile-form")[0]);
+            $('.profile-form').on('submit', function() {
+            // TODO Add close of modal on valid submission
+            $.ajax({
+                type: $(this).attr('method'),
+                url: this.action,
+                data: new FormData(this),
+                context: this,
+                processData: false,
+                contentType: false,
+                success: function(data, status) {
+                    console.log(data);
+                    console.log(status);
+                    if ($(data).find("input").hasClass("is-invalid")||
+                    $(data).find("select").hasClass("is-invalid"))
+                    {
+                      console.log("invalid feedback");
+                      $('#profilemodal').html(data);
+                    }
+                    else
+                    {
+                      console.log("Ok");
+                      $('#profilemodal').modal('toggle');
+                    }
+
+
+                },
+                fail: function(data,status){
+                  console.log(status);
+                },
+                statusCode: {
+                  500: function() {
+                    alert("ERROR 500");
+                  }
+                }
+                });
+            return false;
+            });
+
+</script>

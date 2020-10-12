@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block extra_headers %}
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.21/css/jquery.dataTables.css">
+    <script type="text/javascript" charset="utf8"
+            src="https://cdn.datatables.net/1.10.21/js/jquery.dataTables.js"></script>
+    <link rel="stylesheet" type="text/css" href="/static/styles/profile.css">
+
+{% endblock %}
+{% block body_content %}
+<div class="modal hide" id="profilemodal">
+</div>
+
+    <div style="padding: 1em; margin-top: 1em;">
+        <!--- Left part of the page --->
+        <div style="width: 70%;display: inline-block">
+                <h3>My borrowings: </h3>
+                {% include "profile/borrowings-list-component.html" %}
+            <br>
+           <div class="profile-events">
+                <h3>Last actions: </h3>
+                    {% include "profile/event-list-component.html" %}
+                </div>
+        </div>
+        <!--- Right part of the page --->
+        <div style="width: 25%; display: inline-block; vertical-align: top">
+            <!-- Profile infos --->
+            <div class="card profile-card">
+                <h5 class="text-center card-title">
+                    My profile
+                </h5>
+                <div class="card-img-top text-center">
+
+                    {% if object.userprofile.avatar %}
+                    <img width=150px src="{{ object.userprofile.avatar.url }}"/>
+                    {% else %}
+                    <img style="max-width: 150px" src="/static/person-icon.png">
+                    {% endif %}
+                </div>
+                <div class="card-body">
+                    <p><b>First name</b>: {{ object.first_name }}</p>
+                    <p><b>Last name</b>: {{ object.last_name |title }}</p>
+                    <p><b>Email</b>: {{ object.email }}</p>
+                </div>
+                <button type="button" class="btn btn-primary profile-edit" href="#" data-form="{% url 'edit_profile' object.userprofile.id %}" title="Edit profile">Edit profile</button>
+            </div>
+            <br>
+            <!--- Projects --->
+            {% if object.projects.count %}
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">
+                            My projects
+                        </h5>
+                        <ul class="list-group list-group-flush">
+                            {% for project in object.projects.all %}
+                                <li class="list-group-item"><a
+                                        href="{% url 'view_project' project.id %}"> {{ project.name }} </a></li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+    <script>
+        $(".profile-edit").click(function(ev) {
+            url = $(this).data("form");
+            $("#profilemodal").load(url, function() { // load the url into the modal
+                $(this).modal('show'); // display the modal on url load
+            });
+        });
+        </script>
+{% endblock %}

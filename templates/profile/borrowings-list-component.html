@@ -1,0 +1,72 @@
+<div class="container">
+    <div class="row">
+        <div class="col-sm-12">
+            <table id="borrowing-table" class="table table-striped table-bordered" style="width:100%">
+                <thead>
+                <tr>
+
+
+                </tr>
+                </thead>
+            </table>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+
+    $('#borrowing-table').DataTable({
+        'serverSide': true,
+        'ajax': '/api/v1/{% block typeapi %}borrowings{% endblock %}/by_creator/{{ object.id }}?format=datatables',
+        'columns': [
+            {
+                data: 'element',
+                title: 'Element',
+                render: function (data, type, row, meta) {
+                    if (type === 'display') {
+                        url = "/element/" + data.id
+                        data = '<a href="' + url + '">' + data.name + '</a>';
+                        return data;
+                    } else {
+                        return data.name;
+                    }
+                }
+
+            },
+            {
+                data: 'location_source',
+                title: 'From',
+                render: function (data, type, row, meta) {
+                    if (type === 'display') {
+                        url = "/location/" + data.id
+                        data = '<a href="' + url + '">' + data.name + '</a>';
+                        return data;
+                    } else {
+                        return data.name;
+                    }
+
+
+                }
+            },
+            {data: 'recording_date', title: "Date", render: function (data, type, row, meta) {
+                    if (type === 'display') {
+                        if(data){
+                            return convertISO8601ToHuman(data);
+                        }
+                        else
+                        {
+                            return "Undefined";
+                        }
+                    } else {
+                        return data;
+                    }
+                }
+            },
+            {data: 'scheduled_return_date', title: "Scheduled return date"},
+            {data: 'comment', title: "Comment"},
+
+
+        ]
+
+    });
+</script>
+
