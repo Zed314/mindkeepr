@@ -252,7 +252,7 @@ class MaintenanceEventSerializer(EventFieldMixin, serializers.HyperlinkedModelSe
     element = ElementShortSerializer()
     class Meta:
         model = MaintenanceEvent
-        fields = EventSerializer.Meta.fields + ("is_done","element")
+        fields = EventSerializer.Meta.fields + ("is_done","scheduled_date","element")
         depth = 2
     def create(self, validated_data):
         machine = Machine.objects.get(id=validated_data.pop('element')["id"])

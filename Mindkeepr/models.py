@@ -28,7 +28,7 @@ class Location(models.Model):
     name = models.CharField("name", max_length=200, blank=False, null=False)
     description = models.CharField(
         "description", max_length=200, blank=True, null=False)
-    parent = models.ForeignKey('self', on_delete=models.PROTECT, null=True,related_name="children")
+    parent = models.ForeignKey('self', on_delete=models.PROTECT, null=True, blank=True, related_name="children")
     tags = TaggableManager()
     @property
     def nb_children(self):
@@ -41,7 +41,7 @@ class Category(models.Model):
     """ Category of an Element. Have children and parents. """
     name = models.CharField("name", max_length=40, blank=False, null=False)
     parent = models.ForeignKey(
-        "Category", on_delete=models.PROTECT, null=True, related_name="children")
+        "Category", on_delete=models.PROTECT, null=True, blank=True, related_name="children")
     @property
     def nb_children(self):
         return len(self.children.all())

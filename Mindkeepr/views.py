@@ -21,7 +21,7 @@ from Mindkeepr.models import (BorrowEvent, UserProfile, ReturnEvent, UseEvent, B
 from Mindkeepr.Serializers import (CategorySerializer, ComponentSerializer,
                                     ElementSerializer, LocationSerializer,
                                     MachineSerializer, ToolSerializer, ProjectSerializer, BookSerializer,
-                                    BorrowEventSerializer,  # BorrowingSerializer,
+                                    BorrowEventSerializer, MaintenanceEventSerializer,  # BorrowingSerializer,
                                     StockRepartitionSerializer, UserDetailedSerializer)
 from rest_framework import  viewsets
 from django.utils.decorators import method_decorator
@@ -94,6 +94,25 @@ class BorrowingsView(LoginRequiredMixin,viewsets.ModelViewSet):
     @action(detail=False, methods=['get'], url_path='by_creator/(?P<creator_pk>[^/.]+)')
     def by_creator(self, request, creator_pk, pk=None):
         events = BorrowEvent.objects.filter(creator_id=creator_pk)
+
+        page = self.paginate_queryset(events)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        serializer = self.get_serializer(events, many=True)
+
+        return Response(serializer.data)
+
+class MaintenancesView(LoginRequiredMixin,viewsets.ModelViewSet):
+    serializer_class = MaintenanceEventSerializer
+
+    def get_queryset(self):
+        queryset = MaintenanceEvent.objects.all()
+        return queryset
+    @action(detail=False, methods=['get'], url_path='by_assignee/(?P<assignee_pk>[^/.]+)')
+    def by_assignee(self, request, assignee_pk, pk=None):
+        events = MaintenanceEvent.objects.filter(assignee_id=assignee_pk).filter(is_done=False)
 
         page = self.paginate_queryset(events)
         if page is not None:

@@ -2,7 +2,7 @@ from django.contrib import admin
 
 
 from Mindkeepr.models import Component, Location, Element, Machine
-from Mindkeepr.models import Event, BuyEvent, UseEvent, ConsumeEvent, ReturnEvent, MaintenanceEvent, Attachment, UserProfile
+from Mindkeepr.models import Event, BuyEvent, UseEvent, ConsumeEvent, ReturnEvent, MaintenanceEvent, Attachment, UserProfile, Category
 
 
 class ProfiletInline(admin.TabularInline):
@@ -34,6 +34,9 @@ class ElementAdmin(admin.ModelAdmin):
 class ComponentAdmin(admin.ModelAdmin):
     pass
 
+@admin.register(Category)
+class CategoryAdmin(admin.ModelAdmin):
+    pass
 
 @admin.register(Location)
 class LocationAdmin(admin.ModelAdmin):
