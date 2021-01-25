@@ -82,8 +82,8 @@
 
     <div class="tab-pane" id="location">
 
-<button type="button" class=" btn btn-primary event" href="#" data-form="/formbuyeventmodal?element={{form.instance.id}}" title="Buy"
-{% if not perms.Mindkeepr.add_buyevent %}disabled{% endif %}>Buy</button>
+<button type="button" class="btn btn-primary event" href="#" data-form="/formbuyeventmodal?element={{form.instance.id}}" title="Buy"
+{% if not perms.Mindkeepr.add_buyevent or form.instance.is_unique_and_there %}disabled{% endif %}>Buy</button>
     <table>
 <tr><th>Location</th><th>Quantity</th><th>Project</th><th>Borrow</th><th>Reserve</th>{% if form.instance.is_consummable %}<th>Consume</th>{% endif %}<th>Sell</th><th>Move</th>
 </tr>

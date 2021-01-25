@@ -79,11 +79,17 @@ class Element(PolymorphicModel):
     def __str__(self):
         return self.name
 
+    @property
     def is_unique(self):
         return False
 
+    @property
     def is_consummable(self):
         return False
+
+    @property
+    def is_unique_and_there(self):
+        return self.is_unique and self.quantity_owned!=0
 
     @property
     def type(self):
@@ -230,7 +236,7 @@ class Attribute(models.Model):
 
 
 class Component(Consumable,Element):
-    """ Eletronic component """
+    """ Electronic component """
     datasheet = models.FileField(upload_to='datasheet', blank=True, null=True)
     pass
 

@@ -570,12 +570,12 @@ class PresetElementQuantitySourceMixin():
             self._disabled_fields.append('element')
         except KeyError:
             pass
-        try:
-            idmachine = int(self.request.GET['machine'])
-            initial['machine'] = get_object_or_404(Element, pk=idmachine)
-            self._disabled_fields.append('machine')
-        except KeyError:
-            pass
+        #try:
+        #    idmachine = int(self.request.GET['machine'])
+        #    initial['machine'] = get_object_or_404(Element, pk=idmachine)
+        #    self._disabled_fields.append('machine')
+        #except KeyError:
+        #    pass
         try:
             idlocationsrc = int(self.request.GET['locationsrc'])
             initial['location_source'] = get_object_or_404(Location, pk=idlocationsrc)
@@ -586,6 +586,14 @@ class PresetElementQuantitySourceMixin():
             status = self.request.GET['status']
             initial['status'] = status
             self._disabled_fields.append('status')
+        except KeyError:
+            pass
+        try:
+            idelt= int(self.request.GET['element'])
+            elt = get_object_or_404(Element, pk=idelt)
+            if(elt.is_unique):
+                initial['quantity'] = 1
+                self._disabled_fields.append('quantity')
         except KeyError:
             pass
         try:

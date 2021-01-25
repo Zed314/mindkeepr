@@ -1,3 +1,7 @@
+"""
+Forms used by Django
+"""
+
 from django.forms import ModelForm
 from django import forms
 from . import models
@@ -6,17 +10,56 @@ from django.forms.models import inlineformset_factory
 
 
 class DisableFieldsMixin():
+    """
+    Mixin made to hide html inputs in forms
+    """
     def disable_html_fields(self, fields):
         for field in fields :
-            self.fields[field].widget  = forms.HiddenInput()
+            try:
+                self.fields[field].widget  = forms.HiddenInput()
+            except KeyError:
+                # Useful if a field is defined as hidden, but do not exist for this form
+                # Ex : Quantity may be preset to one, even if it is a maintenanceevent or incidentevent that do not require it.
+                pass
+
+
+class PresetLocationSourceAndQuantityMixin():
+    """
+    Mixin to add preset for LocationSource and quantity
+    """
+    def preset_location_quantity(self):
+        if 'element' in self.data:
+            try:
+                element_id = int(self.data.get('element'))
+                element = models.Element.objects.get(id=element_id)
+
+                self.fields['location_source'].queryset = models.Location.objects.filter(
+                    stock_repartitions__in=element.stock_repartitions.filter(status="FREE"))
+
+                if 'location_source' in self.data:
+                    # we have element & source location
+                    # so the max quantity is the amount of unreserved object in this location
+                    location = models.Location.objects.get(
+                        id=int(self.data.get('location_source')))
+                    self.fields['quantity'] = forms.IntegerField(min_value=1, max_value=element.stock_repartitions.filter(
+                        location=location).filter(status="FREE")[0].quantity)
+                else:
+                    self.fields['quantity'] = forms.IntegerField(min_value=1)
+            except (ValueError, TypeError):
+                pass  # invalid input from client
+
 
 class UserProfileForm(forms.ModelForm):
+    """
+    Edit form for user profile
+    """
     avatar = forms.ImageField(required=False)
     class Meta:
         model = models.UserProfile
         fields = ['avatar']
 
-class BuyEventForm(DisableFieldsMixin,ModelForm):
+class BuyEventForm(DisableFieldsMixin, ModelForm):
+    """ Form that handles creation of buy events """
     location_destination = forms.ModelChoiceField(
         queryset=models.Location.objects.all())
     element = forms.ModelChoiceField(queryset=models.Element.objects.all())
@@ -26,8 +69,8 @@ class BuyEventForm(DisableFieldsMixin,ModelForm):
         fields = ['element', 'quantity', 'price', 'supplier',
                   'location_destination','project', 'comment']
 
-
 class MaintenanceEventForm(DisableFieldsMixin,ModelForm):
+    """ Form that handles creation of consume events """
     element = forms.ModelChoiceField(queryset=models.Machine.objects.all())
 
     class Meta:
@@ -35,6 +78,7 @@ class MaintenanceEventForm(DisableFieldsMixin,ModelForm):
         fields = ['element', 'scheduled_date', 'is_done', 'comment', 'assignee']
 
 class IncidentEventForm(DisableFieldsMixin, ModelForm):
+    """ Form for incident event (Machine only) """
     element = forms.ModelChoiceField(queryset=models.Machine.objects.all())
 
     class Meta:
@@ -43,6 +87,7 @@ class IncidentEventForm(DisableFieldsMixin, ModelForm):
 
 
 class ConsumeEventForm(DisableFieldsMixin, ModelForm):
+    """ Form that handles creation of consume events """
     location_source = forms.ModelChoiceField(
         queryset=models.Location.objects.none())
     quantity = forms.IntegerField(min_value=1)
@@ -58,7 +103,8 @@ class ConsumeEventForm(DisableFieldsMixin, ModelForm):
             try:
                 element_id = int(self.data.get('element'))
                 element = models.Element.objects.get(id=element_id)
-                # TODO : handle case when element is allocated to a project and can also be consumed
+                # An element may be consumed by a project if its reserved by this project or
+                # if it is allocated by it
                 try:
                     project_id = self.data.get('project')
                     project = models.Project.objects.get(id=project_id)
@@ -75,7 +121,6 @@ class ConsumeEventForm(DisableFieldsMixin, ModelForm):
                     if 'location_source' in self.data:
                         # we have element & source, now the max
                         location = models.Location.objects.get(id=int(self.data.get('location_source')))
-                        print("Af location")
                         stock_rep_free = element.stock_repartitions.filter(location=location).filter(status="FREE")
                         stock_rep_reserved = element.stock_repartitions.filter(location=location).filter(status="RESERVED").filter(project=project)
                         qty_stock_free = 0
@@ -84,15 +129,16 @@ class ConsumeEventForm(DisableFieldsMixin, ModelForm):
                             qty_stock_free = stock_rep_free[0].quantity
                         if stock_rep_reserved:
                             qty_stock_reserved = stock_rep_reserved[0].quantity
+                        # Selection of the max quantity that may be set by user
                         self.fields['quantity'] = forms.IntegerField(min_value=1, max_value=max(qty_stock_free,qty_stock_reserved))
                     else:
                         self.fields['quantity'] = forms.IntegerField(min_value=1)
                         #
 
                 except (ValueError, TypeError):
-                    # no project, fine
-                    print("No project")
-
+                    # no project specified
+                    # so only the free elements (non allocated) may be consumed
+                    # Source location : any location that have some of this element that is non-allocated
                     self.fields['location_source'].queryset = models.Location.objects.filter(
                         stock_repartitions__in=element.stock_repartitions.filter(status="FREE"))
 
@@ -100,15 +146,19 @@ class ConsumeEventForm(DisableFieldsMixin, ModelForm):
                         # we have element & source, now the max
                         location = models.Location.objects.get(
                             id=int(self.data.get('location_source')))
+                        # Max qty : quantity of the preset location source
+
                         self.fields['quantity'] = forms.IntegerField(min_value=1, max_value=element.stock_repartitions.filter(
                             location=location).filter(status="FREE")[0].quantity)
                     else:
+                        # Max quantity : inf ( TODO : set as max of possible locations )
                         self.fields['quantity'] = forms.IntegerField(min_value=1)
 
             except (ValueError, TypeError):
                 pass  # invalid input from the client; ignore and fallback to empty Element queryset
 
 class UnUseEventForm(DisableFieldsMixin,ModelForm):
+    """ Form for UnUseEvent """
     location_source = forms.ModelChoiceField(
         queryset=models.Location.objects.all())
     element = forms.ModelChoiceField(queryset=models.Element.objects.all())
@@ -123,6 +173,7 @@ class UnUseEventForm(DisableFieldsMixin,ModelForm):
                   'location_source', 'location_destination']
 
 class MoveEventForm(DisableFieldsMixin,ModelForm):
+    """ Form for MoveEvent """
     location_source = forms.ModelChoiceField(
         queryset=models.Location.objects.all())
     element = forms.ModelChoiceField(queryset=models.Element.objects.all())
@@ -137,7 +188,9 @@ class MoveEventForm(DisableFieldsMixin,ModelForm):
                   'location_source', 'location_destination']
 
 
-class UseEventForm(DisableFieldsMixin,ModelForm):
+
+class UseEventForm(DisableFieldsMixin, PresetLocationSourceAndQuantityMixin, ModelForm):
+    """ Form for UseEvent """
     location_source = forms.ModelChoiceField(
         queryset=models.Location.objects.all())
     element = forms.ModelChoiceField(queryset=models.Element.objects.filter(
@@ -155,29 +208,12 @@ class UseEventForm(DisableFieldsMixin,ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        #if self.data:
-        print(self.data,flush="True")
-        if 'element' in self.data:
-            try:
-                element_id = int(self.data.get('element'))
-                element = models.Element.objects.get(id=element_id)
-
-                self.fields['location_source'].queryset = models.Location.objects.filter(
-                    stock_repartitions__in=element.stock_repartitions.filter(status="FREE"))
-
-                if 'location_source' in self.data:
-                    # we have element & source, now the max
-                    location = models.Location.objects.get(
-                        id=int(self.data.get('location_source')))
-                    self.fields['quantity'] = forms.IntegerField(min_value=1, max_value=element.stock_repartitions.filter(
-                        location=location).filter(status="FREE")[0].quantity)
-                else:
-                    self.fields['quantity'] = forms.IntegerField(min_value=1)
-            except (ValueError, TypeError):
-                pass  # invalid input from the client; ignore and fallback to empty City queryset
+        self.preset_location_quantity()
 
 
-class SellEventForm(DisableFieldsMixin, ModelForm):
+
+class SellEventForm(DisableFieldsMixin, PresetLocationSourceAndQuantityMixin, ModelForm):
+    """ Form for SellEvent """
     location_source = forms.ModelChoiceField(
         queryset=models.Location.objects.none())
     element = forms.ModelChoiceField(queryset=models.Element.objects.filter(
@@ -190,28 +226,11 @@ class SellEventForm(DisableFieldsMixin, ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
-        if 'element' in self.data:
-            try:
-                element_id = int(self.data.get('element'))
-                element = models.Element.objects.get(id=element_id)
-
-                self.fields['location_source'].queryset = models.Location.objects.filter(
-                    stock_repartitions__in=element.stock_repartitions.filter(status="FREE"))
-
-                if 'location_source' in self.data:
-                    # we have element & source, now the max
-                    location = models.Location.objects.get(
-                        id=int(self.data.get('location_source')))
-                    self.fields['quantity'] = forms.IntegerField(min_value=1, max_value=element.stock_repartitions.filter(
-                        location=location).filter(status="FREE")[0].quantity)
-                else:
-                    self.fields['quantity'] = forms.IntegerField(min_value=1)
-            except (ValueError, TypeError):
-                pass  # invalid input from the client; ignore and fallback to empty City queryset
+        self.preset_location_quantity()
 
 
-class BorrowEventForm(DisableFieldsMixin,ModelForm):
+class BorrowEventForm(DisableFieldsMixin, PresetLocationSourceAndQuantityMixin, ModelForm):
+    """ Form for BorrowEvent """
     location_source = forms.ModelChoiceField(
         queryset=models.Location.objects.all())
     element = forms.ModelChoiceField(queryset=models.Element.objects.filter(
@@ -226,27 +245,7 @@ class BorrowEventForm(DisableFieldsMixin,ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        if 'element' in self.data:
-
-            try:
-                element_id = int(self.data.get('element'))
-                element = models.Element.objects.get(id=element_id)
-                print(self.data)
-                print(self.data.get('location_source'),flush="true")
-                self.fields['location_source'].queryset = models.Location.objects.filter(
-                    stock_repartitions__in=element.stock_repartitions.filter(status="FREE"))
-
-                if 'location_source' in self.data:
-                    # we have element & source, now the max
-                    print("Have loc source",flush="true")
-                    location = models.Location.objects.get(
-                        id=int(self.data.get('location_source')))
-                    self.fields['quantity'] = forms.IntegerField(min_value=1, max_value=element.stock_repartitions.filter(
-                        location=location).filter(status="FREE")[0].quantity)
-                else:
-                    self.fields['quantity'] = forms.IntegerField(min_value=1)
-            except (ValueError, TypeError):
-                pass  # invalid input from the client; ignore and fallback to empty City queryset
+        self.preset_location_quantity()
 
 
 class BorrowEventUpdateForm(ModelForm):
