@@ -24,4 +24,7 @@ services:
       - POSTGRES_USER=testuser
       - POSTGRES_PASSWORD=testpassword
       - POSTGRES_DB=mindkeepr_db
-
+#untested
+# for select2
+#  redis:
+#    image: redis:latest

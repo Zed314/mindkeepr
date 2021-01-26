@@ -142,7 +142,7 @@ class Element(PolymorphicModel):
         return None
 
     def is_move_element_possible(self, quantity, status_source, status_destination, location_source=None, location_destination=None, project_source=None, project_destination = None, already_owned = False):
-        if self.is_unique():
+        if self.is_unique:
             if quantity>1 or (self.quantity_not_borrowed >=1 and not location_source)  or (self.quantity_owned >=1 and not location_source and not already_owned):
                 return False
         if not location_source and not location_destination:
@@ -157,7 +157,7 @@ class Element(PolymorphicModel):
         return True
 
     def move_element(self, quantity, status_source, status_destination, location_source=None, location_destination=None,project_source=None,project_destination=None, already_owned = False):
-        if self.is_unique():
+        if self.is_unique:
             if quantity>1 or (self.quantity_not_borrowed >=1 and not location_source)  or (self.quantity_owned >=1 and not location_source and not already_owned):
                 return False
         if not location_source and not location_destination:
@@ -439,14 +439,14 @@ class ConsumeEvent(Event):
 
 
     def is_add_to_element_possible(self):
-        if not self.element.is_consummable():
+        if not self.element.is_consummable:
             return False
         if not self.element.is_move_element_possible(self.quantity, "RESERVED", "", self.location_source, None, self.project, None):
             return self.element.is_move_element_possible(self.quantity, "FREE", "", self.location_source, None, None, None)
         return True
 
     def _add_to_element(self):
-        if not self.element.is_consummable():
+        if not self.element.is_consummable:
             return False
         if not self.element.move_element(self.quantity, "RESERVED", "", self.location_source, None, self.project, None):
             return self.element.move_element(self.quantity, "FREE", "", self.location_source, None, None, None)

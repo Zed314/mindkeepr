@@ -7,7 +7,7 @@ from django import forms
 from . import models
 
 from django.forms.models import inlineformset_factory
-
+from django_select2 import forms as s2forms
 
 class DisableFieldsMixin():
     """
@@ -49,6 +49,28 @@ class PresetLocationSourceAndQuantityMixin():
                 pass  # invalid input from client
 
 
+class LocationWidget(s2forms.Select2Widget):
+    search_fields = [
+        "name__icontains"
+    ]
+
+class CategoryWidget(s2forms.Select2Widget):#or ModelSelect2Widget for server side computation
+    search_fields = [
+        "name__icontains"
+    ]
+
+class ProjectWidget(s2forms.Select2Widget):
+    search_fields = [
+        "name__icontains"
+    ]
+
+class UserWidget(s2forms.Select2Widget):
+    search_fields=[
+        "name__icontains",
+        #"username__icontains",
+        #"email__icontains"
+    ]
+
 class UserProfileForm(forms.ModelForm):
     """
     Edit form for user profile
@@ -60,14 +82,18 @@ class UserProfileForm(forms.ModelForm):
 
 class BuyEventForm(DisableFieldsMixin, ModelForm):
     """ Form that handles creation of buy events """
-    location_destination = forms.ModelChoiceField(
-        queryset=models.Location.objects.all())
+    #location_destination = forms.ModelChoiceField(
+    #    queryset=models.Location.objects.all())
     element = forms.ModelChoiceField(queryset=models.Element.objects.all())
-    project = forms.ModelChoiceField(queryset=models.Project.objects.all(), required=False)
+    #project = forms.ModelChoiceField(queryset=models.Project.objects.all(), required=False)
     class Meta:
         model = models.BuyEvent
         fields = ['element', 'quantity', 'price', 'supplier',
                   'location_destination','project', 'comment']
+        widgets = {
+            "location_destination": LocationWidget,
+            "project" : ProjectWidget
+        }
 
 class MaintenanceEventForm(DisableFieldsMixin,ModelForm):
     """ Form that handles creation of consume events """
@@ -76,7 +102,9 @@ class MaintenanceEventForm(DisableFieldsMixin,ModelForm):
     class Meta:
         model = models.MaintenanceEvent
         fields = ['element', 'scheduled_date', 'is_done', 'comment', 'assignee']
-
+        widgets = {
+            "assignee": UserWidget
+        }
 class IncidentEventForm(DisableFieldsMixin, ModelForm):
     """ Form for incident event (Machine only) """
     element = forms.ModelChoiceField(queryset=models.Machine.objects.all())
@@ -91,11 +119,13 @@ class ConsumeEventForm(DisableFieldsMixin, ModelForm):
     location_source = forms.ModelChoiceField(
         queryset=models.Location.objects.none())
     quantity = forms.IntegerField(min_value=1)
-    project = forms.ModelChoiceField(queryset=models.Project.objects.all(),required=True)
+    #project = forms.ModelChoiceField(queryset=models.Project.objects.all(),required=True)
     class Meta:
         model = models.ConsumeEvent
         fields = ['comment', 'element', 'quantity', 'location_source','project']
-
+        widgets = {
+            "project" : ProjectWidget
+        }
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -163,14 +193,19 @@ class UnUseEventForm(DisableFieldsMixin,ModelForm):
         queryset=models.Location.objects.all())
     element = forms.ModelChoiceField(queryset=models.Element.objects.all())
     quantity = forms.IntegerField(min_value=1)
-    location_destination = forms.ModelChoiceField(
-        queryset=models.Location.objects.all())
-    project = forms.ModelChoiceField(
-        queryset=models.Project.objects.all(),required=False)
+    #location_destination = forms.ModelChoiceField(
+    #    queryset=models.Location.objects.all())
+    #project = forms.ModelChoiceField(
+    #    queryset=models.Project.objects.all(),required=False)
     class Meta:
         model = models.UnUseEvent
         fields = ['comment', 'element', 'quantity','project',
                   'location_source', 'location_destination']
+        widgets = {
+            "location_destination": LocationWidget,
+            "project" : ProjectWidget
+        }
+
 
 class MoveEventForm(DisableFieldsMixin,ModelForm):
     """ Form for MoveEvent """
@@ -178,15 +213,18 @@ class MoveEventForm(DisableFieldsMixin,ModelForm):
         queryset=models.Location.objects.all())
     element = forms.ModelChoiceField(queryset=models.Element.objects.all())
     quantity = forms.IntegerField(min_value=1)
-    location_destination = forms.ModelChoiceField(
-        queryset=models.Location.objects.all())
-    project = forms.ModelChoiceField(
-        queryset=models.Project.objects.all(),required=False)
+    #location_destination = forms.ModelChoiceField(
+    #    queryset=models.Location.objects.all())
+    #project = forms.ModelChoiceField(
+    #    queryset=models.Project.objects.all(),required=False)
     class Meta:
         model = models.MoveEvent
         fields = ['comment', 'element', 'quantity','project', 'status',
                   'location_source', 'location_destination']
-
+        widgets = {
+            "location_destination": LocationWidget,
+            "project" : ProjectWidget
+        }
 
 
 class UseEventForm(DisableFieldsMixin, PresetLocationSourceAndQuantityMixin, ModelForm):
@@ -196,16 +234,19 @@ class UseEventForm(DisableFieldsMixin, PresetLocationSourceAndQuantityMixin, Mod
     element = forms.ModelChoiceField(queryset=models.Element.objects.filter(
         stock_repartitions__in=models.StockRepartition.objects.filter(status="FREE")).distinct())
     quantity = forms.IntegerField(min_value=1)
-    location_destination = forms.ModelChoiceField(
-        queryset=models.Location.objects.all())
-    project = forms.ModelChoiceField(
-        queryset=models.Project.objects.all())
+    #location_destination = forms.ModelChoiceField(
+    #    queryset=models.Location.objects.all())
+    #project = forms.ModelChoiceField(
+    #    queryset=models.Project.objects.all())
 
     class Meta:
         model = models.UseEvent
         fields = ['comment', 'element', 'quantity','project',
                   'location_source', 'location_destination']
-
+        widgets = {
+            "location_destination": LocationWidget,
+            "project" : ProjectWidget
+        }
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.preset_location_quantity()
@@ -246,6 +287,10 @@ class BorrowEventForm(DisableFieldsMixin, PresetLocationSourceAndQuantityMixin, 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.preset_location_quantity()
+        # TODO : init max qty using initial value
+        # ex : like it’s done for other init functions, but this time for the new prefill form,
+        # and not the user filled form  for check purposes.
+        #print(self.initial,flush=True)
 
 
 class BorrowEventUpdateForm(ModelForm):
@@ -267,12 +312,15 @@ class BorrowEventUpdateForm(ModelForm):
 class ReturnEventForm(DisableFieldsMixin,ModelForm):
     borrow_associated = forms.ModelChoiceField(
         queryset=models.BorrowEvent.objects.all().filter(return_event__isnull=True))
-    location_destination = forms.ModelChoiceField(
-        queryset=models.Location.objects.all())
+    #location_destination = forms.ModelChoiceField(
+    #    queryset=models.Location.objects.all())
 
     class Meta:
         model = models.ReturnEvent
         fields = ['borrow_associated', 'comment', 'location_destination']
+        widgets = {
+            "location_destination": LocationWidget
+        }
 
 
 class AttributeForm(ModelForm):
@@ -288,30 +336,38 @@ class AttachmentForm(ModelForm):
         fields = ['name','file']
 
 class ElementForm(ModelForm):
-    category = forms.ModelChoiceField(queryset=models.Category.objects.all())
+    #category = forms.ModelChoiceField(queryset=models.Category.objects.all())
     image = forms.ImageField(required=False)
     fields = ['name', 'description',"comment", 'category',"image"]
+    widgets = {
+            "category": CategoryWidget
+    }
 
 class ComponentForm(ElementForm):
     datasheet = forms.FileField(required=False)
     class Meta:
         model = models.Component
         fields = ElementForm.fields + ['datasheet']
+        widgets = ElementForm.widgets
 
 class MachineForm(ElementForm):
     class Meta:
         model = models.Machine
         fields = ElementForm.fields
+        widgets = ElementForm.widgets
+
 
 class ToolForm(ElementForm):
     class Meta:
         model = models.Tool
         fields = ElementForm.fields
+        widgets = ElementForm.widgets
 
 class BookForm(ElementForm):
     class Meta:
         model = models.Book
         fields = ElementForm.fields
+        widgets = ElementForm.widgets
 
 class LocationForm(ModelForm):
 

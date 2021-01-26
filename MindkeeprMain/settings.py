@@ -44,7 +44,8 @@ INSTALLED_APPS = [
     'taggit',
     'crispy_forms',
     'Mindkeepr',
-    'django_cleanup'
+    'django_cleanup',
+    "django_select2"
 ]
 
 
@@ -160,6 +161,24 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
+
+"""
+TODO : add default and enable cache
+# Cache-cache
+CACHES = {
+
+    "select2": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": "redis://redis:6379/2",
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+        }
+    }
+}
+
+# Tell select2 which cache configuration to use:
+SELECT2_CACHE_BACKEND = "select2"
+"""
 
 # Internationalization
 # https://docs.djangoproject.com/en/2.1/topics/i18n/
