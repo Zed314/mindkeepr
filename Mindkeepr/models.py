@@ -28,6 +28,7 @@ class Location(models.Model):
     name = models.CharField("name", max_length=200, blank=False, null=False)
     description = models.CharField(
         "description", max_length=200, blank=True, null=False)
+    image = models.ImageField(upload_to='imageslocation', blank=True, null=True)
     parent = models.ForeignKey('self', on_delete=models.PROTECT, null=True, blank=True, related_name="children")
     tags = TaggableManager()
     @property
@@ -212,7 +213,6 @@ class Consumable():
     """ An element that is meant to be consumed by a machine/eaten or permenantly used in a project """
     # TODO make component inherit from Consumable
     def is_consummable(self):
-        print("IS CONSUMMABLE")
         return True
 
 class Attachment(models.Model):
@@ -419,7 +419,7 @@ class MoveEvent(Event):
         return self.element.is_move_element_possible(self.quantity, self.status, self.status, self.location_source, self.location_destination, self.project, self.project)
 
     def _add_to_element(self):
-        print(self.location_destination,flush=True)
+        #print(self.location_destination,flush=True)
         return self.element.move_element(self.quantity, self.status, self.status, self.location_source, self.location_destination, self.project, self.project)
 
 
@@ -610,14 +610,14 @@ class PrintList(models.Model):
             preexisting_print = PrintElement.objects.get(element=element, print_list=self)
             preexisting_print.quantity += qty
             preexisting_print.save()
-            print(preexisting_print)
+            #print(preexisting_print)
         except PrintElement.DoesNotExist:
             new_print = PrintElement.objects.create(
                 element=element,
                 print_list=self,
                 quantity=qty
                 )
-            print(new_print)
+            #print(new_print)
             new_print.save()
 
     def remove_from_list(self, element, qty):

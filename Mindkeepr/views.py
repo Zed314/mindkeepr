@@ -21,7 +21,7 @@ from Mindkeepr.models import (BorrowEvent, UserProfile, ReturnEvent, UseEvent, B
 from Mindkeepr.Serializers import (CategorySerializer, ComponentSerializer,
                                     ElementSerializer, LocationSerializer,
                                     MachineSerializer, ToolSerializer, ProjectSerializer, BookSerializer,
-                                    BorrowEventSerializer, MaintenanceEventSerializer,  # BorrowingSerializer,
+                                    BorrowEventSerializer, MaintenanceEventSerializer,
                                     StockRepartitionSerializer, UserDetailedSerializer)
 from rest_framework import  viewsets
 from django.utils.decorators import method_decorator
@@ -220,8 +220,8 @@ def borrowings(request):
     return render(request, "borrowings.html")
 
 def is_bureau(user):
-    print(user.groups)
-    print(user.groups.filter(name='bureau').count())
+    #print(user.groups)
+    #print(user.groups.filter(name='bureau').count())
     return user.groups.filter(name='bureau').exists()
 
 @user_passes_test(is_bureau)
@@ -264,9 +264,9 @@ def add_to_print_list(request,pk,qty):
     print_list,created = PrintList.objects.get_or_create(user=request.user)
     print_list.add_to_list(elt,max(0,min(qty,100)))
     print_list.save()
-    print(str(qty))
-    print(elt)
-    print(print_list.printelements.all())
+    #print(str(qty))
+    #print(elt)
+    #print(print_list.printelements.all())
     #todo
     return render(request,  "printlist.html", {"print_list": print_list.printelements.all()})
 
@@ -324,7 +324,7 @@ class ElementCreate(LoginRequiredMixin,PermissionRequiredMixin,CreateView):
         attachments = context["attachments"]
         with transaction.atomic():
             form.instance.creator = self.request.user
-            print(form.instance.__class__,flush="True")
+            #print(form.instance.__class__,flush="True")
             self.object = form.save()
             if attributes.is_valid():
                 attributes.instance = self.object

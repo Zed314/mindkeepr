@@ -373,7 +373,7 @@ class LocationForm(ModelForm):
 
     class Meta:
         model = models.Location
-        fields = ('name','description','parent')
+        fields = ('name','description',"image",'parent')
 
 
 class ProjectForm(ModelForm):
