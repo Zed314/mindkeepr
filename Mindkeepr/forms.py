@@ -2,7 +2,7 @@
 Forms used by Django
 """
 
-from django.forms import ModelForm
+from django.forms import ModelForm, DateInput
 from django import forms
 from . import models
 
@@ -98,7 +98,10 @@ class BuyEventForm(DisableFieldsMixin, ModelForm):
 class MaintenanceEventForm(DisableFieldsMixin,ModelForm):
     """ Form that handles creation of consume events """
     element = forms.ModelChoiceField(queryset=models.Machine.objects.all())
-
+    scheduled_date = forms.DateField(widget=forms.DateInput(attrs=
+                                {
+                                    'class':'datepicker'
+                                }))
     class Meta:
         model = models.MaintenanceEvent
         fields = ['element', 'scheduled_date', 'is_done', 'comment', 'assignee']
@@ -215,8 +218,8 @@ class MoveEventForm(DisableFieldsMixin,ModelForm):
     quantity = forms.IntegerField(min_value=1)
     #location_destination = forms.ModelChoiceField(
     #    queryset=models.Location.objects.all())
-    #project = forms.ModelChoiceField(
-    #    queryset=models.Project.objects.all(),required=False)
+    project = forms.ModelChoiceField(
+        queryset=models.Project.objects.all(),required=False)
     class Meta:
         model = models.MoveEvent
         fields = ['comment', 'element', 'quantity','project', 'status',
@@ -277,7 +280,10 @@ class BorrowEventForm(DisableFieldsMixin, PresetLocationSourceAndQuantityMixin, 
     element = forms.ModelChoiceField(queryset=models.Element.objects.filter(
         stock_repartitions__in=models.StockRepartition.objects.filter(status="FREE")).distinct())
     quantity = forms.IntegerField(min_value=1)
-
+    scheduled_return_date = forms.DateField(widget=forms.DateInput(attrs=
+                                {
+                                    'class':'datepicker'
+                                }))
     class Meta:
         model = models.BorrowEvent
         fields = ['element', 'location_source',
