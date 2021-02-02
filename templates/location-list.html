@@ -44,8 +44,23 @@
                     { data: 'id', title: "ID" },
                     { data: 'name', title: "Name" },
                     { data: 'description', title: "Description" },
-                    { data: 'parent.id', title: "Parent ID", bSearchable:true },
-                    { data: 'parent.name', title: "Parent", bSearchable:false},
+                    { data: 'parent.id', title: "Parent ID", bSearchable:true ,
+                    render: function(data, type, row, meta){
+                              if(data == null){
+                                  return ""
+                              }
+
+                              return data;
+                            }},
+                    { data: 'parent.name', title: "Parent", bSearchable:false,
+                      render: function(data, type, row, meta){
+                              if(data == null){
+                                  return ""
+                              }
+
+                              return data;
+                          }
+                    },
                     {
                               data: 'id',
                               title: 'View',
