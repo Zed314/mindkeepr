@@ -18,8 +18,8 @@ from Mindkeepr.forms import (AttributeFormSet, AttachmentFormSet, BorrowEventFor
                               SellEventForm, UseEventForm, LocationForm, UnUseEventForm, MoveEventForm, ProjectForm, ToolForm, BookForm)
 from Mindkeepr.models import (BorrowEvent, UserProfile, ReturnEvent, UseEvent, BuyEvent, MoveEvent, MaintenanceEvent, IncidentEvent, UnUseEvent, Category, Component, Element,Tool, Book,
                                Event, Location, Machine, SellEvent, Project, Attachment, PrintList)
-from Mindkeepr.Serializers import (CategorySerializer, ComponentSerializer,
-                                    ElementSerializer, LocationSerializer,
+from Mindkeepr.Serializers import (CategorySerializer, CategorySerializerFull, CategorySerializerShort, ComponentSerializer,
+                                    ElementSerializer, LocationSerializer, LocationFullSerializer,
                                     MachineSerializer, ToolSerializer, ProjectSerializer, BookSerializer,
                                     BorrowEventSerializer, MaintenanceEventSerializer,
                                     StockRepartitionSerializer, UserDetailedSerializer)
@@ -68,12 +68,26 @@ class CategoryView(LoginRequiredMixin,viewsets.ModelViewSet):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
 
+class CategoryViewShort(LoginRequiredMixin,viewsets.ModelViewSet):
+#    datatables_additional_order_by = 'parent'
+    queryset = Category.objects.all()
+    serializer_class = CategorySerializerShort
+
+class CategoryViewFull(LoginRequiredMixin,viewsets.ModelViewSet):
+#    datatables_additional_order_by = 'parent'
+    queryset = Category.objects.all()
+    serializer_class = CategorySerializerFull
 
 
 class LocationView(LoginRequiredMixin,viewsets.ModelViewSet):
 
     queryset = Location.objects.all()
     serializer_class = LocationSerializer
+
+class LocationViewFull(LoginRequiredMixin,viewsets.ModelViewSet):
+
+    queryset = Location.objects.all()
+    serializer_class = LocationFullSerializer
 
 def searchFilter(queryset, request):
     searchSrc = request.query_params.get('search', None)

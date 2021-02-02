@@ -12,6 +12,10 @@ from Mindkeepr.models import (Attribute, Category, Component, Element,
                                BorrowEvent, Event,Project)
 from rest_framework import serializers
 
+class RecursiveField(serializers.Serializer):
+    def to_representation(self, value):
+        serializer = self.parent.parent.__class__(value, context=self.context)
+        return serializer.data
 
 class UserDetailedSerializer(serializers.ModelSerializer):
     class Meta:
@@ -37,6 +41,13 @@ class ProjectSerializer(serializers.HyperlinkedModelSerializer):
         fields = ("id", "name","description","manager")
         depth = 2
 
+class LocationFullSerializer(serializers.HyperlinkedModelSerializer):
+    id = serializers.IntegerField(required=False)
+
+    children = RecursiveField(many=True,required=False)
+    class Meta:
+        model = Location
+        fields = ("id", "name","children")
 
 class LocationSerializer(serializers.HyperlinkedModelSerializer):
 
@@ -83,13 +94,27 @@ class CategorySerializer(serializers.HyperlinkedModelSerializer):
         model = Category
         fields = ("id", "name","parent","children")
 
+
+class CategorySerializerFull(serializers.HyperlinkedModelSerializer):
+    id = serializers.IntegerField()
+    name = serializers.CharField(required=False)
+    children = RecursiveField(many=True,required=False)
+    class Meta:
+        model = Category
+        fields = ("id", "name","parent","children")
+
+class CategoryIdSerializerFull(serializers.ModelSerializer):
+    class Meta:
+        model = Category
+        fields = ['id']
+
 class CategorySerializerShort(serializers.HyperlinkedModelSerializer):
     id = serializers.IntegerField()
     name = serializers.CharField(required=False)
-
+    parent = CategoryIdSerializerFull(required=True)
     class Meta:
         model = Category
-        fields = ("id", "name")
+        fields = ("id", "name","parent")
 
 class ElementMinSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
@@ -171,8 +196,6 @@ class ElementSerializer(serializers.HyperlinkedModelSerializer):
 #                  "location_source",
 #                  "element",
 #                  "comment")
-
-
 
 class ElementFieldMixin(serializers.Serializer):
     category = CategorySerializer()
