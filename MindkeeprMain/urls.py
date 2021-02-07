@@ -19,7 +19,7 @@ from django.urls import path, include
 from rest_framework import routers
 from Mindkeepr import views
 from Mindkeepr.views import BorrowingsView, ComponentsView, ElementsView, EventsView, LocationView, LocationViewFull, MachinesView, \
-    ToolsView, BooksView, CategoryView,CategoryViewFull,CategoryViewShort, MaintenancesView, BorrowingsView, ProjectsView, UserView
+    ToolsView, BooksView, CategoryView,CategoryViewFull,CategoryViewShort, MaintenancesView, BorrowingsView, ProjectsView, UserView, EventsViewByCreator
 
 # for static files in dev only…
 from django.conf import settings
@@ -88,8 +88,8 @@ urlpatterns = [
     path("books",views.books,name="books-list"),
     path("tools",views.tools,name="tools-list"),
     path('', views.index),
-    path('borrowings', views.borrowings),
     path('api/v1/', include(router.urls)),
     path('oidc/', include('mozilla_django_oidc.urls')),
-    path("select2/", include("django_select2.urls")),
+    path("select2/", include("django_select2.urls"))
+
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

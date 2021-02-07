@@ -20,7 +20,7 @@
 
     $('#assignments-table').DataTable({
         'serverSide': true,
-        'ajax': '/api/v1/maintenances/by_assignee/{{ object.id }}?format=datatables',
+        'ajax': '/api/v1/maintenances?user={{ object.id }}&format=datatables',
         'columns': [
             {
                 data: 'element',
@@ -90,6 +90,7 @@
             },
 
         ],
+        "order": [[ 1, "desc" ]],
         "drawCallback": function(settings, json) {
                 $(".showevent").click(function(ev) { // for each edit contact url
                   ev.preventDefault(); // prevent navigation

@@ -264,9 +264,10 @@ class ReturnEventSerializer(EventFieldMixin, serializers.HyperlinkedModelSeriali
 
     borrow_associated = BorrowEventShortSerializer()
     is_date_overdue = serializers.BooleanField(read_only=True)
+    element = ElementShortSerializer(read_only=True)
     class Meta:
         model = ReturnEvent
-        fields = EventSerializer.Meta.fields + ("is_date_overdue",
+        fields = EventSerializer.Meta.fields + ("element","is_date_overdue",
                    "location_destination","borrow_associated")
         depth = 2
         ordering = EventSerializer.Meta.ordering

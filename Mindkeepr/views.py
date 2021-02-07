@@ -33,7 +33,6 @@ import json
 from django.http import JsonResponse
 from django.http import HttpResponse
 
-#TODO : in profile, search/ordering/etc does not work
 
 class LoginRequiredMixin():
     @method_decorator(login_required)
@@ -42,23 +41,29 @@ class LoginRequiredMixin():
         return super().dispatch(*args, **kwargs)
 
 class EventsView(LoginRequiredMixin,viewsets.ModelViewSet):
-    queryset = Event.objects.all()
+
     serializer_class = EventSerializer
     def perform_create(self, serializer):
         serializer.save(creator=self.request.user)
 
-    @action(detail=False, methods=['get'], url_path='by_creator/(?P<creator_pk>[^/.]+)')
-    def by_creator(self, request, creator_pk, pk=None):
-        events = Event.objects.filter(creator_id=creator_pk).order_by('-recording_date')
+    def get_queryset(self):
+        queryset = Event.objects.all()
+        user = self.request.query_params.get('user', None)
+        if user is not None:
+            queryset = queryset.filter(creator_id=user)
+        return queryset
 
-        page = self.paginate_queryset(events)
-        if page is not None:
-            serializer = self.get_serializer(page, many=True)
-            return self.get_paginated_response(serializer.data)
 
-        serializer = self.get_serializer(events, many=True)
-
-        return Response(serializer.data)
+class EventsViewByCreator(LoginRequiredMixin, viewsets.ModelViewSet):
+    serializer_class = EventSerializer
+    def get_queryset(self):
+        #user = self.kwargs['user']
+        #return Event.objects.filter(creator_id=user)
+        queryset = Event.objects.all()
+        user = self.request.query_params.get('user', None)
+        if user is not None:
+            queryset = queryset.filter(creator_id=user)
+        return queryset# = searchFilter(queryset, self.request).order_by('-id')
 
 
 class UserView(LoginRequiredMixin, viewsets.ModelViewSet):
@@ -105,39 +110,20 @@ class BorrowingsView(LoginRequiredMixin,viewsets.ModelViewSet):
 
     def get_queryset(self):
         queryset = BorrowEvent.objects.all()
+        user = self.request.query_params.get('user', None)
+        if user is not None:
+            queryset = queryset.filter(creator_id=user)
         return queryset
-
-    @action(detail=False, methods=['get'], url_path='by_creator/(?P<creator_pk>[^/.]+)')
-    def by_creator(self, request, creator_pk, pk=None):
-        events = BorrowEvent.objects.filter(creator_id=creator_pk).order_by("-recording_date")
-
-        page = self.paginate_queryset(events)
-        if page is not None:
-            serializer = self.get_serializer(page, many=True)
-            return self.get_paginated_response(serializer.data)
-
-        serializer = self.get_serializer(events, many=True)
-
-        return Response(serializer.data)
 
 class MaintenancesView(LoginRequiredMixin,viewsets.ModelViewSet):
     serializer_class = MaintenanceEventSerializer
 
     def get_queryset(self):
         queryset = MaintenanceEvent.objects.all()
+        user = self.request.query_params.get('user', None)
+        if user is not None:
+            queryset = queryset.filter(assignee_id=user).filter(is_done=False)
         return queryset
-    @action(detail=False, methods=['get'], url_path='by_assignee/(?P<assignee_pk>[^/.]+)')
-    def by_assignee(self, request, assignee_pk, pk=None):
-        events = MaintenanceEvent.objects.filter(assignee_id=assignee_pk).filter(is_done=False).order_by("-recording_date")
-
-        page = self.paginate_queryset(events)
-        if page is not None:
-            serializer = self.get_serializer(page, many=True)
-            return self.get_paginated_response(serializer.data)
-
-        serializer = self.get_serializer(events, many=True)
-
-        return Response(serializer.data)
 
 class ProjectsView(LoginRequiredMixin,viewsets.ModelViewSet):
     serializer_class = ProjectSerializer

@@ -16,20 +16,19 @@
 
     $('#event-table').DataTable({
         'serverSide': true,
-        'ajax': '/api/v1/{% block typeapi %}events{% endblock %}/by_creator/{{ object.id }}?format=datatables',
+        'ajax': '/api/v1/events?user={{object.id}}&format=datatables',
         'columns': [
              {
                 data: 'type',
+                orderable: false,// otherwise, do not work
                 title: 'Action',
-                render: function (data, type, row, meta) {
-                    EventInFrench = {}
-                    return data;
-                }
-
+                bSearchable:false
             },
             {
                 data: 'element',
                 title: 'Element',
+                bSearchable:false, // otherwise do not work
+                orderable: false,//  do not work
                 render: function (data, type, row, meta) {
                     if(data)
                     {
@@ -68,7 +67,8 @@
             {data: 'comment', title: "Comment"},
 
 
-        ]
+        ],
+        "order": [[ 2, "desc" ]]
 
     });
 

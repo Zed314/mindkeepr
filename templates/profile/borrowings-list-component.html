@@ -16,7 +16,7 @@
 
     $('#borrowing-table').DataTable({
         'serverSide': true,
-        'ajax': '/api/v1/{% block typeapi %}borrowings{% endblock %}/by_creator/{{ object.id }}?format=datatables',
+        'ajax': '/api/v1/borrowings?user={{ object.id }}&format=datatables',
         'columns': [
             {
                 data: 'element',
@@ -65,7 +65,8 @@
             {data: 'comment', title: "Comment"},
 
 
-        ]
+        ],
+        "order": [[ 2, "desc" ]]
 
     });
 </script>

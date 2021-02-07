@@ -518,6 +518,10 @@ class ReturnEvent(Event):
         'BorrowEvent', on_delete=models.CASCADE, null=False, related_name='return_event')
 
     @property
+    def element(self):
+        return self.borrow_associated.element
+
+    @property
     def is_date_overdue(self):
         return self.recording_date.date() > self.borrow_associated.scheduled_return_date
 
