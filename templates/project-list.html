@@ -1,10 +1,8 @@
 {% extends 'base.html' %}
 {% load static %}
 {% block extra_headers %}
-<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.21/css/jquery.dataTables.css">
-<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.21/js/jquery.dataTables.min.js"></script>
-<script src="//cdn.datatables.net/1.10.21/js/dataTables.bootstrap4.min.js"></script>
 {% endblock %}
+{% block searchtarget %}projects{% endblock %}
 {% block body_content %}
 
 
@@ -13,14 +11,13 @@
 
 
 
-<div class="container">
+<div class="container-fluid">
   <div class="row">
-    <div class="col-md-12">
-      <table id="project-table" class="table table-striped table-bordered" style="width:100%">
-        <thead>
-          <a class=" btn btn-primary event {% if not perms.Mindkeepr.add_project %} disabled {%endif%}" href="/project" title="Add project">Add project</a>
-          <div id="jstree_locations"></div>
-        </thead>
+    <div class="col-md-2">
+      <a class=" btn btn-primary event {% if not perms.Mindkeepr.add_project %} disabled {%endif%}" href="/project" title="Add project">Add project</a>
+    </div>
+    <div class="col-md-10">
+      <table id="project-table" class="table compact table-striped table-bordered" style="width:100%">
       </table>
     </div>
   </div>
@@ -29,16 +26,26 @@
 
 
 <script type="text/javascript">
-
-  $('#project-table').DataTable({
-                'serverSide': true,
+  var searchString = findGetParameter("search");
+  $('#searchinput').val(searchString);
+  var project_table = $('#project-table').DataTable({
+              //"dom": '<"top">rt<"bottom"lip><"clear">',
+              'serverSide': true,
+              "responsive": true,
                 'ajax': '/api/v1/projects/?format=datatables',
+                "oSearch": {"sSearch": searchString},
+                "columnDefs": [
+                {
+                    "targets": '_all',
+                    "defaultContent": ""
+                }
+              ],
                 'columns': [
                     { data: 'id', title: "ID" },
                     { data: 'name', title: "Name" },
                    // { data: 'description', title: "Description" },
                    { data: 'description', title: "Description" },
-                   { data: 'manager', title: "Manager",
+                   { data: 'manager', title: "Manager", bSearchable:false,
                           render: function(data, type, row, meta){
                               data = data.get_full_name
                               return data;
@@ -108,7 +115,10 @@
               {% endif %}
 
             });
-
+            $( "#formsearch" ).submit(function( event ) {
+            project_table.search($('#searchinput').val()).draw();
+            event.preventDefault();
+          });
 
   </script>
 

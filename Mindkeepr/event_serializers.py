@@ -1,4 +1,4 @@
-from Mindkeepr.models import Event, BuyEvent, UseEvent, SellEvent, ConsumeEvent, ReturnEvent, BorrowEvent, MaintenanceEvent, IncidentEvent, MoveEvent
+from Mindkeepr.models import Event, BuyEvent, UseEvent, SellEvent, ConsumeEvent, ReturnEvent, BorrowEvent, MaintenanceEvent, IncidentEvent, MoveEvent, UnUseEvent
 from Mindkeepr.models import Component, Location, StockRepartition, Element, Machine
 from django.contrib.auth.models import User
 from rest_framework import serializers
@@ -64,6 +64,7 @@ class EventSerializer(serializers.HyperlinkedModelSerializer):
                 "read_only": False,
             }
         }
+        ordering=["-recording_date"]
 
     def to_representation(self, obj):
         """
@@ -73,6 +74,7 @@ class EventSerializer(serializers.HyperlinkedModelSerializer):
         serializer = SerializerFactory.create_serializer(type, context=self.context)
         if(serializer):
             return serializer.to_representation(obj)
+        # Should not occur
         return super(EventSerializer, self).to_representation(obj)
 
     def to_internal_value(self, data):
@@ -121,6 +123,7 @@ class SellEventSerializer(EventFieldMixin, serializers.HyperlinkedModelSerialize
         fields = EventSerializer.Meta.fields + ("element",
                   "quantity", "price", "location_source")
         depth = 1
+        ordering = EventSerializer.Meta.ordering
 
     def create(self, validated_data):
         location = Location.objects.get(
@@ -146,6 +149,7 @@ class BuyEventSerializer(EventFieldMixin, serializers.HyperlinkedModelSerializer
         fields = EventSerializer.Meta.fields + ("element",
                   "price", "supplier", "quantity", "location_destination")
         depth = 1
+        ordering = EventSerializer.Meta.ordering
 
     def create(self, validated_data):
         location = Location.objects.get(
@@ -172,6 +176,7 @@ class UseEventSerializer(EventFieldMixin, serializers.HyperlinkedModelSerializer
         fields = EventSerializer.Meta.fields + ("element", "quantity",
                   "location_destination", "location_source")
         depth = 2
+        ordering = EventSerializer.Meta.ordering
 
     def create(self, validated_data):
         location_source = Location.objects.get(
@@ -188,6 +193,37 @@ class UseEventSerializer(EventFieldMixin, serializers.HyperlinkedModelSerializer
             raise serializers.ValidationError(
                 'Event can not be added to element.')
 
+
+@SerializerFactory.register('UnUseEvent')
+class UnUseEventSerializer(EventFieldMixin, serializers.HyperlinkedModelSerializer):
+
+    location_destination = LocationShortSerializer()
+    location_source = LocationShortSerializer()
+    element = ElementShortSerializer()
+
+    class Meta:
+        model = UnUseEvent
+        fields = EventSerializer.Meta.fields + ("element", "quantity",
+                  "location_destination", "location_source")
+        depth = 2
+        ordering = EventSerializer.Meta.ordering
+
+    def create(self, validated_data):
+        location_source = Location.objects.get(
+            id=validated_data.pop('location_source')["id"])
+        location_destination = Location.objects.get(
+            id=validated_data.pop('location_destination')["id"])
+        element = Element.objects.get(id=validated_data.pop('element')["id"])
+        unuse_event = UnUseEvent(**validated_data, element=element,
+                                  location_source=location_source, location_destination=location_destination)
+        if unuse_event.is_add_to_element_possible():
+            unuse_event.save()
+            return unuse_event
+        else:
+            raise serializers.ValidationError(
+                'Event can not be added to element.')
+
+
 @SerializerFactory.register('BorrowEvent')
 class BorrowEventSerializer(EventFieldMixin, serializers.HyperlinkedModelSerializer):
 
@@ -199,6 +235,7 @@ class BorrowEventSerializer(EventFieldMixin, serializers.HyperlinkedModelSeriali
         fields = EventSerializer.Meta.fields + ("element", "quantity", "is_returned",
                   "scheduled_return_date", "location_source")
         depth = 2
+        ordering = EventSerializer.Meta.ordering
 
     def create(self, validated_data):
         location_source = Location.objects.get(
@@ -232,6 +269,8 @@ class ReturnEventSerializer(EventFieldMixin, serializers.HyperlinkedModelSeriali
         fields = EventSerializer.Meta.fields + ("is_date_overdue",
                    "location_destination","borrow_associated")
         depth = 2
+        ordering = EventSerializer.Meta.ordering
+
     def create(self, validated_data):
         location_destination= Location.objects.get(
             id=validated_data.pop('location_destination')["id"])
@@ -254,6 +293,8 @@ class MaintenanceEventSerializer(EventFieldMixin, serializers.HyperlinkedModelSe
         model = MaintenanceEvent
         fields = EventSerializer.Meta.fields + ("is_done","scheduled_date","element")
         depth = 2
+        ordering = EventSerializer.Meta.ordering
+
     def create(self, validated_data):
         machine = Machine.objects.get(id=validated_data.pop('element')["id"])
         maintenance_event = MaintenanceEvent(**validated_data, element=machine)
@@ -281,6 +322,8 @@ class ConsumeEventSerializer(EventFieldMixin, serializers.HyperlinkedModelSerial
         fields = EventSerializer.Meta.fields + (
                   "quantity", "element", "location_source")
         depth = 2
+        ordering = EventSerializer.Meta.ordering
+
     def create(self, validated_data):
         location_source = Location.objects.get(
             id=validated_data.pop('location_source')["id"])
@@ -300,6 +343,8 @@ class IncidentEventSerializer(EventFieldMixin, serializers.HyperlinkedModelSeria
         model = IncidentEvent
         fields = EventSerializer.Meta.fields + ("element","new_status")
         depth = 2
+        ordering = EventSerializer.Meta.ordering
+
     def create(self, validated_data):
         element = Machine.objects.get(id=validated_data.pop('element')["id"])
         incident_event = IncidentEvent(**validated_data, element=element)
@@ -319,6 +364,8 @@ class MoveEventSerializer(EventFieldMixin, serializers.HyperlinkedModelSerialize
         fields = EventSerializer.Meta.fields + ("element", "quantity",
                   "location_destination", "location_source")
         depth = 2
+        ordering = EventSerializer.Meta.ordering
+
     def create(self, validated_data):
         location_source = Location.objects.get(
             id=validated_data.pop('location_source')["id"])

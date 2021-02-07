@@ -33,6 +33,8 @@ import json
 from django.http import JsonResponse
 from django.http import HttpResponse
 
+#TODO : in profile, search/ordering/etc does not work
+
 class LoginRequiredMixin():
     @method_decorator(login_required)
     @csrf_exempt
@@ -47,7 +49,7 @@ class EventsView(LoginRequiredMixin,viewsets.ModelViewSet):
 
     @action(detail=False, methods=['get'], url_path='by_creator/(?P<creator_pk>[^/.]+)')
     def by_creator(self, request, creator_pk, pk=None):
-        events = Event.objects.filter(creator_id=creator_pk)
+        events = Event.objects.filter(creator_id=creator_pk).order_by('-recording_date')
 
         page = self.paginate_queryset(events)
         if page is not None:
@@ -107,7 +109,7 @@ class BorrowingsView(LoginRequiredMixin,viewsets.ModelViewSet):
 
     @action(detail=False, methods=['get'], url_path='by_creator/(?P<creator_pk>[^/.]+)')
     def by_creator(self, request, creator_pk, pk=None):
-        events = BorrowEvent.objects.filter(creator_id=creator_pk)
+        events = BorrowEvent.objects.filter(creator_id=creator_pk).order_by("-recording_date")
 
         page = self.paginate_queryset(events)
         if page is not None:
@@ -126,7 +128,7 @@ class MaintenancesView(LoginRequiredMixin,viewsets.ModelViewSet):
         return queryset
     @action(detail=False, methods=['get'], url_path='by_assignee/(?P<assignee_pk>[^/.]+)')
     def by_assignee(self, request, assignee_pk, pk=None):
-        events = MaintenanceEvent.objects.filter(assignee_id=assignee_pk).filter(is_done=False)
+        events = MaintenanceEvent.objects.filter(assignee_id=assignee_pk).filter(is_done=False).order_by("-recording_date")
 
         page = self.paginate_queryset(events)
         if page is not None:
@@ -142,8 +144,8 @@ class ProjectsView(LoginRequiredMixin,viewsets.ModelViewSet):
 
     def get_queryset(self):
         queryset = Project.objects.all()
+        queryset = searchFilter(queryset, self.request)
         return queryset
-
 
 class ElementsView(LoginRequiredMixin,viewsets.ModelViewSet):
 
@@ -153,7 +155,7 @@ class ElementsView(LoginRequiredMixin,viewsets.ModelViewSet):
         category = self.request.query_params.get('category', None)
         if category is not None:
             queryset = queryset.filter(category=category)
-        queryset = searchFilter(queryset, self.request)
+        queryset = searchFilter(queryset, self.request).order_by('-id')
         return queryset
 
 class ComponentsView(LoginRequiredMixin,viewsets.ModelViewSet):

@@ -2,26 +2,30 @@
 {% load static %}
 {% block extra_headers %}
 <script src="{% static "scripts/tree.js" %}"></script>
-<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.21/css/jquery.dataTables.css">
-<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.21/js/jquery.dataTables.min.js"></script>
-<script src="//cdn.datatables.net/1.10.21/js/dataTables.bootstrap4.min.js"></script>
 {% endblock %}
+{% block searchtarget %}locations{% endblock %}
 {% block body_content %}
 
 <div class="modal hide" id="deleteModal">
 </div>
 
-
-<div class="container">
+<div class="container-fluid">
+  <a class=" btn btn-primary {% if not perms.Mindkeepr.add_location %} disabled {%endif%}" href="/location"
+    title="Add location">Add location</a>
   <div class="row">
-    <div class="col-md-12">
-      <table id="location-table" class="table table-striped table-bordered" style="width:100%">
-        <thead>
-          <a class=" btn btn-primary {% if not perms.Mindkeepr.add_location %} disabled {%endif%}" href="/location" title="Add location" >Add location</a>
-          <div id="jstree_locations"></div>
-        </thead>
+    <div class="col-md-2">
+      <div class="card ">
+        <div class="card-header">
+          <h4 class="my-0 font-weight-normal">Locations</h4>
+        </div>
+        <div id="jstree_locations"></div>
+      </div>
+    </div>
+    <div class="col-md-10">
+      <table id="location-table" class="table compact table-striped table-bordered" style="width:100%">
       </table>
     </div>
+
   </div>
 </div>
 
@@ -30,37 +34,31 @@
 
 <script type="text/javascript">
 
-  $('#location-table').DataTable({
+var searchString = findGetParameter("search");
+$('#searchinput').val(searchString);
+location_table =  $('#location-table').DataTable({
+                "dom": '<"top">rt<"bottom"lip><"clear">',
                 'serverSide': true,
+                "responsive": true,
                 'ajax': '/api/v1/locations/?format=datatables',
+                "oSearch": {"sSearch": searchString},
                 "columnDefs": [
                 {
                     "targets": [ 3 ],
                     "visible": false,
                     "searchable": true
                 },
+                {
+                    "targets": '_all',
+                    "defaultContent": ""
+                }
               ],
                 'columns': [
                     { data: 'id', title: "ID" },
                     { data: 'name', title: "Name" },
                     { data: 'description', title: "Description" },
-                    { data: 'parent.id', title: "Parent ID", bSearchable:true ,
-                    render: function(data, type, row, meta){
-                              if(data == null){
-                                  return ""
-                              }
-
-                              return data;
-                            }},
-                    { data: 'parent.name', title: "Parent", bSearchable:false,
-                      render: function(data, type, row, meta){
-                              if(data == null){
-                                  return ""
-                              }
-
-                              return data;
-                          }
-                    },
+                    { data: "parent.id", title: "Parent ID", bSearchable:true},
+                    { data: "parent.name", title: "Parent", bSearchable:false},
                     {
                               data: 'id',
                               title: 'View',
@@ -124,6 +122,11 @@
               {% endif %}
 
             });
+            $( "#formsearch" ).submit(function( event ) {
+            location_table.search($('#searchinput').val()).draw();
+            event.preventDefault();
+          });
+
 
 
   </script>

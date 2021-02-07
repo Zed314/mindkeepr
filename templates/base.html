@@ -17,7 +17,12 @@
 
    <link rel="stylesheet" href="http://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css" />
    <link rel="shortcut icon" type="image/png" href="{% static '/icons/favicon.ico' %}"/>
+   <!-- Datable -->
+   <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/bs4/dt-1.10.23/r-2.2.7/datatables.min.css"/>
+   <script type="text/javascript" src="https://cdn.datatables.net/v/bs4/dt-1.10.23/r-2.2.7/datatables.min.js"></script>
+   <script src="https://cdn.datatables.net/1.10.23/js/dataTables.bootstrap4.min.js"></script>
    {{ form.media.css }}
+   <script src="{% static "scripts/common.js" %}"></script>
     {% block extra_headers %}
     {% endblock %}
 </head>
@@ -58,9 +63,10 @@
 
     </ul>
     <ul class="navbar-nav ml-auto">
-    <form class="form-inline my-2 my-lg-0" action='/elements?do=search'>
-      <input class="form-control mr-sm-2" name="search" type="search" placeholder="Search" aria-label="Search">
-      <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+    <form id="formsearch" class="form-inline my-2 my-lg-0" action='/{% block searchtarget %}elements{% endblock %}?do=search'>
+      <input id="searchinput" class="form-control mr-sm-2" name="search" type="search" placeholder="Search" aria-label="Search">
+
+      <!--<button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>-->
     </form>
     <div class="dropdown">
       {% if user.is_authenticated %}

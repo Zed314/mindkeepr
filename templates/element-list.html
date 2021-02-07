@@ -2,50 +2,47 @@
 {% load static %}
 {% block extra_headers %}
 <script src="{% static "scripts/tree.js" %}"></script>
-<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.21/css/jquery.dataTables.css">
-<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.21/js/jquery.dataTables.min.js"></script>
-<script src="//cdn.datatables.net/1.10.21/js/dataTables.bootstrap4.min.js"></script>
 {% endblock %}
 {% block body_content %}
 
 
 <div class="modal hide" id="deleteModal">
 </div>
+<div class="container-fluid">
 
-<a class=" btn btn-primary event {% if not perms.Mindkeepr.add_component %}disabled{% endif%}" href="/component" title="Add component">Add component</a>
-<a class=" btn btn-primary event  {% if not perms.Mindkeepr.add_machine %}disabled{% endif%}" href="/machine" title="Add machine" >Add machine</a>
-<a class=" btn btn-primary event {% if not perms.Mindkeepr.add_tool %}disabled{% endif%}" href="/tool" title="Add tool" >Add tool</a>
-<a class=" btn btn-primary event {% if not perms.Mindkeepr.add_book %}disabled{% endif%}" href="/book" title="Add book"  >Add book</a>
- <div class="container">
-    <div class="row">
-      <div class="col-md-12">
-        <table id="element-table" class="table table-striped table-bordered" style="width:100%">
-          <thead>
-            <tr>
-              <div id="jstree_category"></div>
-            </tr>
-          </thead>
-        </table>
+  <a class=" btn btn-primary event {% if not perms.Mindkeepr.add_component %}disabled{% endif%}" href="/component"
+    title="Add component">Add component</a>
+  <a class=" btn btn-primary event  {% if not perms.Mindkeepr.add_machine %}disabled{% endif%}" href="/machine"
+    title="Add machine">Add machine</a>
+  <a class=" btn btn-primary event {% if not perms.Mindkeepr.add_tool %}disabled{% endif%}" href="/tool"
+    title="Add tool">Add tool</a>
+  <a class=" btn btn-primary event {% if not perms.Mindkeepr.add_book %}disabled{% endif%}" href="/book"
+    title="Add book">Add book</a>
+  <div class="row">
+    <div class="col-md-2">
+      <div class="card ">
+        <div class="card-header">
+          <h4 class="my-0 font-weight-normal">Categories</h4>
+        </div>
+        <div id="jstree_category"></div>
       </div>
     </div>
+    <div class="col-md-10">
+      <table id="element-table" class="table compact table-striped table-bordered" style="width:100%">
+      </table>
+    </div>
   </div>
+</div>
 <script type="text/javascript">
-function findGetParameter(parameterName) {
-    var result = null,
-        tmp = [];
-    location.search
-        .substr(1)
-        .split("&")
-        .forEach(function (item) {
-          tmp = item.split("=");
-          if (tmp[0] === parameterName) result = decodeURIComponent(tmp[1]);
-        });
-    return result;
-}
 
-      var searchString = findGetParameter("search");
-$('#element-table').DataTable({
+
+  var searchString = findGetParameter("search");
+  $('#searchinput').val(searchString);
+
+  var elt_table = $('#element-table').DataTable({
+              "dom": '<"top">rt<"bottom"lip><"clear">',
               'serverSide': true,
+              "responsive": true,
               'ajax': '/api/v1/{% block typeapi %}elements{% endblock %}/?format=datatables',
               "oSearch": {"sSearch": searchString},
               "columnDefs": [
@@ -54,6 +51,10 @@ $('#element-table').DataTable({
                     "visible": false,
                     "searchable": true
                 },
+                {
+                    "targets": '_all',
+                    "defaultContent": ""
+                }
               ],
               'columns': [
                   { data: 'id', title: "ID" },
@@ -123,7 +124,7 @@ $('#element-table').DataTable({
                 {% if perms.Mindkeepr.delete_element %}
                 $(".delete").click(function(ev) { // for each edit contact url
                   ev.preventDefault(); // prevent navigation
-                  var url = $(this).data("form"); // get the contact form url
+                  var url = $(this).data("form"); // get the link form url
                   $("#deleteModal").load(url, function() { // load the url into the modal
                     $(this).modal('show'); // display the modal on url load
                   });
@@ -135,6 +136,10 @@ $('#element-table').DataTable({
 
           });
 
+          $( "#formsearch" ).submit(function( event ) {
+            elt_table.search($('#searchinput').val()).draw();
+            event.preventDefault();
+          });
 
 </script>
 
