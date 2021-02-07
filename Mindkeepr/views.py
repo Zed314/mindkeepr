@@ -54,18 +54,6 @@ class EventsView(LoginRequiredMixin,viewsets.ModelViewSet):
         return queryset
 
 
-class EventsViewByCreator(LoginRequiredMixin, viewsets.ModelViewSet):
-    serializer_class = EventSerializer
-    def get_queryset(self):
-        #user = self.kwargs['user']
-        #return Event.objects.filter(creator_id=user)
-        queryset = Event.objects.all()
-        user = self.request.query_params.get('user', None)
-        if user is not None:
-            queryset = queryset.filter(creator_id=user)
-        return queryset# = searchFilter(queryset, self.request).order_by('-id')
-
-
 class UserView(LoginRequiredMixin, viewsets.ModelViewSet):
     queryset = User.objects.get_queryset().order_by('id')
     serializer_class = UserDetailedSerializer

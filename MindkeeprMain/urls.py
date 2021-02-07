@@ -19,7 +19,7 @@ from django.urls import path, include
 from rest_framework import routers
 from Mindkeepr import views
 from Mindkeepr.views import BorrowingsView, ComponentsView, ElementsView, EventsView, LocationView, LocationViewFull, MachinesView, \
-    ToolsView, BooksView, CategoryView,CategoryViewFull,CategoryViewShort, MaintenancesView, BorrowingsView, ProjectsView, UserView, EventsViewByCreator
+    ToolsView, BooksView, CategoryView,CategoryViewFull,CategoryViewShort, MaintenancesView, BorrowingsView, ProjectsView, UserView
 
 # for static files in dev only…
 from django.conf import settings
