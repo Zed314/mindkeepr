@@ -29,7 +29,7 @@
   var searchString = findGetParameter("search");
   $('#searchinput').val(searchString);
   var project_table = $('#project-table').DataTable({
-              //"dom": '<"top">rt<"bottom"lip><"clear">',
+              "dom": '<"top">rt<"bottom"lip><"clear">',
               'serverSide': true,
               "responsive": true,
                 'ajax': '/api/v1/projects/?format=datatables',
@@ -43,7 +43,6 @@
                 'columns': [
                     { data: 'id', title: "ID" },
                     { data: 'name', title: "Name" },
-                   // { data: 'description', title: "Description" },
                    { data: 'description', title: "Description" },
                    { data: 'manager', title: "Manager", bSearchable:false,
                           render: function(data, type, row, meta){
