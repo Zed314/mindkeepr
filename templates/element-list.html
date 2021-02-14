@@ -51,7 +51,7 @@
               },
               "columnDefs": [
                 {
-                    "targets": [ 4 ],
+                    "targets": [ 3 ],
                     "visible": false,
                     "searchable": true
                 },
@@ -61,12 +61,6 @@
                 }
               ],
               'columns': [
-                  {
-                      "className":      'details-control',
-                      "orderable":      false,
-                      "data":           null,
-                      "defaultContent": ''
-                  },
                   { data: 'id', title: "ID" },
                   { data: 'name', title: "Name" },
                   { data: 'category.name', title: "Category"},
@@ -151,6 +145,16 @@
 
                     },
                     {% endif %}
+                    {
+                      "className":      'details-control',
+                      "title": "More",
+                      "orderable":      false,
+                      "data":           null,
+                      render: function(data,type,row,meta){
+                        return '<a href="#">Open</a>';
+                      },
+                      "defaultContent": ''
+                  },
 
               ],
               "drawCallback": function(settings, json) {
@@ -184,7 +188,7 @@
     });
 
     // Add event listener for opening and closing details
-    elt_table.on('click', 'td.details-control', function () {
+    elt_table.on('click', 'td.details-control a', function () {
         var tr = $(this).closest('tr');
         var row = elt_table.row( tr );
 
@@ -192,6 +196,7 @@
             // This row is already open - close it
             row.child.hide();
             tr.removeClass('shown');
+            $(this).html("Open");
         }
         else {
             // Open this row
@@ -203,6 +208,7 @@
             $.get("element/embedded/"+row.data().id, function( details ) {
               row.child(details).show();
             });
+            $(this).html("Close");
 
 
         }
