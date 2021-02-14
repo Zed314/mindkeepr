@@ -71,10 +71,10 @@ class AttributeSerializer(serializers.HyperlinkedModelSerializer):
 class StockRepartitionSerializer(serializers.HyperlinkedModelSerializer):
 
     location = LocationSerializer()
-
+    project = ProjectSerializer()
     class Meta:
         model = StockRepartition
-        fields = ("id", "quantity", "location", "status")
+        fields = ("id", "quantity", "location", "project", "status")
         depth = 2
 
 

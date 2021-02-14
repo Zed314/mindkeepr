@@ -3,12 +3,12 @@
 
 
 {% block extra_event_tabs %}
-<a class="nav-item nav-link" href="#maintenance" data-toggle="tab">Maintenance History</a>
-<a class="nav-item nav-link" href="#incident" data-toggle="tab">Incident History</a>
+<a class="nav-item nav-link" href="#elt-{{form.instance.id}}-maintenance" data-toggle="tab">Maintenance History</a>
+<a class="nav-item nav-link" href="#elt-{{form.instance.id}}-incident" data-toggle="tab">Incident History</a>
 {% endblock %}
 {% block extra_event_tabs_content%}
 
-  <div class="tab-pane" id="maintenance">
+  <div class="tab-pane" id="elt-{{form.instance.id}}-maintenance">
 
     <button class="btn btn-primary event" type="button" href="#" data-form="/formmaintenanceeventmodal?element={{form.instance.id}}" title="Maintenance"
     {% if not perms.Mindkeepr.add_maintenanceevent %}disabled{% endif %}>Add Maintenance</button>
@@ -30,7 +30,7 @@
     </table>
   </div>
 
-  <div class="tab-pane" id="incident">
+  <div class="tab-pane" id="elt-{{form.instance.id}}-incident">
     <button class="btn btn-primary event" type="button" href="#" data-form="/formincidenteventmodal?element={{form.instance.id}}" title="Incident"
     {% if not perms.Mindkeepr.add_incidentevent %}disabled{% endif %}>Declare new Incident</button>
 

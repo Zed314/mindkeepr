@@ -45,9 +45,13 @@
               "responsive": true,
               'ajax': '/api/v1/{% block typeapi %}elements{% endblock %}/?format=datatables',
               "oSearch": {"sSearch": searchString},
+              "fnCreatedRow": function( nRow, aData, iDataIndex ) {
+                  $(nRow).attr('id', "row-elt-"+aData.id);
+                  //$(nRow).attr("id","ee")
+              },
               "columnDefs": [
                 {
-                    "targets": [ 3 ],
+                    "targets": [ 4 ],
                     "visible": false,
                     "searchable": true
                 },
@@ -57,6 +61,12 @@
                 }
               ],
               'columns': [
+                  {
+                      "className":      'details-control',
+                      "orderable":      false,
+                      "data":           null,
+                      "defaultContent": ''
+                  },
                   { data: 'id', title: "ID" },
                   { data: 'name', title: "Name" },
                   { data: 'category.name', title: "Category"},
@@ -73,7 +83,7 @@
                   {% block qtycolumn %}
                   { data: "quantity_owned", title: "Quantity", orderable: false,bSearchable:false},
                   {% endblock %}
-                  {
+                  /*{
                             data: 'id',
                             title: 'View',
                             render: function(data, type, row, meta){
@@ -85,8 +95,8 @@
                             return data;
                           },
                           orderable: false,
-                    },
-                    {% if perms.Mindkeepr.change_element %}
+                    },*/
+                    /*{% if perms.Mindkeepr.change_element %}
                     {
                             data: 'id',
                             title: 'Edit',
@@ -100,7 +110,7 @@
                           },
                           orderable: false,
 
-                    },
+                    },*/
                     {% endif %}
                     {% if perms.Mindkeepr.delete_element %}
                     {
@@ -109,7 +119,8 @@
                             render: function(data, type, row, meta){
                             if(type === 'display'){
                                 url = "/element/delete/"+data
-                                data='<button type="button" class="btn btn-primary delete" href="#" data-form="'+url+'" title="Delete">Delete</button>'
+                                //data='<button type="button" class="btn btn-primary delete" href="#" data-form="'+url+'" title="Delete">Delete</button>'
+                                data = '<a href="' + url + '">' + 'Delete' + '</a>';
                             }
 
                             return data;
@@ -140,6 +151,32 @@
             elt_table.search($('#searchinput').val()).draw();
             event.preventDefault();
           });
+
+
+    // Add event listener for opening and closing details
+    elt_table.on('click', 'td.details-control', function () {
+        var tr = $(this).closest('tr');
+        var row = elt_table.row( tr );
+
+        if ( row.child.isShown() ) {
+            // This row is already open - close it
+            row.child.hide();
+            tr.removeClass('shown');
+        }
+        else {
+            // Open this row
+            console.log("/element/"+row.data().id)
+            /*tr.load("/element/"+row.data().id, function() { // load the url into the modal
+              tr.addClass('shown'); //$(this).modal('show'); // display the modal on url load
+                  });*/
+            //row.child( row.data() ).show();
+            $.get("/element/"+row.data().id, function( details ) {
+              row.child(details).show();
+            });
+
+
+        }
+    } );
 
 </script>
 

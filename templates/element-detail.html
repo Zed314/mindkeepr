@@ -1,10 +1,7 @@
-{% extends 'base.html' %}
+
 {% load crispy_forms_tags %}
 {% load display_shortcuts %}
-{% block extra_headers %}
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.formset/1.2.2/jquery.formset.min.js"></script>
-{% endblock %}
-{% block body_content %}
+
 
 
 
@@ -14,32 +11,34 @@
 <div class="modal hide" id="eventModal">
 </div>
 
-<div class="container">
-    <div class="card">
+<div class="container-fluid">
+    <!--<div class="card">
         <div class="card-header">
             {{ form.instance.name }}&nbsp;-&nbsp;{% block type_element %}{{ form.instance|get_class }}{% endblock %}
         </div>
-        <div class="card-body">
+        <div class="card-body"> -->
 
 
 <nav class="nav nav-tabs">
-  <a class="nav-item nav-link active" href="#main" data-toggle="tab">Element</a>
-  <a class="nav-item nav-link" href="#location" data-toggle="tab">Locations</a>
-  <a class="nav-item nav-link" href="#buy" data-toggle="tab">Buy History</a>
-  <a class="nav-item nav-link" href="#sell" data-toggle="tab">Sell History</a>
-  <a class="nav-item nav-link" href="#borrow" data-toggle="tab">Borrow History</a>
-  <a class="nav-item nav-link" href="#reservation" data-toggle="tab">Reservation History</a>
-  <a class="nav-item nav-link" href="#consume" data-toggle="tab">Consume History</a>
+  <a class="nav-item nav-link active" href="#elt-{{form.instance.id}}-main" data-toggle="tab">Element</a>
+  <a class="nav-item nav-link" href="#elt-{{form.instance.id}}-location" data-toggle="tab">Locations</a>
+  <a class="nav-item nav-link" href="#elt-{{form.instance.id}}-buy" data-toggle="tab">Buy History</a>
+  <a class="nav-item nav-link" href="#elt-{{form.instance.id}}-sell" data-toggle="tab">Sell History</a>
+  <a class="nav-item nav-link" href="#elt-{{form.instance.id}}-borrow" data-toggle="tab">Borrow History</a>
+  <a class="nav-item nav-link" href="#elt-{{form.instance.id}}-reservation" data-toggle="tab">Reservation History</a>
+  {% if form.instance.is_consummable %}
+  <a class="nav-item nav-link" href="#elt-{{form.instance.id}}-consume" data-toggle="tab">Consume History</a>
+  {% endif %}
   {% block extra_event_tabs%}{% endblock %}
 </nav>
 <div class="tab-content">
-    <div class="tab-pane active" id="main">
+    <div class="tab-pane active" id="elt-{{form.instance.id}}-main">
         <a href="/element/barcode/{{ form.instance.id }}">Barcode</a>
          <a class="btn btn-primary" href="/element/print/add/{{ form.instance.id }}/1" role="button">Add one to print list !</a>
          {% if form.instance.image %}
          <a href="{{form.instance.image.url}}"><img width=100px src="{{ form.instance.image.url }}"/></a>
          {% endif %}
-        <form enctype="multipart/form-data" method="post">
+        <form id="form-element-{{ form.instance.id }}" enctype="multipart/form-data" method="post" action="/element/{{form.instance.id}}">
         {% csrf_token %}
         <table>
 
@@ -80,37 +79,15 @@
         {{ form.media.js }}
     </div>
 
-    <div class="tab-pane" id="location">
+    <div class="tab-pane" id="elt-{{form.instance.id}}-location">
+        <button type="button" class="btn btn-primary event" href="#" data-form="/formbuyeventmodal?element={{form.instance.id}}" title="Buy"
+        {% if not perms.Mindkeepr.add_buyevent or form.instance.is_unique_and_there %}disabled{% endif %}>Buy</button>
 
-<button type="button" class="btn btn-primary event" href="#" data-form="/formbuyeventmodal?element={{form.instance.id}}" title="Buy"
-{% if not perms.Mindkeepr.add_buyevent or form.instance.is_unique_and_there %}disabled{% endif %}>Buy</button>
-    <table>
-<tr><th>Location</th><th>Quantity</th><th>Project</th><th>Borrow</th><th>Reserve</th>{% if form.instance.is_consummable %}<th>Consume</th>{% endif %}<th>Sell</th><th>Move</th>
-</tr>
-{% for rep in form.instance.stock_repartitions.all|dictsort:"location.name" %}
-<tr>
-    <td><a href="/location/{{rep.location.id}}">{{rep.location.name}}</a></td>
-    <td>{{rep.quantity}}</td>
-    <td>{% if rep.project %}<a href="/project/{{rep.project.id}}">{{rep.project}}</a>{% else %}-{% endif %}</td>
-    <td><button type="button" class="btn btn-primary event" href="#" data-form="/formborroweventmodal?element={{form.instance.id}}&locationsrc={{rep.location.id}}&quantity={{rep.quantity}}" title="Borrow" {% if "FREE" != rep.status or not perms.Mindkeepr.add_borrowevent %}disabled{% endif %}>Borrow</button></td>
-    {% if not rep.project %}
-    <td><button type="button" class="btn btn-primary event" href="#" data-form="/formuseeventmodal?element={{form.instance.id}}&locationsrc={{rep.location.id}}&quantity={{rep.quantity}}" title="Reserve" {% if "FREE" != rep.status  or not perms.Mindkeepr.add_useevent %}disabled{% endif %}>Reserve</button></td>
-    {% else %}
-    <td><button type="button" class="btn btn-primary event" href="#" data-form="/formunuseeventmodal?element={{form.instance.id}}&locationsrc={{rep.location.id}}&quantity={{rep.quantity}}{% if rep.project %}&project={{rep.project.id}}{% else %}&project=0{% endif %}" title="Unreserve" {% if "RESERVED" != rep.status or not perms.Mindkeepr.add_unuseevent%}disabled{% endif %}>Unreserve</button></td>
-    {% endif %}
-    {% if form.instance.is_consummable %}
-    <td><button type="button" class="btn btn-primary event" href="#" data-form="/formconsumeeventmodal?element={{form.instance.id}}&locationsrc={{rep.location.id}}&quantity={{rep.quantity}}{% if rep.project %}&project={{rep.project.id}}{% else %}&project=0{% endif %}" title="Consume" {% if not perms.Mindkeepr.add_consumeevent or not rep.element.is_consummable %}disabled{% endif %}>Consume</button></td>
-    {% endif %}
-    <td><button type="button" class="btn btn-primary event" href="#" data-form="/formselleventmodal?element={{form.instance.id}}&locationsrc={{rep.location.id}}&quantity={{rep.quantity}}" title="Sell" {% if "FREE" != rep.status  or not perms.Mindkeepr.add_sellevent %}disabled{% endif %} >Sell</button></td>
-    <td><button type="button" class="btn btn-primary event" href="#" data-form="/formmoveeventmodal?element={{form.instance.id}}&locationsrc={{rep.location.id}}&quantity={{rep.quantity}}{% if rep.project %}&project={{rep.project.id}}{% else %}&project=0{% endif %}&status={{rep.status}}" title="Move"  {% if not perms.Mindkeepr.add_moveevent %}disabled{% endif %}>Move</button></td>
-
-
-</tr>
-{% endfor %}
-</table>
+        <table id="element-location-table-{{form.instance.id}}" class="table compact table-striped table-bordered" style="width:100%">
+        </table>
     </div>
 
-  <div class="tab-pane" id="buy">
+  <div class="tab-pane" id="elt-{{form.instance.id}}-buy">
 
 <table>
 <tr>
@@ -131,7 +108,7 @@
 </table>
   </div>
 
-  <div class="tab-pane" id="sell">
+  <div class="tab-pane" id="elt-{{form.instance.id}}-sell">
 
 <table>
 <tr><th>Date</th><th>Quantity</th><th>Price</th><th>Source</th><th>Comment</th><th>User</th>
@@ -150,7 +127,7 @@
   </div>
 
 
-  <div class="tab-pane" id="borrow">
+  <div class="tab-pane" id="elt-{{form.instance.id}}-borrow">
   <table>
     <tr>
     <th>Date</th><th>Quantity</th><th>Scheduled return date</th><th>Source</th><th>Comment</th><th>User</th><th>Returned on</th><th>Returned in</th><th>Comment</th><th>Returned by</th><th>Return</th>
@@ -173,7 +150,7 @@
     {% endfor %}
     </table>
   </div>
-  <div class="tab-pane" id="reservation">
+  <div class="tab-pane" id="elt-{{form.instance.id}}-reservation">
     <table>
         <tr>
         <th>Date</th><th>Quantity</th><th>Source</th><th>Destination</th><th>Comment</th><th>User</th>
@@ -191,7 +168,8 @@
         {% endfor %}
     </table>
   </div>
-  <div class="tab-pane" id="consume">
+  {% if form.instance.is_consummable %}
+  <div class="tab-pane" id="elt-{{form.instance.id}}-consume">
     <table>
     <tr><th>Date</th><th>Quantity</th><th>Source</th><th>Comment</th><th>User</th></tr>
 
@@ -206,6 +184,7 @@
     {% endfor %}
     </table>
   </div>
+  {% endif %}
 {% block extra_event_tabs_content%}{% endblock %}
 </div>
 
@@ -218,9 +197,11 @@
 
         </div>
 
+
+<!--
     </div>
 </div>
-
+-->
 
 
 
@@ -249,17 +230,232 @@
         });
 </script>
 <script>
-    $(".event").click(function(ev) { // for each edit contact url
+
+stock_table = $("#element-location-table-{{form.instance.id}}").DataTable({
+              "dom": '<"top">rt<"bottom"lip><"clear">',
+              'serverSide': true,
+              "responsive": true,
+              'ajax': '/api/v1/stocks?element={{form.instance.id}}&format=datatables',
+              "columnDefs": [
+                {
+                    "targets": [ 0,{% if form.instance.is_unique %}2{%else%}3{% endif %} ],
+                    "visible": false,
+                    "searchable": false
+                },
+                {
+                    "targets": '_all',
+                    "defaultContent": ""
+                }
+              ],
+              "fnCreatedRow": function( nRow, aData, iDataIndex ) {
+                  $(nRow).attr('id',"#elt-{{ form.instance.id }}-stock-"+aData.id);
+                  //$(nRow).attr("id","ee")
+              },
+              'columns': [
+                  { data: 'id', title: "ID" },
+                  { data: "location", title: "Location",
+                        render: function(data, type, row, meta){
+                            console.log(data)
+                            if(type === 'display'){
+                                url = "/locations/"+data.id;
+                                ret = '<a href="' + url + '">' +data.name+   '</a>';
+                                return ret;
+                            }
+
+                            return data.name;}},
+                  {% if not form.instance.is_unique %}
+                  { data: 'quantity', title: "Quantity" },
+                  {% endif %}
+                  {data: "status", title:"Status"},
+                  { data: 'project.name', title: "Project" },
+                  { data: 'id', title: "Borrow",
+                    render: function(data, type, row, meta){
+                        project = "";
+                                if(row.project)
+                                {
+                                    project = row.project.id;
+                                }
+                            if(type === 'display'){
+
+                                button = '<button type="button" class="btn btn-primary event" href="#" data-stock="'+data+'" data-form="/formborroweventmodal?stock='+data+'&project='+project+'" title="Borrow" ' ;
+                                permission_borrow =  {% if perms.Mindkeepr.add_borrowevent  %} true {% else %} false {% endif %};
+                                if(!permission_borrow || row.status!="FREE")
+                                {
+                                    button+="disabled";
+                                }
+                                button+= ">Borrow</button>";
+                                return button;
+                            }
+
+                            return "";
+                        }},
+                  { data: 'id', title: "Reserve",
+                    render: function(data, type, row, meta){
+                            console.log(data)
+                            console.log(row)
+                            if(type === 'display'){
+                                button = "";
+                                if(row.project)//if not reserved
+                                {
+                                    button = '<button type="button" class="btn btn-primary event" href="#" data-stock="'+data+'"  data-form="/formunuseeventmodal?stock='+data+'" title="Unreserve"'
+
+                                    permission_unuse=  {% if perms.Mindkeepr.add_unuseevent  %} true {% else %} false {% endif %};
+                                    if(!permission_unuse)
+                                    {
+                                        button +=  "disabled";
+                                    }
+                                    button += '>Unreserve</button>';
+                                }
+                                else
+                                {
+                                    button = '<button type="button" class="btn btn-primary event" href="#" data-stock="'+data+'"  data-form="/formuseeventmodal?stock='+data+'" title="Reserve"'
+
+                                    permission_use=  {% if perms.Mindkeepr.add_useevent  %} true {% else %} false {% endif %};
+                                    if(!permission_use)
+                                    {
+                                        button +=  "disabled";
+                                    }
+                                    button += '>Reserve</button>';
+                                }
+                                return button;
+                            }
+
+                            return "";
+                        }},
+
+                        {% if form.instance.is_consummable %}
+                        { data: "id", title: "Consume",
+                        render: function(data,type,row,meta){
+                        if(type === 'display'){
+                                button = '<button type="button" class="btn btn-primary event" href="#" data-stock="'+data+'"  data-form="/formconsumeeventmodal?stock='+data+'" title="Consume"';
+                                permission_consume=  {% if perms.Mindkeepr.add_consumeevent  %} true {% else %} false {% endif %};
+                                if(!permission_consume)
+                                {
+                                    button +=  "disabled";
+                                }
+                                button += '>Consume</button>';
+
+                                return button;
+                            }
+
+                            return "";
+                        }},
+                        {% endif %}
+                        { data: 'id', title: "Sell",
+                        render: function(data, type, row, meta){
+                            if(type === 'display'){
+                                button = '<button type="button" class="btn btn-primary event" href="#" data-stock="'+data+'"  data-form="/formselleventmodal?stock='+data+'" title="Sell"';
+                                permission_sell=  {% if perms.Mindkeepr.add_sellevent  %} true {% else %} false {% endif %};
+                                if(row.status!="FREE" || !permission_sell)
+                                {
+                                    button +=  "disabled";
+                                }
+
+                                button += '>Sell</button>';
+
+                                return button;
+                            }
+
+                            return "";
+                        }},
+                        { data: 'id', title: "Move",
+                        render: function(data, type, row, meta){
+                            if(type === 'display'){
+                                project = "";
+                                if(row.project)
+                                {
+                                    project = row.project.id;
+                                }
+                                button = '<button type="button" class="btn btn-primary event" href="#" data-stock="'+data+'" data-form="/formmoveeventmodal?stock='+data+'&project='+project+'" title="Move"';
+                                permission_move=  {% if perms.Mindkeepr.add_moveevent  %} true {% else %} false {% endif %};
+                                if(!permission_move)
+                                {
+                                    button +=  "disabled";
+                                }
+
+                                button += '>Move</button>';
+
+                                return button;
+                            }
+
+                            return "";
+                        }},
+
+            ],
+            /*"drawCallback": function(settings, json) {
+                $(".event").click(function(ev) { // for each edit contact url
+                    ev.preventDefault(); // prevent navigation
+                    var url = $(this).data("form"); // get the contact form url
+                    var truc = $(this);
+                    $("#eventModal").load(url, function() { // load the url into the modal
+                        $(this).modal('show'); // display the modal on url load
+                        $(this).on('hide.bs.modal', function () {
+                            alert(truc.data("stock"));
+                            // For some reason, this updates all the rows (it is handy, but meh)
+                            stock_table.rows("#elt-{{ form.instance.id }}-stock-"+truc.data("stock")).invalidate().draw();
+
+                        });
+
+                    });
+                    return false; // prevent the click propagation
+                });
+            }*/
+
+    });
+
+    $(document).on("click",".event", function(ev) { // for each edit contact url
         ev.preventDefault(); // prevent navigation
-        var url = $(this).data("form"); // get the contact form url
+        var url = $(this).data("form"); // get form from url
         $("#eventModal").load(url, function() { // load the url into the modal
             $(this).modal('show'); // display the modal on url load
-
-
         });
         return false; // prevent the click propagation
     });
 
 
+    $(document).on('hide.bs.modal',"#eventModal", function () {
+        // Assuming that an update just got completed
+        $("#element-location-table-{{form.instance.id}}").DataTable().rows().invalidate().draw();
+    });
+
+
 </script>
-{% endblock %}
+
+<script>
+    $('#form-element-{{ form.instance.id }}').on('submit', function(event) {
+    // TODO Add close of modal on valid submission
+    $.ajax({
+        type: $(this).attr('method'),
+        url: this.action,
+        data: $(this).serialize(),
+        context: this,
+        success: function(data, status) {
+            if ($(data).find("input").hasClass("is-invalid")||
+            $(data).find("select").hasClass("is-invalid"))
+            {
+              console.log("invalid feedback");
+              $('#eventModal').html(data);
+            }
+            else
+            {
+              console.log("Ok");
+              $('#element-table').DataTable().rows("#row-elt-{{form.instance.id}}").invalidate().draw();
+
+            }
+
+
+        },
+        fail: function(data,status){
+          console.log(status);
+        },
+        statusCode: {
+          500: function() {
+            alert("ERROR 500");
+          }
+        }
+        });
+        event.preventDefault();
+    return false;
+    });
+
+</script>

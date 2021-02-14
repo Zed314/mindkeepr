@@ -68,8 +68,6 @@ $.datepicker.regional['fr'] = {
                 data: $(this).serialize(),
                 context: this,
                 success: function(data, status) {
-                    console.log(data);
-                    console.log(status);
                     if ($(data).find("input").hasClass("is-invalid")||
                     $(data).find("select").hasClass("is-invalid"))
                     {

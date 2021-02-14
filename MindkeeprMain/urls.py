@@ -19,7 +19,7 @@ from django.urls import path, include
 from rest_framework import routers
 from Mindkeepr import views
 from Mindkeepr.views import BorrowingsView, ComponentsView, ElementsView, EventsView, LocationView, LocationViewFull, MachinesView, \
-    ToolsView, BooksView, CategoryView,CategoryViewFull,CategoryViewShort, MaintenancesView, BorrowingsView, ProjectsView, UserView
+    ToolsView, BooksView, CategoryView,CategoryViewFull,CategoryViewShort, MaintenancesView, BorrowingsView, ProjectsView, UserView, StockRepartitionsView
 
 # for static files in dev only…
 from django.conf import settings
@@ -41,6 +41,7 @@ router.register(r'locations', LocationView, basename='location')
 router.register(r'borrowings', BorrowingsView, basename='borrowing')
 router.register(r'maintenances', MaintenancesView, basename='maintenance')
 router.register(r'projects', ProjectsView, basename='project')
+router.register(r'stocks', StockRepartitionsView, basename='stockrepartitions')
 router.register(r'user', UserView, basename='user')
 
 urlpatterns = [

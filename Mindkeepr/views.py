@@ -17,7 +17,7 @@ from Mindkeepr.forms import (AttributeFormSet, AttachmentFormSet, BorrowEventFor
                               MaintenanceEventForm, ReturnEventForm, IncidentEventForm,
                               SellEventForm, UseEventForm, LocationForm, UnUseEventForm, MoveEventForm, ProjectForm, ToolForm, BookForm)
 from Mindkeepr.models import (BorrowEvent, UserProfile, ReturnEvent, UseEvent, BuyEvent, MoveEvent, MaintenanceEvent, IncidentEvent, UnUseEvent, Category, Component, Element,Tool, Book,
-                               Event, Location, Machine, SellEvent, Project, Attachment, PrintList)
+                               Event, Location, Machine, SellEvent, Project, Attachment, PrintList, StockRepartition)
 from Mindkeepr.Serializers import (CategorySerializer, CategorySerializerFull, CategorySerializerShort, ComponentSerializer,
                                     ElementSerializer, LocationSerializer, LocationFullSerializer,
                                     MachineSerializer, ToolSerializer, ProjectSerializer, BookSerializer,
@@ -51,6 +51,18 @@ class EventsView(LoginRequiredMixin,viewsets.ModelViewSet):
         user = self.request.query_params.get('user', None)
         if user is not None:
             queryset = queryset.filter(creator_id=user)
+        return queryset
+
+class StockRepartitionsView(LoginRequiredMixin, viewsets.ModelViewSet):
+    serializer_class = StockRepartitionSerializer
+    #def perform_create(self, serializer):
+        #serializer.save(creator=self.request.user)
+
+    def get_queryset(self):
+        queryset = StockRepartition.objects.all()
+        element = self.request.query_params.get('element', None)
+        if element is not None:
+            queryset = queryset.filter(element_id=element)
         return queryset
 
 
@@ -555,6 +567,28 @@ class PresetElementQuantitySourceMixin():
     def get_initial(self):
         initial = super().get_initial()
         try:
+            idstock = int(self.request.GET['stock'])
+            stock = get_object_or_404(StockRepartition, pk=idstock)
+            initial['element'] = stock.element
+            initial['location_source'] = stock.location
+            initial['status'] = stock.status
+            # TODO : handle this case : stock with no project should be preset as empty except for reserve event
+            # So refactoring needed
+            # also : move & borrow currently ask for project src…
+            # ok for consume tho
+            if(stock.project):
+                initial["project"] = stock.project
+                self._disabled_fields.append("project")
+            self._disabled_fields.append('element')
+            self._disabled_fields.append("location_source")
+            self._disabled_fields.append("status")
+            if(stock.element.is_unique):
+                initial['quantity'] = 1
+                self._disabled_fields.append('quantity')
+
+        except KeyError:
+            pass
+        try:
             idelement = int(self.request.GET['element'])
             initial['element'] = get_object_or_404(Element, pk=idelement)
             self._disabled_fields.append('element')
@@ -596,6 +630,8 @@ class PresetElementQuantitySourceMixin():
             if (idprojectsrc != 0):
                 initial['project'] = get_object_or_404(Project, pk=idprojectsrc)
             self._disabled_fields.append('project')
+        except ValueError:
+            self._disabled_fields.append("project")
         except KeyError:
             pass
         try:
