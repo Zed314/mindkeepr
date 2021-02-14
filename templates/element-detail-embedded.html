@@ -1,18 +1,7 @@
-{% extends 'base.html' %}
+
 {% load crispy_forms_tags %}
 {% load display_shortcuts %}
 
-{% block body_content %}
-
-<div class="container">
-    <div class="card">
-        <div class="card-header">
-            {{ form.instance.name }}&nbsp;-&nbsp;{% block type_element %}{{ form.instance|get_class }}{% endblock %}
-        </div>
-        <div class="card-body">
-<!-- Django include does not work well : ex: machine specific tabs wont display, as included template is evaluated as "element" and not as "machine" -->
-
-<!-- So anyway I started copying/pasting -->
 
 {% block event_extra_btns %}
 {% endblock %}
@@ -21,10 +10,15 @@
 </div>
 
 <div class="container-fluid">
+    <!--<div class="card">
+        <div class="card-header">
+            {{ form.instance.name }}&nbsp;-&nbsp;{% block type_element %}{{ form.instance|get_class }}{% endblock %}
+        </div>
+        <div class="card-body"> -->
+
 
 <nav class="nav nav-tabs">
   <a class="nav-item nav-link active" href="#elt-{{form.instance.id}}-main" data-toggle="tab">Element</a>
-  {% if form.instance.id %}
   <a class="nav-item nav-link" href="#elt-{{form.instance.id}}-location" data-toggle="tab">Locations</a>
   <a class="nav-item nav-link" href="#elt-{{form.instance.id}}-buy" data-toggle="tab">Buy History</a>
   <a class="nav-item nav-link" href="#elt-{{form.instance.id}}-sell" data-toggle="tab">Sell History</a>
@@ -34,7 +28,6 @@
   <a class="nav-item nav-link" href="#elt-{{form.instance.id}}-consume" data-toggle="tab">Consume History</a>
   {% endif %}
   {% block extra_event_tabs%}{% endblock %}
-  {% endif %}
 </nav>
 <div class="tab-content">
     <div class="tab-pane active" id="elt-{{form.instance.id}}-main">
@@ -43,7 +36,7 @@
          {% if form.instance.image %}
          <a href="{{form.instance.image.url}}"><img width=100px src="{{ form.instance.image.url }}"/></a>
          {% endif %}
-        <form id="form-element-{{ form.instance.id }}" enctype="multipart/form-data" method="post">
+        <form id="form-element-{{ form.instance.id }}" enctype="multipart/form-data" method="post" action="/element/{{form.instance.id}}">
         {% csrf_token %}
         <table>
 
@@ -52,7 +45,7 @@
             {{ attributes.management_form }}
 
             {% for attribute in attributes %}
-             <tr class="link-formset">
+             <tr id="{{form.instance.id}}-attributes" class="link-formset">
                 {% for field in attribute %}
                     <td>
                         {{ field }}
@@ -64,7 +57,7 @@
             {{ attachments.management_form }}
 
             {% for attachment in attachments %}
-             <tr class="link-formset-attachment">
+             <tr id="{{form.instance.id}}-attachments" class="link-formset-attachment">
                 {% for field in attachment %}
                     <td>
                         {{ field }}
@@ -83,12 +76,12 @@
         </form>
         {{ form.media.js }}
     </div>
-    {% if form.instance.id %}
+
     <div class="tab-pane" id="elt-{{form.instance.id}}-location">
         <button type="button" class="btn btn-primary event" href="#" data-form="/formbuyeventmodal?element={{form.instance.id}}" title="Buy"
         {% if not perms.Mindkeepr.add_buyevent or form.instance.is_unique_and_there %}disabled{% endif %}>Buy</button>
 
-        <table id="element-location-table-{{form.instance.id}}" class="table compact table-striped table-bordered" style="width:100%">
+        <table id="element-location-table-{{form.instance.id}}" class="display compact table-striped table-bordered" style="width:100%">
         </table>
     </div>
 
@@ -191,7 +184,6 @@
   </div>
   {% endif %}
 {% block extra_event_tabs_content%}{% endblock %}
-{% endif %}
 </div>
 
 
@@ -224,12 +216,12 @@
 <script type="text/javascript">
 
 // TODO : Add icons
-        $('.link-formset').formset({
+        $('#{{form.instance.id}}-attributes.link-formset').formset({
             addText: 'Add Attribute',
             deleteText: 'Remove',
             prefix: 'attributes',
         });
-        $('.link-formset-attachment').formset({
+        $('#{{form.instance.id}}-attachments.link-formset-attachment').formset({
             addText: 'Add Attachment',
             deleteText: 'Remove',
             prefix: 'attachments',
@@ -428,7 +420,7 @@ stock_table = $("#element-location-table-{{form.instance.id}}").DataTable({
 </script>
 
 <script>
-   /* $('#form-element-{{ form.instance.id }}').on('submit', function(event) {
+    $('#form-element-{{ form.instance.id }}').on('submit', function(event) {
     $.ajax({
         type: $(this).attr('method'),
         url: this.action,
@@ -444,7 +436,7 @@ stock_table = $("#element-location-table-{{form.instance.id}}").DataTable({
             else
             {
               console.log("Ok");
-              $('#element-table').DataTable().rows("#row-elt-{{form.instance.id}}").invalidate().draw();
+             // $('#element-table').DataTable().rows("#row-elt-{{form.instance.id}}").invalidate().draw();
 
             }
 
@@ -461,14 +453,6 @@ stock_table = $("#element-location-table-{{form.instance.id}}").DataTable({
         });
         event.preventDefault();
     return false;
-    });*/
+    });
 
 </script>
-
-
-
-<!-- End copy/paste section -->
-        </div>
-    </div>
-</div>
-{% endblock %}

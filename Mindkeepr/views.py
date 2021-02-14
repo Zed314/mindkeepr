@@ -437,6 +437,13 @@ class ElementUpdate(LoginRequiredMixin,UpdateView):
     def get_success_url(self):
         return reverse_lazy('view_element', kwargs={'pk': self.object.pk})
 
+class ElementUpdateEmbedded(ElementUpdate):
+    templates = {
+        Component: 'element-detail-embedded.html',
+        Machine: 'machine-detail-embedded.html',
+        Tool: 'element-detail-embedded.html',
+        Book: "element-detail-embedded.html"
+    }
 
 class UserProfileUpdate(LoginRequiredMixin,PermissionRequiredMixin,UpdateView):
     model = UserProfile

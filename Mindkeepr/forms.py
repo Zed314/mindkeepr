@@ -85,7 +85,7 @@ class BuyEventForm(DisableFieldsMixin, ModelForm):
     #location_destination = forms.ModelChoiceField(
     #    queryset=models.Location.objects.all())
     element = forms.ModelChoiceField(queryset=models.Element.objects.all())
-    #project = forms.ModelChoiceField(queryset=models.Project.objects.all(), required=False)
+    project = forms.ModelChoiceField(queryset=models.Project.objects.all(), required=False)
     class Meta:
         model = models.BuyEvent
         fields = ['element', 'quantity', 'price', 'supplier',

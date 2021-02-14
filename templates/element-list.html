@@ -10,13 +10,13 @@
 </div>
 <div class="container-fluid">
 
-  <a class=" btn btn-primary event {% if not perms.Mindkeepr.add_component %}disabled{% endif%}" href="/component"
+  <a class=" btn btn-primary  {% if not perms.Mindkeepr.add_component %}disabled{% endif%}" href="/component"
     title="Add component">Add component</a>
-  <a class=" btn btn-primary event  {% if not perms.Mindkeepr.add_machine %}disabled{% endif%}" href="/machine"
+  <a class=" btn btn-primary   {% if not perms.Mindkeepr.add_machine %}disabled{% endif%}" href="/machine"
     title="Add machine">Add machine</a>
-  <a class=" btn btn-primary event {% if not perms.Mindkeepr.add_tool %}disabled{% endif%}" href="/tool"
+  <a class=" btn btn-primary  {% if not perms.Mindkeepr.add_tool %}disabled{% endif%}" href="/tool"
     title="Add tool">Add tool</a>
-  <a class=" btn btn-primary event {% if not perms.Mindkeepr.add_book %}disabled{% endif%}" href="/book"
+  <a class=" btn btn-primary  {% if not perms.Mindkeepr.add_book %}disabled{% endif%}" href="/book"
     title="Add book">Add book</a>
   <div class="row">
     <div class="col-md-2">
@@ -28,7 +28,7 @@
       </div>
     </div>
     <div class="col-md-10">
-      <table id="element-table" class="table compact table-striped table-bordered" style="width:100%">
+      <table id="element-table" class="display compact table-striped table-bordered nowrap" style="width:100%">
       </table>
     </div>
   </div>
@@ -110,8 +110,30 @@
                           },
                           orderable: false,
 
-                    },*/
-                    {% endif %}
+                    },
+                    {% endif %}*/
+                    {
+                      data:"id",
+                      title:"Direct link",
+                      render: function(data, type, row, meta){
+                          if(type === 'display'){
+                               // var full_url = window.location.pathname;
+                                //var base_url = full_url.substring(full_url.lastIndexOf('/'));
+                                var base_url =  window.location.protocol+"//"+ window.location.host;
+                                var url = base_url+"/element/"+data;
+                                //data='<button type="button" class="btn btn-primary delete" href="#" data-form="'+url+'" title="Delete">Delete</button>'
+                                //data = '<a href="' + url + '">' + 'Delete' + '</a>';
+                                data = '<a href="#" class="copy-link" data-link="';
+                                data+= url.toString();
+                                data+= '">Copy</a>';
+
+                            }
+
+                            return data;
+                          },
+                          orderable: false,
+
+                    },
                     {% if perms.Mindkeepr.delete_element %}
                     {
                             data: 'id',
@@ -120,7 +142,7 @@
                             if(type === 'display'){
                                 url = "/element/delete/"+data
                                 //data='<button type="button" class="btn btn-primary delete" href="#" data-form="'+url+'" title="Delete">Delete</button>'
-                                data = '<a href="' + url + '">' + 'Delete' + '</a>';
+                                data = '<a href="#" class="delete" data-form="'+url+'"  >' + 'Delete' + '</a>';
                             }
 
                             return data;
@@ -152,6 +174,14 @@
             event.preventDefault();
           });
 
+          elt_table.on("click",".copy-link", function(event) { // for each edit contact url
+        var $temp = $("<input>");
+            $("body").append($temp);
+            $temp.val( $(this).data("link")).select();
+            document.execCommand("copy");
+            $temp.remove();
+            event.preventDefault();
+    });
 
     // Add event listener for opening and closing details
     elt_table.on('click', 'td.details-control', function () {
@@ -165,12 +195,12 @@
         }
         else {
             // Open this row
-            console.log("/element/"+row.data().id)
+            //console.log("/element/"+row.data().id)
             /*tr.load("/element/"+row.data().id, function() { // load the url into the modal
               tr.addClass('shown'); //$(this).modal('show'); // display the modal on url load
                   });*/
             //row.child( row.data() ).show();
-            $.get("/element/"+row.data().id, function( details ) {
+            $.get("element/embedded/"+row.data().id, function( details ) {
               row.child(details).show();
             });
 
