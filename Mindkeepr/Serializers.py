@@ -4,6 +4,7 @@ from Mindkeepr.event_serializers import (BorrowEventSerializer,
                                           BuyEventSerializer,
                                           ConsumeEventSerializer,
                                           MaintenanceEventSerializer,
+                                          IncidentEventSerializer,
                                           SellEventSerializer,
                                           UseEventSerializer,
                                           UserSerializer)

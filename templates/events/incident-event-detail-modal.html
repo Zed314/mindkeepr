@@ -3,3 +3,6 @@
 {% block name_event %}Declare incident{% endblock %}
 {% block formaction %}/formincidenteventmodal{% endblock %}
 
+
+$('#element-table').DataTable().rows("#row-elt-{{form.instance.id}}").invalidate().draw();
+

@@ -17,12 +17,13 @@ from Mindkeepr.forms import (AttributeFormSet, AttachmentFormSet, BorrowEventFor
                               MaintenanceEventForm, ReturnEventForm, IncidentEventForm,
                               SellEventForm, UseEventForm, LocationForm, UnUseEventForm, MoveEventForm, ProjectForm, ToolForm, BookForm)
 from Mindkeepr.models import (BorrowEvent, UserProfile, ReturnEvent, UseEvent, BuyEvent, MoveEvent, MaintenanceEvent, IncidentEvent, UnUseEvent, Category, Component, Element,Tool, Book,
-                               Event, Location, Machine, SellEvent, Project, Attachment, PrintList, StockRepartition)
+                               Event, Location, Machine, SellEvent, Project, Attachment, PrintList, StockRepartition,ConsumeEvent)
 from Mindkeepr.Serializers import (CategorySerializer, CategorySerializerFull, CategorySerializerShort, ComponentSerializer,
                                     ElementSerializer, LocationSerializer, LocationFullSerializer,
                                     MachineSerializer, ToolSerializer, ProjectSerializer, BookSerializer,
-                                    BorrowEventSerializer, MaintenanceEventSerializer,
-                                    StockRepartitionSerializer, UserDetailedSerializer)
+                                    BorrowEventSerializer, MaintenanceEventSerializer, IncidentEventSerializer, ConsumeEventSerializer, SellEventSerializer, UseEventSerializer,
+                                    StockRepartitionSerializer, UserDetailedSerializer, BuyEventSerializer)
+
 from rest_framework import  viewsets
 from django.utils.decorators import method_decorator
 from django.contrib.auth.mixins import PermissionRequiredMixin
@@ -113,6 +114,10 @@ class BorrowingsView(LoginRequiredMixin,viewsets.ModelViewSet):
         user = self.request.query_params.get('user', None)
         if user is not None:
             queryset = queryset.filter(creator_id=user)
+        element = self.request.query_params.get('element', None)
+        if element is not None:
+            queryset = queryset.filter(element_id=element)
+
         return queryset
 
 class MaintenancesView(LoginRequiredMixin,viewsets.ModelViewSet):
@@ -123,6 +128,75 @@ class MaintenancesView(LoginRequiredMixin,viewsets.ModelViewSet):
         user = self.request.query_params.get('user', None)
         if user is not None:
             queryset = queryset.filter(assignee_id=user).filter(is_done=False)
+        return queryset
+class IncidentsView(LoginRequiredMixin, viewsets.ModelViewSet):
+    serializer_class = IncidentEventSerializer
+
+    def get_queryset(self):
+        queryset = IncidentEvent.objects.all()
+        user = self.request.query_params.get('user', None)
+        if user is not None:
+            queryset = queryset.filter(creator_id=user)
+        element = self.request.query_params.get('element', None)
+        if element is not None:
+            queryset = queryset.filter(element_id=element)
+
+        return queryset
+
+class ConsumesView(LoginRequiredMixin, viewsets.ModelViewSet):
+    serializer_class = ConsumeEventSerializer
+
+    def get_queryset(self):
+        queryset = ConsumeEvent.objects.all()
+        user = self.request.query_params.get('user', None)
+        if user is not None:
+            queryset = queryset.filter(creator_id=user)
+        element = self.request.query_params.get('element', None)
+        if element is not None:
+            queryset = queryset.filter(element_id=element)
+
+        return queryset
+
+class SellsView(LoginRequiredMixin, viewsets.ModelViewSet):
+    serializer_class = SellEventSerializer
+
+    def get_queryset(self):
+        queryset = SellEvent.objects.all()
+        user = self.request.query_params.get('user', None)
+        if user is not None:
+            queryset = queryset.filter(creator_id=user)
+        element = self.request.query_params.get('element', None)
+        if element is not None:
+            queryset = queryset.filter(element_id=element)
+
+        return queryset
+
+class BuysView(LoginRequiredMixin, viewsets.ModelViewSet):
+    serializer_class = BuyEventSerializer
+
+    def get_queryset(self):
+        queryset = BuyEvent.objects.all()
+        user = self.request.query_params.get('user', None)
+        if user is not None:
+            queryset = queryset.filter(creator_id=user)
+        element = self.request.query_params.get('element', None)
+        if element is not None:
+            queryset = queryset.filter(element_id=element)
+
+        return queryset
+
+
+class ReservesView(LoginRequiredMixin, viewsets.ModelViewSet):
+    serializer_class = UseEventSerializer
+
+    def get_queryset(self):
+        queryset = UseEvent.objects.all()
+        user = self.request.query_params.get('user', None)
+        if user is not None:
+            queryset = queryset.filter(creator_id=user)
+        element = self.request.query_params.get('element', None)
+        if element is not None:
+            queryset = queryset.filter(element_id=element)
         return queryset
 
 class ProjectsView(LoginRequiredMixin,viewsets.ModelViewSet):
@@ -504,8 +578,7 @@ class EventUpdate(LoginRequiredMixin,UpdateView):
         BuyEvent : "event-detail-modal.html",
         MoveEvent : "event-detail-modal.html"
     }
-    # todo : if possible, add change_machine and change_component
-    #permission_required = "Mindkeepr.change_element"
+
     success_url = None
     @property
     def template_name(self):

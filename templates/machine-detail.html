@@ -10,41 +10,148 @@
 
   <div class="tab-pane" id="elt-{{form.instance.id}}-maintenance">
 
-    <button class="btn btn-primary event" type="button" href="#" data-form="/formmaintenanceeventmodal?element={{form.instance.id}}" title="Maintenance"
+    <button class="btn btn-primary event" type="button" href="#" data-element-id="{{form.instance.id}}" data-event-type="maintenance" data-form="/formmaintenanceeventmodal?element={{form.instance.id}}" title="Maintenance"
     {% if not perms.Mindkeepr.add_maintenanceevent %}disabled{% endif %}>Add Maintenance</button>
 
-    <table>
-    <tr><th>Date</th><th>Scheduled date</th><th>Is done</th><th>Comment</th><th>Created by</th><th>Completed on : </th><th>Complete maintenance</th></tr>
-
-    {% for maintenance in form.instance.maintenance_history.all %}
-    <tr>
-        <td>{{maintenance.recording_date}}</td>
-        <td>{{maintenance.scheduled_date}}</td>
-        <td>{{maintenance.is_done}}</td>
-        <td>{{maintenance.comment}}</td>
-        <td>{{maintenance.creator.get_full_name}}</td>
-        <td>{{maintenance.completion_date}}</td>
-        <td><button type="button" class="btn btn-primary event" href="#" data-form="/formmaintenanceeventmodal/{{maintenance.id}}" title="Proceed" {% if maintenance.is_done %}disabled{% endif %} >Proceed</button></td>
-    </tr>
-    {% endfor %}
-    </table>
+    <table id="element-maintenance-table-{{form.instance.id}}"
+    class="table compact table-striped table-bordered"
+    style="width:100%">
+      </table>
   </div>
 
   <div class="tab-pane" id="elt-{{form.instance.id}}-incident">
-    <button class="btn btn-primary event" type="button" href="#" data-form="/formincidenteventmodal?element={{form.instance.id}}" title="Incident"
+    <button class="btn btn-primary event" type="button" href="#" data-element-id="{{form.instance.id}}" data-event-type="incident" data-form="/formincidenteventmodal?element={{form.instance.id}}" title="Incident"
     {% if not perms.Mindkeepr.add_incidentevent %}disabled{% endif %}>Declare new Incident</button>
 
-    <table>
-    <tr><th>Date</th><th>New status</th><th>Comment</th><th>Created by</th></tr>
+      <table id="element-incident-table-{{form.instance.id}}"
+            class="table compact table-striped table-bordered"
+            style="width:100%"></table>
 
-    {% for incident in form.instance.incident_history.all %}
-    <tr>
-        <td>{{incident.recording_date}}</td>
-        <td>{{incident.get_new_status_display}}</td>
-        <td>{{incident.comment}}</td>
-        <td>{{incident.creator.get_full_name}}</td>
-    </tr>
-    {% endfor %}
-    </table>
   </div>
+
+  <script>
+     $("#element-incident-table-{{form.instance.id}}").DataTable({
+              "dom": '<"top">rt<"bottom"lip><"clear">',
+              'serverSide': true,
+              "responsive": true,
+              'ajax': '/api/v1/incidents?element={{form.instance.id}}&format=datatables',
+              "order":[[0,"desc"]],
+              "columnDefs": [
+                {
+                    "targets": '_all',
+                    "defaultContent": ""
+                }
+              ],
+              columns: [
+                  { data: "recording_date", title: "Date",
+                  render: function (data, type, row, meta) {
+                          if (type === 'display') {
+                              if(data){
+                                  return convertISO8601ToHumanDay(data);
+                              }
+                              else
+                              {
+                                  return "Undefined";
+                              }
+                          } else {
+                              return data;
+                          }
+                      }},
+                  { data: "comment", title: "Comment"},
+                  { data: "get_new_status_display", title: "New status"},
+                  { data: "creator.get_full_name", title: "Creator"},
+              ]
+     });
+
+     $(document).on('hide.bs.modal',"#eventModal[data-event-type=incident][data-element-id={{form.instance.id}}]", function () {
+        // Assuming that an update just got completed
+        $("#element-incident-table-{{form.instance.id}}").DataTable().rows().invalidate().draw();
+    });
+
+
+    $("#element-maintenance-table-{{form.instance.id}}").DataTable({
+              "dom": '<"top">rt<"bottom"lip><"clear">',
+              'serverSide': true,
+              "responsive": true,
+              'ajax': '/api/v1/maintenances?element={{form.instance.id}}&format=datatables',
+              "order":[[4, "desc"],[0,"desc"]],
+              "columnDefs": [
+                {
+                    "targets": '_all',
+                    "defaultContent": ""
+                }
+              ],
+              columns: [
+                    { data: "scheduled_date", title: "Scheduled date",
+                  render: function (data, type, row, meta) {
+                          if (type === 'display') {
+                              if(data){
+                                  return convertISO8601ToHumanDay(data);
+                              }
+                              else
+                              {
+                                  return "Undefined";
+                              }
+                          } else {
+                              return data;
+                          }
+                      }},
+                      { data: "is_done", title: "Is completed ?",
+                  render: function (data, type, row, meta) {
+                          if (type === 'display') {
+                              if(data){
+                                  return "Yes";
+                              }
+                              else
+                              {
+                                  return "No";
+                              }
+                          } else {
+                              return data;
+                          }
+                      }},
+                  { data: "comment", title: "Comment"},
+                  { data: "assignee.get_full_name", title: "Assignee"},
+                  { data: "completion_date", title: "Completion date",
+                  render: function (data, type, row, meta) {
+                          if (type === 'display') {
+                              if(data){
+                                  return convertISO8601ToHumanDay(data);
+                              }
+                              else
+                              {
+                                  return "-";
+                              }
+                          } else {
+                              return data;
+                          }
+                      }},
+                      { data: "id", title: "Complete maintenance",
+                      render: function (data, type, row, meta) {
+                          if (type === 'display') {
+
+                            ret = '<button type="button" class="btn btn-primary event" href="#" data-element-id="{{form.instance.id}}" data-event-type="maintenance" data-form="/formmaintenanceeventmodal/';
+                            ret += row.id;
+                            ret += '" title="Proceed"';
+                            if(row.is_done)
+                            {
+                              ret+=" disabled";
+                            }
+                            ret+=" data-element-id="+{{form.instance.id}}+" data-event-type=\"maintenance\">Proceed</button>";
+                            return ret;
+                          } else {
+                              return data;
+                          }
+                      }},
+              ]
+     });
+
+     $(document).on('hide.bs.modal',"#eventModal[data-event-type=maintenance][data-element-id={{form.instance.id}}]", function () {
+        // Assuming that an update just got completed
+        $("#element-maintenance-table-{{form.instance.id}}").DataTable().rows().invalidate().draw();
+    });
+
+
+
+    </script>
 {% endblock %}

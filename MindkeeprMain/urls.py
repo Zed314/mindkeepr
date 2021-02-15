@@ -19,7 +19,8 @@ from django.urls import path, include
 from rest_framework import routers
 from Mindkeepr import views
 from Mindkeepr.views import BorrowingsView, ComponentsView, ElementsView, EventsView, LocationView, LocationViewFull, MachinesView, \
-    ToolsView, BooksView, CategoryView,CategoryViewFull,CategoryViewShort, MaintenancesView, BorrowingsView, ProjectsView, UserView, StockRepartitionsView
+    ToolsView, BooksView, CategoryView,CategoryViewFull,CategoryViewShort, MaintenancesView, BorrowingsView, ProjectsView, UserView, StockRepartitionsView, \
+    IncidentsView,ConsumesView, ReservesView, SellsView, BuysView
 
 # for static files in dev only…
 from django.conf import settings
@@ -40,6 +41,12 @@ router.register(r'locationsFull', LocationViewFull, basename='locationfull')
 router.register(r'locations', LocationView, basename='location')
 router.register(r'borrowings', BorrowingsView, basename='borrowing')
 router.register(r'maintenances', MaintenancesView, basename='maintenance')
+router.register(r'reserves', ReservesView, basename='reserve')
+#router.register(r'returns', ReturnsView, basename='return')
+router.register(r'consumes',  ConsumesView, basename='consume')
+router.register(r'buys',  BuysView, basename='buy')
+router.register(r'sells',  SellsView, basename='sell')
+router.register(r'incidents', IncidentsView, basename='incident')
 router.register(r'projects', ProjectsView, basename='project')
 router.register(r'stocks', StockRepartitionsView, basename='stockrepartitions')
 router.register(r'user', UserView, basename='user')

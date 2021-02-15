@@ -1,5 +1,5 @@
 from Mindkeepr.models import Event, BuyEvent, UseEvent, SellEvent, ConsumeEvent, ReturnEvent, BorrowEvent, MaintenanceEvent, IncidentEvent, MoveEvent, UnUseEvent
-from Mindkeepr.models import Component, Location, StockRepartition, Element, Machine
+from Mindkeepr.models import Component, Location, StockRepartition, Element, Machine, Project
 from django.contrib.auth.models import User
 from rest_framework import serializers
 from typing import Callable
@@ -29,6 +29,12 @@ class SerializerFactory:
         serializer = ser_class(**kwargs)
         return serializer
 
+class ProjectSerializer(serializers.HyperlinkedModelSerializer):
+    id = serializers.IntegerField(required=False)
+    class Meta:
+        model = Project
+        fields = ("id", "name","description")
+        depth = 2
 
 class ElementShortSerializer(serializers.HyperlinkedModelSerializer):
     id = serializers.IntegerField(required=False)
@@ -143,11 +149,12 @@ class BuyEventSerializer(EventFieldMixin, serializers.HyperlinkedModelSerializer
 
     element = ElementShortSerializer()
     location_destination = LocationShortSerializer()
+    project = ProjectSerializer()
 
     class Meta:
         model = BuyEvent
         fields = EventSerializer.Meta.fields + ("element",
-                  "price", "supplier", "quantity", "location_destination")
+                  "price", "supplier", "quantity", "location_destination","project")
         depth = 1
         ordering = EventSerializer.Meta.ordering
 
@@ -170,11 +177,12 @@ class UseEventSerializer(EventFieldMixin, serializers.HyperlinkedModelSerializer
     location_destination = LocationShortSerializer()
     location_source = LocationShortSerializer()
     element = ElementShortSerializer()
+    project = ProjectSerializer()
 
     class Meta:
         model = UseEvent
         fields = EventSerializer.Meta.fields + ("element", "quantity",
-                  "location_destination", "location_source")
+                  "location_destination", "location_source","project")
         depth = 2
         ordering = EventSerializer.Meta.ordering
 
@@ -223,6 +231,18 @@ class UnUseEventSerializer(EventFieldMixin, serializers.HyperlinkedModelSerializ
             raise serializers.ValidationError(
                 'Event can not be added to element.')
 
+class ReturnEventSerializerShort(EventFieldMixin, serializers.HyperlinkedModelSerializer):
+
+    location_destination = LocationShortSerializer()
+
+    is_date_overdue = serializers.BooleanField(read_only=True)
+
+    class Meta:
+        model = ReturnEvent
+        fields = EventSerializer.Meta.fields + ("is_date_overdue",
+                   "location_destination")
+        depth = 2
+        ordering = EventSerializer.Meta.ordering
 
 @SerializerFactory.register('BorrowEvent')
 class BorrowEventSerializer(EventFieldMixin, serializers.HyperlinkedModelSerializer):
@@ -230,10 +250,11 @@ class BorrowEventSerializer(EventFieldMixin, serializers.HyperlinkedModelSeriali
     location_source = LocationShortSerializer()
     element = ElementShortSerializer()
     is_returned = serializers.ReadOnlyField()
+    return_event = ReturnEventSerializerShort()
     class Meta:
         model = BorrowEvent
         fields = EventSerializer.Meta.fields + ("element", "quantity", "is_returned",
-                  "scheduled_return_date", "location_source")
+                  "scheduled_return_date", "location_source","return_event")
         depth = 2
         ordering = EventSerializer.Meta.ordering
 
@@ -290,9 +311,10 @@ class ReturnEventSerializer(EventFieldMixin, serializers.HyperlinkedModelSeriali
 @SerializerFactory.register('MaintenanceEvent')
 class MaintenanceEventSerializer(EventFieldMixin, serializers.HyperlinkedModelSerializer):
     element = ElementShortSerializer()
+    assignee = UserSerializer()
     class Meta:
         model = MaintenanceEvent
-        fields = EventSerializer.Meta.fields + ("is_done","scheduled_date","element")
+        fields = EventSerializer.Meta.fields + ("assignee", "is_done","scheduled_date","completion_date","element")
         depth = 2
         ordering = EventSerializer.Meta.ordering
 
@@ -342,7 +364,7 @@ class IncidentEventSerializer(EventFieldMixin, serializers.HyperlinkedModelSeria
     element = ElementShortSerializer()
     class Meta:
         model = IncidentEvent
-        fields = EventSerializer.Meta.fields + ("element","new_status")
+        fields = EventSerializer.Meta.fields + ("element","new_status","get_new_status_display")
         depth = 2
         ordering = EventSerializer.Meta.ordering
 

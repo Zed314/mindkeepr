@@ -1,8 +1,3 @@
-
-{% load crispy_forms_tags %}
-{% load display_shortcuts %}
-
-
 {% block event_extra_btns %}
 {% endblock %}
 
@@ -10,15 +5,10 @@
 </div>
 
 <div class="container-fluid">
-    <!--<div class="card">
-        <div class="card-header">
-            {{ form.instance.name }}&nbsp;-&nbsp;{% block type_element %}{{ form.instance|get_class }}{% endblock %}
-        </div>
-        <div class="card-body"> -->
-
 
 <nav class="nav nav-tabs">
   <a class="nav-item nav-link active" href="#elt-{{form.instance.id}}-main" data-toggle="tab">Element</a>
+  {% if form.instance.id %}
   <a class="nav-item nav-link" href="#elt-{{form.instance.id}}-location" data-toggle="tab">Locations</a>
   <a class="nav-item nav-link" href="#elt-{{form.instance.id}}-buy" data-toggle="tab">Buy History</a>
   <a class="nav-item nav-link" href="#elt-{{form.instance.id}}-sell" data-toggle="tab">Sell History</a>
@@ -28,6 +18,7 @@
   <a class="nav-item nav-link" href="#elt-{{form.instance.id}}-consume" data-toggle="tab">Consume History</a>
   {% endif %}
   {% block extra_event_tabs%}{% endblock %}
+  {% endif %}
 </nav>
 <div class="tab-content">
     <div class="tab-pane active" id="elt-{{form.instance.id}}-main">
@@ -36,7 +27,7 @@
          {% if form.instance.image %}
          <a href="{{form.instance.image.url}}"><img width=100px src="{{ form.instance.image.url }}"/></a>
          {% endif %}
-        <form id="form-element-{{ form.instance.id }}" enctype="multipart/form-data" method="post" action="/element/{{form.instance.id}}">
+        <form id="form-element-{{ form.instance.id }}" enctype="multipart/form-data" method="post">
         {% csrf_token %}
         <table>
 
@@ -45,7 +36,7 @@
             {{ attributes.management_form }}
 
             {% for attribute in attributes %}
-             <tr id="{{form.instance.id}}-attributes" class="link-formset">
+             <tr class="link-formset">
                 {% for field in attribute %}
                     <td>
                         {{ field }}
@@ -57,7 +48,7 @@
             {{ attachments.management_form }}
 
             {% for attachment in attachments %}
-             <tr id="{{form.instance.id}}-attachments" class="link-formset-attachment">
+             <tr class="link-formset-attachment">
                 {% for field in attachment %}
                     <td>
                         {{ field }}
@@ -76,9 +67,9 @@
         </form>
         {{ form.media.js }}
     </div>
-
+    {% if form.instance.id %}
     <div class="tab-pane" id="elt-{{form.instance.id}}-location">
-        <button type="button" class="btn btn-primary event" href="#" data-form="/formbuyeventmodal?element={{form.instance.id}}" title="Buy"
+        <button type="button" class="btn btn-primary event" href="#" data-event-type="buy" data-element-id="{{form.instance.id}}" data-form="/formbuyeventmodal?element={{form.instance.id}}" title="Buy"
         {% if not perms.Mindkeepr.add_buyevent or form.instance.is_unique_and_there %}disabled{% endif %}>Buy</button>
 
         <table id="element-location-table-{{form.instance.id}}" class="display compact table-striped table-bordered" style="width:100%">
@@ -86,111 +77,154 @@
     </div>
 
   <div class="tab-pane" id="elt-{{form.instance.id}}-buy">
+    <table id="element-buy-table-{{form.instance.id}}"
+    class="display compact table-striped table-bordered"
+    style="width:100%"></table>
 
-<table>
-<tr>
-<th>Date</th><th>Quantity</th><th>Price</th><th>Supplier</th><th>Destination</th><th>Comment</th><th>User</th>
-</tr>
-{% for buy in form.instance.buy_history.all %}
-<tr>
-    <td>{{buy.recording_date}}</td>
-    <td>{{buy.quantity}}</td>
-    <td>{{buy.price}}</td>
-    <td>{{buy.supplier}}</td>
-    <td><a href="/location/{{buy.location_destination.id}}">{{buy.location_destination.name}}</a></td>
-    <td>{{buy.comment}}</td>
-    <td>{{buy.creator.get_full_name}}</td>
 
-</tr>
-{% endfor %}
-</table>
+<script>
+    $("#element-buy-table-{{form.instance.id}}").DataTable({
+        "dom": '<"top">rt<"bottom"lip><"clear">',
+        'serverSide': true,
+        "responsive": true,
+        'ajax': '/api/v1/buys?element={{form.instance.id}}&format=datatables',
+        "order": [[ 0, "desc" ]],
+        "columnDefs": [
+          {
+              "targets": '_all',
+              "defaultContent": ""
+          },
+        ],
+        columns: [
+            { data: "recording_date", title: "Date",
+            render: function (data, type, row, meta) {
+                    if (type === 'display') {
+                        if(data){
+                            return convertISO8601ToHumanDay(data);
+                        }
+                        else
+                        {
+                            return "Undefined";
+                        }
+                    } else {
+                        return data;
+                    }
+                }},
+                {% if not form.instance.is_unique %}
+                { data: "quantity", title: "Quantity"},
+                {% endif %}
+                { data: "price", title: "Price"},
+                { data: "supplier", title: "Supplier"},
+            { data: "location_destination.id", title: "Destination",
+              render: function(data,type,row,meta){
+              if(type === "display"){
+                  link = "<a href=\"/location/"+row.location_destination.id+"\">"+row.location_destination.name+"</a>";
+                  return link;
+              }
+              return row.location_destination.name;
+            }},
+            { data: "project", title: "Project",
+                    render: function(data,type,row,meta){
+                    if(data)
+                    {
+                        if(type === "display"){
+                            link = "<a href=\"/project/"+data+"\">"+row.project.name+"</a>";
+                            return link;
+                        }
+                        return row.project.name;
+                    }
+                  }},
+            { data: "comment", title: "Comment"},
+            { data: "creator.get_full_name", title: "Creator"},
+
+        ]
+    });
+
+    $(document).on('hide.bs.modal',"#eventModal[data-event-type=buy][data-element-id={{form.instance.id}}]", function () {
+    // Assuming that an update just got completed
+    $("#element-buy-table-{{form.instance.id}}").DataTable().rows().invalidate().draw();
+    });
+    </script>
+
   </div>
 
   <div class="tab-pane" id="elt-{{form.instance.id}}-sell">
+    <table id="element-sell-table-{{form.instance.id}}"
+    class="display compact table-striped table-bordered"
+    style="width:100%"></table>
 
-<table>
-<tr><th>Date</th><th>Quantity</th><th>Price</th><th>Source</th><th>Comment</th><th>User</th>
-</tr>
-{% for sell in form.instance.sell_history.all %}
-<tr>
-    <td>{{sell.recording_date}}</td>
-    <td>{{sell.quantity}}</td>
-    <td>{{sell.price}}</td>
-    <td><a href="/location/{{sell.location_source.id}}">{{sell.location_source.name}}</a></td>
-    <td>{{sell.comment}}</td>
-    <td>{{sell.creator.get_full_name}}</td>
-</tr>
-{% endfor %}
-</table>
+<script>
+$("#element-sell-table-{{form.instance.id}}").DataTable({
+    "dom": '<"top">rt<"bottom"lip><"clear">',
+    'serverSide': true,
+    "responsive": true,
+    'ajax': '/api/v1/sells?element={{form.instance.id}}&format=datatables',
+    "order": [[ 0, "desc" ]],
+    "columnDefs": [
+      {
+          "targets": '_all',
+          "defaultContent": ""
+      }
+    ],
+    columns: [
+        { data: "recording_date", title: "Date",
+        render: function (data, type, row, meta) {
+                if (type === 'display') {
+                    if(data){
+                        return convertISO8601ToHumanDay(data);
+                    }
+                    else
+                    {
+                        return "Undefined";
+                    }
+                } else {
+                    return data;
+                }
+            }},
+            {% if not form.instance.is_unique %}
+            { data: "quantity", title: "Quantity"},
+            {% endif %}
+            { data: "price", title: "Price"},
+        { data: "location_source.id", title: "Source",
+          render: function(data,type,row,meta){
+          if(type === "display"){
+              link = "<a href=\"/location/"+row.location_source.id+"\">"+row.location_source.name+"</a>";
+              return link;
+          }
+          return row.location_source.name;
+        }},
+        { data: "comment", title: "Comment"},
+        { data: "creator.get_full_name", title: "Creator"},
+
+    ]
+});
+
+$(document).on('hide.bs.modal',"#eventModal[data-event-type=sell][data-element-id={{form.instance.id}}]", function () {
+// Assuming that an update just got completed
+$("#element-sell-table-{{form.instance.id}}").DataTable().rows().invalidate().draw();
+});
+</script>
   </div>
-
-
   <div class="tab-pane" id="elt-{{form.instance.id}}-borrow">
-  <table>
-    <tr>
-    <th>Date</th><th>Quantity</th><th>Scheduled return date</th><th>Source</th><th>Comment</th><th>User</th><th>Returned on</th><th>Returned in</th><th>Comment</th><th>Returned by</th><th>Return</th>
-    </tr>
-
-    {% for borrow in form.instance.borrow_history.all %}
-    <tr>
-        <td>{{borrow.recording_date}}</td>
-        <td>{{borrow.quantity}}</td>
-        <td>{{borrow.scheduled_return_date}}</td>
-        <td><a href="/location/{{borrow.location_source.id}}">{{borrow.location_source.name}}</a></td>
-        <td>{{borrow.comment}}</td>
-        <td>{{borrow.creator.get_full_name}}</td>
-        <td>{{ borrow.return_event.recording_date }} {% if borrow.return_event %}{% if borrow.return_event.is_date_overdue %}(LATE){% else %}(IN TIME){% endif %}{% endif %} </td>
-        <td>{{ borrow.return_event.location_destination }}</td>
-        <td>{{ borrow.return_event.comment }}</td>
-        <td>{{ borrow.return_event.creator.get_full_name }}</td>
-        <td><button type="button" class="btn btn-primary event" href="#" data-form="/formreturneventmodal?borrow={{borrow.id}}" title="Return" {% if borrow.return_event %}disabled{% endif %} >Return</button></td>
-    </tr>
-    {% endfor %}
-    </table>
+    <table id="element-borrow-table-{{form.instance.id}}"
+    class="display compact table-striped table-bordered"
+    style="width:100%"></table>
   </div>
   <div class="tab-pane" id="elt-{{form.instance.id}}-reservation">
-    <table>
-        <tr>
-        <th>Date</th><th>Quantity</th><th>Source</th><th>Destination</th><th>Comment</th><th>User</th>
-        </tr>
-
-        {% for use in form.instance.use_history.all %}
-        <tr>
-            <td>{{use.recording_date}}</td>
-            <td>{{use.quantity}}</td>
-            <td><a href="/location/{{use.location_source.id}}">{{use.location_source.name}}</a></td>
-            <td><a href="/location/{{use.location_destination.id}}">{{use.location_destination.name}}</a></td>
-            <td>{{use.comment}}</td>
-            <td>{{use.creator.get_full_name}}</td>
-        </tr>
-        {% endfor %}
-    </table>
+    <table id="element-reserve-table-{{form.instance.id}}"
+    class="display compact table-striped table-bordered"
+    style="width:100%"></table>
   </div>
   {% if form.instance.is_consummable %}
   <div class="tab-pane" id="elt-{{form.instance.id}}-consume">
-    <table>
-    <tr><th>Date</th><th>Quantity</th><th>Source</th><th>Comment</th><th>User</th></tr>
-
-    {% for consume in form.instance.consume_history.all %}
-    <tr>
-        <td>{{consume.recording_date}}</td>
-        <td>{{consume.quantity}}</td>
-        <td><a href="/location/{{consume.location_source.id}}">{{consume.location_source.name}}</a></td>
-        <td>{{consume.comment}}</td>
-        <td>{{consume.creator.get_full_name}}</td>
-    </tr>
-    {% endfor %}
-    </table>
+    <table id="element-consume-table-{{form.instance.id}}"
+    class="display compact table-striped table-bordered"
+    style="width:100%"></table>
   </div>
   {% endif %}
 {% block extra_event_tabs_content%}{% endblock %}
+{% endif %}
 </div>
-
-
-
-
-
-
 
 
         </div>
@@ -201,27 +235,15 @@
 </div>
 -->
 
-
-
-
-
-
-
-
-
-
-
-
-
 <script type="text/javascript">
 
 // TODO : Add icons
-        $('#{{form.instance.id}}-attributes.link-formset').formset({
+        $('.link-formset').formset({
             addText: 'Add Attribute',
             deleteText: 'Remove',
             prefix: 'attributes',
         });
-        $('#{{form.instance.id}}-attachments.link-formset-attachment').formset({
+        $('.link-formset-attachment').formset({
             addText: 'Add Attachment',
             deleteText: 'Remove',
             prefix: 'attachments',
@@ -250,7 +272,6 @@ stock_table = $("#element-location-table-{{form.instance.id}}").DataTable({
                   //$(nRow).attr("id","ee")
               },
               'columns': [
-                  { data: 'id', title: "ID" },
                   { data: "location", title: "Location",
                         render: function(data, type, row, meta){
                             console.log(data)
@@ -265,7 +286,21 @@ stock_table = $("#element-location-table-{{form.instance.id}}").DataTable({
                   { data: 'quantity', title: "Quantity" },
                   {% endif %}
                   {data: "status", title:"Status"},
-                  { data: 'project.name', title: "Project" },
+                  { data: "project.id", title: "Project",
+                    render: function(data,type,row,meta){
+                    if(type === "display"){
+                        if(data)
+                        {
+                        link = "<a href=\"/project/"+data+"\">"+row.project.name+"</a>";
+                        return link;
+                        }
+                    }
+                    if(data)
+                    {
+                        return row.project.name;
+                    }
+
+                  }},
                   { data: 'id', title: "Borrow",
                     render: function(data, type, row, meta){
                         project = "";
@@ -275,7 +310,7 @@ stock_table = $("#element-location-table-{{form.instance.id}}").DataTable({
                                 }
                             if(type === 'display'){
 
-                                button = '<button type="button" class="btn btn-primary event" href="#" data-stock="'+data+'" data-form="/formborroweventmodal?stock='+data+'&project='+project+'" title="Borrow" ' ;
+                                button = '<button type="button" class="btn btn-primary event" href="#" data-stock="'+data+'" data-event-type="borrow" data-element-id="{{form.instance.id}}" data-form="/formborroweventmodal?stock='+data+'&project='+project+'" title="Borrow" ' ;
                                 permission_borrow =  {% if perms.Mindkeepr.add_borrowevent  %} true {% else %} false {% endif %};
                                 if(!permission_borrow || row.status!="FREE")
                                 {
@@ -306,7 +341,7 @@ stock_table = $("#element-location-table-{{form.instance.id}}").DataTable({
                                 }
                                 else
                                 {
-                                    button = '<button type="button" class="btn btn-primary event" href="#" data-stock="'+data+'"  data-form="/formuseeventmodal?stock='+data+'" title="Reserve"'
+                                    button = '<button type="button" class="btn btn-primary event" href="#" data-stock="'+data+'" data-element-id="{{form.instance.id}}" data-event-type="reserve" data-form="/formuseeventmodal?stock='+data+'" title="Reserve"'
 
                                     permission_use=  {% if perms.Mindkeepr.add_useevent  %} true {% else %} false {% endif %};
                                     if(!permission_use)
@@ -325,7 +360,7 @@ stock_table = $("#element-location-table-{{form.instance.id}}").DataTable({
                         { data: "id", title: "Consume",
                         render: function(data,type,row,meta){
                         if(type === 'display'){
-                                button = '<button type="button" class="btn btn-primary event" href="#" data-stock="'+data+'"  data-form="/formconsumeeventmodal?stock='+data+'" title="Consume"';
+                                button = '<button type="button" class="btn btn-primary event" href="#" data-stock="'+data+'" data-element-id="{{form.instance.id}}" data-event-type="consume"  data-form="/formconsumeeventmodal?stock='+data+'" title="Consume"';
                                 permission_consume=  {% if perms.Mindkeepr.add_consumeevent  %} true {% else %} false {% endif %};
                                 if(!permission_consume)
                                 {
@@ -342,7 +377,7 @@ stock_table = $("#element-location-table-{{form.instance.id}}").DataTable({
                         { data: 'id', title: "Sell",
                         render: function(data, type, row, meta){
                             if(type === 'display'){
-                                button = '<button type="button" class="btn btn-primary event" href="#" data-stock="'+data+'"  data-form="/formselleventmodal?stock='+data+'" title="Sell"';
+                                button = '<button type="button" class="btn btn-primary event" href="#" data-stock="'+data+'" data-event-type="sell" data-element-id="{{form.instance.id}}" data-form="/formselleventmodal?stock='+data+'" title="Sell"';
                                 permission_sell=  {% if perms.Mindkeepr.add_sellevent  %} true {% else %} false {% endif %};
                                 if(row.status!="FREE" || !permission_sell)
                                 {
@@ -404,9 +439,25 @@ stock_table = $("#element-location-table-{{form.instance.id}}").DataTable({
     $(document).on("click",".event", function(ev) { // for each edit contact url
         ev.preventDefault(); // prevent navigation
         var url = $(this).data("form"); // get form from url
+
         $("#eventModal").load(url, function() { // load the url into the modal
             $(this).modal('show'); // display the modal on url load
         });
+        var evttype=$(this).data("event-type");
+
+        if(evttype === undefined)
+        {
+            evttype="";
+        }
+        var idelement=$(this).data("element-id");
+
+        if(idelement === undefined)
+        {
+            idelement="";
+        }
+        // To know which event modal got closed, to refresh the right data
+        $("#eventModal").attr("data-event-type",evttype);
+        $("#eventModal").attr("data-element-id",idelement);
         return false; // prevent the click propagation
     });
 
@@ -417,10 +468,264 @@ stock_table = $("#element-location-table-{{form.instance.id}}").DataTable({
     });
 
 
+
+    $("#element-borrow-table-{{form.instance.id}}").DataTable({
+              "dom": '<"top">rt<"bottom"lip><"clear">',
+              'serverSide': true,
+              "responsive": true,
+              'ajax': '/api/v1/borrowings?element={{form.instance.id}}&format=datatables',
+              "order": [[{% if form.instance.is_unique %} 6 {% else %} 7 {% endif %}, "desc"],[ 0, "desc" ]],
+              "columnDefs": [
+                {
+                    "targets": '_all',
+                    "defaultContent": ""
+                }
+              ],
+              columns: [
+                  { data: "recording_date", title: "Date",
+                  render: function (data, type, row, meta) {
+                          if (type === 'display') {
+                              if(data){
+                                  return convertISO8601ToHumanDay(data);
+                              }
+                              else
+                              {
+                                  return "Undefined";
+                              }
+                          } else {
+                              return data;
+                          }
+                      }},
+                      {% if not form.instance.is_unique %}
+                      { data: "quantity", title: "Quantity"},
+                      {% endif %}
+                      { data: "scheduled_return_date", title: "Return before",
+                  render: function (data, type, row, meta) {
+                          if (type === 'display') {
+                              if(data){
+                                  return convertISO8601ToHumanDay(data);
+                              }
+                              else
+                              {
+                                  return "Undefined";
+                              }
+                          } else {
+                              return data;
+                          }
+                      }},
+                  { data: "location_source.id", title: "Source",
+                    render: function(data,type,row,meta){
+                    if(type === "display"){
+                        link = "<a href=\"/location/"+row.location_source.id+"\">"+row.location_source.name+"</a>";
+                        return link;
+                    }
+                    return row.location_source.name;
+                  }},
+
+                  { data: "comment", title: "Comment"},
+                  { data: "creator.get_full_name", title: "By"},
+                  { data: "id", title: "Return",
+                    render: function(data,type,row,meta){
+                        disabled = false;
+                        permission_return =  {% if perms.Mindkeepr.add_returnevent  %} true {% else %} false {% endif %};
+                        if(!permission_return || row.return_event )
+                        {
+                            disabled = true;
+                        }
+
+                        button = '<button type="button" class="btn btn-primary event" href="#" data-event-type="return" data-element-id="{{form.instance.id}}"" data-form="/formreturneventmodal?&borrow='+data+'" title="Return" ' ;
+                        if(disabled)
+                        {
+                            button+=" disabled";
+                        }
+                        button+= ">Return</button>";
+                        return button;
+                    }},
+                  { data: "return_event.recording_date", title: "Returned on",
+                  render: function (data, type, row, meta) {
+                          ret = ""
+                          if (type === 'display') {
+                              if(data){
+                                   ret = convertISO8601ToHumanDay(data);
+                                   ret +=" ";
+                              }
+                              if(data>row.scheduled_return_date)
+                                   {
+                                       ret+= "(LATE)";
+                                   }
+                                   else
+                                   {
+                                       ret+= "(ON TIME)"
+                                   }
+
+                              return ret;
+                          } else {
+                              return data;
+                          }
+
+                      }},
+
+                  { data: "return_event.location_destination.id", title: "Destination",
+                    render: function(data,type,row,meta){
+                    if(type === "display"){
+                        if(row.return_event)
+                        {
+                            link = "<a href=\"/location/"+data+"\">"+row.return_event.location_destination.name+"</a>";
+                            return link;
+                        }
+                        return "-";
+
+                    }
+                    if(row.return_event)
+                    {
+                        return row.return_event.location_destination.name;
+                    }
+                    return "";
+
+                  }},
+                  { data: "return_event.comment", title: "Comment"},
+                  { data: "return_event.creator.get_full_name", title: "Returned by"},
+
+
+              ]
+     });
+
+     $(document).on('hide.bs.modal',"#eventModal[data-event-type=borrow][data-element-id={{form.instance.id}}]", function () {
+        // Assuming that an update just got completed
+        $("#element-borrow-table-{{form.instance.id}}").DataTable().rows().invalidate().draw();
+    });
+    $(document).on('hide.bs.modal',"#eventModal[data-event-type=return][data-element-id={{form.instance.id}}]", function () {
+        // Assuming that an update just got completed
+        $("#element-borrow-table-{{form.instance.id}}").DataTable().rows().invalidate().draw();
+    });
+
+
+    $("#element-reserve-table-{{form.instance.id}}").DataTable({
+              "dom": '<"top">rt<"bottom"lip><"clear">',
+              'serverSide': true,
+              "responsive": true,
+              'ajax': '/api/v1/reserves?element={{form.instance.id}}&format=datatables',
+              "order" : [[ 0, "desc" ]],
+              "columnDefs": [
+                {
+                    "targets": '_all',
+                    "defaultContent": ""
+                }
+              ],
+              columns: [
+                  { data: "recording_date", title: "Date",
+                  render: function (data, type, row, meta) {
+                          if (type === 'display') {
+                              if(data){
+                                  return convertISO8601ToHumanDay(data);
+                              }
+                              else
+                              {
+                                  return "Undefined";
+                              }
+                          } else {
+                              return data;
+                          }
+                      }},
+                      {% if not form.instance.is_unique %}
+                    { data: "quantity", title: "Quantity"},
+                  {% endif %}
+                  { data: "location_source.id", title: "Source",
+                    render: function(data,type,row,meta){
+                    if(type === "display"){
+                        link = "<a href=\"/location/"+row.location_source.id+"\">"+row.location_source.name+"</a>";
+                        return link;
+                    }
+                    return row.location_source.name;
+                  }},
+                  { data: "location_destination.id", title: "Destination",
+                    render: function(data,type,row,meta){
+                    if(type === "display"){
+                        link = "<a href=\"/location/"+row.location_destination.id+"\">"+row.location_destination.name+"</a>";
+                        return link;
+                    }
+                    return row.location_source.name;
+                  }},
+                  { data: "project.id", title: "Project",
+                    render: function(data,type,row,meta){
+                    if(type === "display"){
+                        if(data)
+                        {
+                        link = "<a href=\"/project/"+data+"\">"+row.project.name+"</a>";
+                        return link;
+                        }
+                    }
+                    if(data)
+                    {
+                        return row.project.name;
+                    }
+
+                  }},
+                  { data: "comment", title: "Comment"},
+                  { data: "creator.get_full_name", title: "Creator"},
+
+              ]
+     });
+
+     $(document).on('hide.bs.modal',"#eventModal[data-event-type=reserve][data-element-id={{form.instance.id}}]", function () {
+        // Assuming that an update just got completed
+        $("#element-reserve-table-{{form.instance.id}}").DataTable().rows().invalidate().draw();
+    });
+
+
+
+    $("#element-consume-table-{{form.instance.id}}").DataTable({
+              "dom": '<"top">rt<"bottom"lip><"clear">',
+              'serverSide': true,
+              "responsive": true,
+              'ajax': '/api/v1/consumes?element={{form.instance.id}}&format=datatables',
+              "order" : [[ 0, "desc" ]],
+              "columnDefs": [
+                {
+                    "targets": '_all',
+                    "defaultContent": ""
+                }
+              ],
+              columns: [
+                  { data: "recording_date", title: "Date",
+                  render: function (data, type, row, meta) {
+                          if (type === 'display') {
+                              if(data){
+                                  return convertISO8601ToHumanDay(data);
+                              }
+                              else
+                              {
+                                  return "Undefined";
+                              }
+                          } else {
+                              return data;
+                          }
+                      }},
+                  {% if not form.instance.is_unique %}
+                    { data: "quantity", title: "Quantity"},
+                  {% endif %},
+                  { data: "location_source.id", title: "Source",
+                    render: function(data,type,row,meta){
+                    if(type === "display"){
+                        link = "<a href=\"/location/"+row.location_source.id+"\">"+row.location_source.name+"</a>";
+                        return link;
+                    }
+                    return row.location_source.name;
+                  }},
+                  { data: "comment", title: "Comment"},
+                  { data: "creator.get_full_name", title: "Creator"},
+              ]
+     });
+
+     $(document).on('hide.bs.modal',"#eventModal[data-event-type=consume][data-element-id={{form.instance.id}}]", function () {
+        // Assuming that an update just got completed
+        $("#element-consume-table-{{form.instance.id}}").DataTable().rows().invalidate().draw();
+    });
+
 </script>
 
 <script>
-    $('#form-element-{{ form.instance.id }}').on('submit', function(event) {
+   /* $('#form-element-{{ form.instance.id }}').on('submit', function(event) {
     $.ajax({
         type: $(this).attr('method'),
         url: this.action,
@@ -436,7 +741,7 @@ stock_table = $("#element-location-table-{{form.instance.id}}").DataTable({
             else
             {
               console.log("Ok");
-             // $('#element-table').DataTable().rows("#row-elt-{{form.instance.id}}").invalidate().draw();
+              $('#element-table').DataTable().rows("#row-elt-{{form.instance.id}}").invalidate().draw();
 
             }
 
@@ -453,6 +758,6 @@ stock_table = $("#element-location-table-{{form.instance.id}}").DataTable({
         });
         event.preventDefault();
     return false;
-    });
+    });*/
 
 </script>
