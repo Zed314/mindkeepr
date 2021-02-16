@@ -13,4 +13,4 @@ settings-secrets.py
 .env.prod
 .env.prod.db
 data/
-static/
+/static/
