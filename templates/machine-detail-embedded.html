@@ -63,11 +63,6 @@
               ]
      });
 
-     $(document).on('hide.bs.modal',"#eventModal[data-event-type=incident][data-element-id={{form.instance.id}}]", function () {
-        // Assuming that an update just got completed
-        $("#element-incident-table-{{form.instance.id}}").DataTable().rows().invalidate().draw();
-    });
-
 
     $("#element-maintenance-table-{{form.instance.id}}").DataTable({
               "dom": '<"top">rt<"bottom"lip><"clear">',
@@ -146,10 +141,6 @@
               ]
      });
 
-     $(document).on('hide.bs.modal',"#eventModal[data-event-type=maintenance][data-element-id={{form.instance.id}}]", function () {
-        // Assuming that an update just got completed
-        $("#element-maintenance-table-{{form.instance.id}}").DataTable().rows().invalidate().draw();
-    });
 
 
 
