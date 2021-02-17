@@ -13,7 +13,8 @@
     <button class="btn btn-primary event" type="button" href="#" data-element-id="{{form.instance.id}}" data-event-type="maintenance" data-form="/formmaintenanceeventmodal?element={{form.instance.id}}" title="Maintenance"
     {% if not perms.Mindkeepr.add_maintenanceevent %}disabled{% endif %}>Add Maintenance</button>
 
-    <table id="element-maintenance-table-{{form.instance.id}}"
+    <table
+    data-element-id="{{form.instance.id}}"
     class="table compact table-striped table-bordered"
     style="width:100%">
       </table>
@@ -23,125 +24,15 @@
     <button class="btn btn-primary event" type="button" href="#" data-element-id="{{form.instance.id}}" data-event-type="incident" data-form="/formincidenteventmodal?element={{form.instance.id}}" title="Incident"
     {% if not perms.Mindkeepr.add_incidentevent %}disabled{% endif %}>Declare new Incident</button>
 
-      <table id="element-incident-table-{{form.instance.id}}"
-            class="table compact table-striped table-bordered"
+      <table
+            data-element-id="{{form.instance.id}}"
+            class="table compact table-striped table-bordered element-consume-table"
             style="width:100%"></table>
 
   </div>
 
   <script>
-     $("#element-incident-table-{{form.instance.id}}").DataTable({
-              "dom": '<"top">rt<"bottom"lip><"clear">',
-              'serverSide': true,
-              "responsive": true,
-              'ajax': '/api/v1/incidents?element={{form.instance.id}}&format=datatables',
-              "order":[[0,"desc"]],
-              "columnDefs": [
-                {
-                    "targets": '_all',
-                    "defaultContent": ""
-                }
-              ],
-              columns: [
-                  { data: "recording_date", title: "Date",
-                  render: function (data, type, row, meta) {
-                          if (type === 'display') {
-                              if(data){
-                                  return convertISO8601ToHumanDay(data);
-                              }
-                              else
-                              {
-                                  return "Undefined";
-                              }
-                          } else {
-                              return data;
-                          }
-                      }},
-                  { data: "comment", title: "Comment"},
-                  { data: "get_new_status_display", title: "New status"},
-                  { data: "creator.get_full_name", title: "Creator"},
-              ]
-     });
-
-    $("#element-maintenance-table-{{form.instance.id}}").DataTable({
-              "dom": '<"top">rt<"bottom"lip><"clear">',
-              'serverSide': true,
-              "responsive": true,
-              'ajax': '/api/v1/maintenances?element={{form.instance.id}}&format=datatables',
-              "order":[[4, "desc"],[0,"desc"]],
-              "columnDefs": [
-                {
-                    "targets": '_all',
-                    "defaultContent": ""
-                }
-              ],
-              columns: [
-                    { data: "scheduled_date", title: "Scheduled date",
-                  render: function (data, type, row, meta) {
-                          if (type === 'display') {
-                              if(data){
-                                  return convertISO8601ToHumanDay(data);
-                              }
-                              else
-                              {
-                                  return "Undefined";
-                              }
-                          } else {
-                              return data;
-                          }
-                      }},
-                      { data: "is_done", title: "Is completed ?",
-                  render: function (data, type, row, meta) {
-                          if (type === 'display') {
-                              if(data){
-                                  return "Yes";
-                              }
-                              else
-                              {
-                                  return "No";
-                              }
-                          } else {
-                              return data;
-                          }
-                      }},
-                  { data: "comment", title: "Comment"},
-                  { data: "assignee.get_full_name", title: "Assignee"},
-                  { data: "completion_date", title: "Completion date",
-                  render: function (data, type, row, meta) {
-                          if (type === 'display') {
-                              if(data){
-                                  return convertISO8601ToHumanDay(data);
-                              }
-                              else
-                              {
-                                  return "-";
-                              }
-                          } else {
-                              return data;
-                          }
-                      }},
-                      { data: "id", title: "Complete maintenance",
-                      render: function (data, type, row, meta) {
-                          if (type === 'display') {
-
-                            ret = '<button type="button" class="btn btn-primary event" href="#" data-element-id="{{form.instance.id}}" data-event-type="maintenance" data-form="/formmaintenanceeventmodal/';
-                            ret += row.id;
-                            ret += '" title="Proceed"';
-                            if(row.is_done)
-                            {
-                              ret+=" disabled";
-                            }
-                            ret+=" data-element-id="+{{form.instance.id}}+" data-event-type=\"maintenance\">Proceed</button>";
-                            return ret;
-                          } else {
-                              return data;
-                          }
-                      }},
-              ]
-     });
-
-
-
-
+     load_incident_table({{form.instance.id}},true)
+     load_maintenance_table({{form.instance.id}},true);
     </script>
 {% endblock %}

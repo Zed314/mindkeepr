@@ -1,4 +1,3 @@
-
 {% block event_extra_btns %}
 {% endblock %}
 
@@ -73,146 +72,43 @@
         <button type="button" class="btn btn-primary event" href="#" data-event-type="buy" data-element-id="{{form.instance.id}}" data-form="/formbuyeventmodal?element={{form.instance.id}}" title="Buy"
         {% if not perms.Mindkeepr.add_buyevent or form.instance.is_unique_and_there %}disabled{% endif %}>Buy</button>
 
-        <table id="element-location-table-{{form.instance.id}}" class="table compact table-striped table-bordered" style="width:100%">
+        <table
+        data-element-id="{{form.instance.id}}"
+        class="table compact table-striped table-bordered element-location-table"
+        style="width:100%">
         </table>
     </div>
 
   <div class="tab-pane" id="elt-{{form.instance.id}}-buy">
-    <table id="element-buy-table-{{form.instance.id}}"
-    class="table compact table-striped table-bordered"
+    <table
+    data-element-id="{{form.instance.id}}"
+    class="table compact table-striped table-bordered element-buy-table"
     style="width:100%"></table>
-
-<script>
-    $("#element-buy-table-{{form.instance.id}}").DataTable({
-        "dom": '<"top">rt<"bottom"lip><"clear">',
-        'serverSide': true,
-        "responsive": true,
-        'ajax': '/api/v1/buys?element={{form.instance.id}}&format=datatables',
-        "order": [[ 0, "desc" ]],
-        "columnDefs": [
-          {
-              "targets": '_all',
-              "defaultContent": ""
-          },
-        ],
-        columns: [
-            { data: "recording_date", title: "Date",
-            render: function (data, type, row, meta) {
-                    if (type === 'display') {
-                        if(data){
-                            return convertISO8601ToHumanDay(data);
-                        }
-                        else
-                        {
-                            return "Undefined";
-                        }
-                    } else {
-                        return data;
-                    }
-                }},
-                {% if not form.instance.is_unique %}
-                { data: "quantity", title: "Quantity"},
-                {% endif %}
-                { data: "price", title: "Price"},
-                { data: "supplier", title: "Supplier"},
-            { data: "location_destination.id", title: "Destination",
-              render: function(data,type,row,meta){
-              if(type === "display"){
-                  link = "<a href=\"/location/"+row.location_destination.id+"\">"+row.location_destination.name+"</a>";
-                  return link;
-              }
-              return row.location_destination.name;
-            }},
-            { data: "project", title: "Project",
-                    render: function(data,type,row,meta){
-                    if(data)
-                    {
-                        if(type === "display"){
-                            link = "<a href=\"/project/"+data+"\">"+row.project.name+"</a>";
-                            return link;
-                        }
-                        return row.project.name;
-                    }
-                  }},
-            { data: "comment", title: "Comment"},
-            { data: "creator.get_full_name", title: "Creator"},
-
-        ]
-    });
-
-
-    </script>
-
   </div>
 
   <div class="tab-pane" id="elt-{{form.instance.id}}-sell">
-    <table id="element-sell-table-{{form.instance.id}}"
-    class="table compact table-striped table-bordered"
+    <table
+    data-element-id="{{form.instance.id}}"
+    class="table compact table-striped table-bordered element-sell-table"
     style="width:100%"></table>
-
-<script>
-$("#element-sell-table-{{form.instance.id}}").DataTable({
-    "dom": '<"top">rt<"bottom"lip><"clear">',
-    'serverSide': true,
-    "responsive": true,
-    'ajax': '/api/v1/sells?element={{form.instance.id}}&format=datatables',
-    "order": [[ 0, "desc" ]],
-    "columnDefs": [
-      {
-          "targets": '_all',
-          "defaultContent": ""
-      }
-    ],
-    columns: [
-        { data: "recording_date", title: "Date",
-        render: function (data, type, row, meta) {
-                if (type === 'display') {
-                    if(data){
-                        return convertISO8601ToHumanDay(data);
-                    }
-                    else
-                    {
-                        return "Undefined";
-                    }
-                } else {
-                    return data;
-                }
-            }},
-            {% if not form.instance.is_unique %}
-            { data: "quantity", title: "Quantity"},
-            {% endif %}
-            { data: "price", title: "Price"},
-        { data: "location_source.id", title: "Source",
-          render: function(data,type,row,meta){
-          if(type === "display"){
-              link = "<a href=\"/location/"+row.location_source.id+"\">"+row.location_source.name+"</a>";
-              return link;
-          }
-          return row.location_source.name;
-        }},
-        { data: "comment", title: "Comment"},
-        { data: "creator.get_full_name", title: "Creator"},
-
-    ]
-});
-
-
-</script>
   </div>
   <div class="tab-pane" id="elt-{{form.instance.id}}-borrow">
-    <table id="element-borrow-table-{{form.instance.id}}"
-    class="table compact table-striped table-bordered"
+    <table
+    data-element-id="{{form.instance.id}}"
+    class="table compact table-striped table-bordered element-borrow-table"
     style="width:100%"></table>
   </div>
   <div class="tab-pane" id="elt-{{form.instance.id}}-reservation">
-    <table id="element-reserve-table-{{form.instance.id}}"
-    class="table compact table-striped table-bordered"
+    <table
+    data-element-id="{{form.instance.id}}"
+    class="table compact table-striped table-bordered element-reserve-table"
     style="width:100%"></table>
   </div>
   {% if form.instance.is_consummable %}
   <div class="tab-pane" id="elt-{{form.instance.id}}-consume">
-    <table id="element-consume-table-{{form.instance.id}}"
-    class="table compact table-striped table-bordered"
+    <table
+    data-element-id="{{form.instance.id}}"
+    class="table compact table-striped table-bordered element-consume-table"
     style="width:100%"></table>
   </div>
   {% endif %}
@@ -245,7 +141,7 @@ $("#element-sell-table-{{form.instance.id}}").DataTable({
 </script>
 <script>
 
-stock_table = $("#element-location-table-{{form.instance.id}}").DataTable({
+stock_table = $(".element-location-table[data-element-id={{form.instance.id}}]").DataTable({
               "dom": '<"top">rt<"bottom"lip><"clear">',
               'serverSide': true,
               "responsive": true,
@@ -323,7 +219,7 @@ stock_table = $("#element-location-table-{{form.instance.id}}").DataTable({
                                 button = "";
                                 if(row.project)//if not reserved
                                 {
-                                    button = '<button type="button" class="btn btn-primary event" href="#" data-stock="'+data+'"  data-form="/formunuseeventmodal?stock='+data+'" title="Unreserve"'
+                                    button = '<button type="button" class="btn btn-primary event" href="#" data-element-id="{{form.instance.id}}" data-event-type="unreserve" data-stock="'+data+'"  data-form="/formunuseeventmodal?stock='+data+'" title="Unreserve"'
 
                                     permission_unuse=  {% if perms.Mindkeepr.add_unuseevent  %} true {% else %} false {% endif %};
                                     if(!permission_unuse)
@@ -437,244 +333,29 @@ stock_table = $("#element-location-table-{{form.instance.id}}").DataTable({
     });
 
 
+load_buy_table({{form.instance.id}},
+            {% if form.instance.is_unique %} true {% else %} false {% endif %},
+            {% if perms.Mindkeepr.add_buyevent  %} true {% else %} false {% endif %});
 
 
 
-    $("#element-borrow-table-{{form.instance.id}}").DataTable({
-              "dom": '<"top">rt<"bottom"lip><"clear">',
-              'serverSide': true,
-              "responsive": true,
-              'ajax': '/api/v1/borrowings?element={{form.instance.id}}&format=datatables',
-              "order": [[{% if form.instance.is_unique %} 6 {% else %} 7 {% endif %}, "desc"],[ 0, "desc" ]],
-              "columnDefs": [
-                {
-                    "targets": '_all',
-                    "defaultContent": ""
-                }
-              ],
-              columns: [
-                  { data: "recording_date", title: "Date",
-                  render: function (data, type, row, meta) {
-                          if (type === 'display') {
-                              if(data){
-                                  return convertISO8601ToHumanDay(data);
-                              }
-                              else
-                              {
-                                  return "Undefined";
-                              }
-                          } else {
-                              return data;
-                          }
-                      }},
-                      {% if not form.instance.is_unique %}
-                      { data: "quantity", title: "Quantity"},
-                      {% endif %}
-                      { data: "scheduled_return_date", title: "Return before",
-                  render: function (data, type, row, meta) {
-                          if (type === 'display') {
-                              if(data){
-                                  return convertISO8601ToHumanDay(data);
-                              }
-                              else
-                              {
-                                  return "Undefined";
-                              }
-                          } else {
-                              return data;
-                          }
-                      }},
-                  { data: "location_source.id", title: "Source",
-                    render: function(data,type,row,meta){
-                    if(type === "display"){
-                        link = "<a href=\"/location/"+row.location_source.id+"\">"+row.location_source.name+"</a>";
-                        return link;
-                    }
-                    return row.location_source.name;
-                  }},
-
-                  { data: "comment", title: "Comment"},
-                  { data: "creator.get_full_name", title: "By"},
-                  { data: "id", title: "Return",
-                    render: function(data,type,row,meta){
-                        disabled = false;
-                        permission_return =  {% if perms.Mindkeepr.add_returnevent  %} true {% else %} false {% endif %};
-                        if(!permission_return || row.return_event )
-                        {
-                            disabled = true;
-                        }
-
-                        button = '<button type="button" class="btn btn-primary event" href="#" data-event-type="return" data-element-id="{{form.instance.id}}"" data-form="/formreturneventmodal?&borrow='+data+'" title="Return" ' ;
-                        if(disabled)
-                        {
-                            button+=" disabled";
-                        }
-                        button+= ">Return</button>";
-                        return button;
-                    }},
-                  { data: "return_event.recording_date", title: "Returned on",
-                  render: function (data, type, row, meta) {
-                          ret = ""
-                          if (type === 'display') {
-                              if(data){
-                                   ret = convertISO8601ToHumanDay(data);
-                                   ret +=" ";
-                              }
-                              if(data>row.scheduled_return_date)
-                                   {
-                                       ret+= "(LATE)";
-                                   }
-                                   else
-                                   {
-                                       ret+= "(ON TIME)"
-                                   }
-
-                              return ret;
-                          } else {
-                              return data;
-                          }
-
-                      }},
-
-                  { data: "return_event.location_destination.id", title: "Destination",
-                    render: function(data,type,row,meta){
-                    if(type === "display"){
-                        if(row.return_event)
-                        {
-                            link = "<a href=\"/location/"+data+"\">"+row.return_event.location_destination.name+"</a>";
-                            return link;
-                        }
-                        return "-";
-
-                    }
-                    if(row.return_event)
-                    {
-                        return row.return_event.location_destination.name;
-                    }
-                    return "";
-
-                  }},
-                  { data: "return_event.comment", title: "Comment"},
-                  { data: "return_event.creator.get_full_name", title: "Returned by"},
-
-
-              ]
-     });
+load_sell_table({{form.instance.id}},
+            {% if form.instance.is_unique %} true {% else %} false {% endif %},
+            {% if perms.Mindkeepr.add_sellevent  %} true {% else %} false {% endif %});
 
 
 
-
-    $("#element-reserve-table-{{form.instance.id}}").DataTable({
-              "dom": '<"top">rt<"bottom"lip><"clear">',
-              'serverSide': true,
-              "responsive": true,
-              'ajax': '/api/v1/reserves?element={{form.instance.id}}&format=datatables',
-              "order" : [[ 0, "desc" ]],
-              "columnDefs": [
-                {
-                    "targets": '_all',
-                    "defaultContent": ""
-                }
-              ],
-              columns: [
-                  { data: "recording_date", title: "Date",
-                  render: function (data, type, row, meta) {
-                          if (type === 'display') {
-                              if(data){
-                                  return convertISO8601ToHumanDay(data);
-                              }
-                              else
-                              {
-                                  return "Undefined";
-                              }
-                          } else {
-                              return data;
-                          }
-                      }},
-                      {% if not form.instance.is_unique %}
-                    { data: "quantity", title: "Quantity"},
-                  {% endif %}
-                  { data: "location_source.id", title: "Source",
-                    render: function(data,type,row,meta){
-                    if(type === "display"){
-                        link = "<a href=\"/location/"+row.location_source.id+"\">"+row.location_source.name+"</a>";
-                        return link;
-                    }
-                    return row.location_source.name;
-                  }},
-                  { data: "location_destination.id", title: "Destination",
-                    render: function(data,type,row,meta){
-                    if(type === "display"){
-                        link = "<a href=\"/location/"+row.location_destination.id+"\">"+row.location_destination.name+"</a>";
-                        return link;
-                    }
-                    return row.location_source.name;
-                  }},
-                  { data: "project.id", title: "Project",
-                    render: function(data,type,row,meta){
-                    if(type === "display"){
-                        if(data)
-                        {
-                        link = "<a href=\"/project/"+data+"\">"+row.project.name+"</a>";
-                        return link;
-                        }
-                    }
-                    if(data)
-                    {
-                        return row.project.name;
-                    }
-
-                  }},
-                  { data: "comment", title: "Comment"},
-                  { data: "creator.get_full_name", title: "Creator"},
-
-              ]
-     });
+load_borrow_table({{form.instance.id}},
+                {% if form.instance.is_unique %} true {% else %} false {% endif %},
+                {% if perms.Mindkeepr.add_borrowevent  %} true {% else %} false {% endif %},
+                {% if perms.Mindkeepr.add_returnevent  %} true {% else %} false {% endif %});
 
 
+load_reserve_table({{form.instance.id}},
+                {% if form.instance.is_unique %} true {% else %} false {% endif %},
+                {% if perms.Mindkeepr.add_useeevent  %} true {% else %} false {% endif %},
+                {% if perms.Mindkeepr.add_unuseevent  %} true {% else %} false {% endif %});
 
-
-    $("#element-consume-table-{{form.instance.id}}").DataTable({
-              "dom": '<"top">rt<"bottom"lip><"clear">',
-              'serverSide': true,
-              "responsive": true,
-              'ajax': '/api/v1/consumes?element={{form.instance.id}}&format=datatables',
-              "order" : [[ 0, "desc" ]],
-              "columnDefs": [
-                {
-                    "targets": '_all',
-                    "defaultContent": ""
-                }
-              ],
-              columns: [
-                  { data: "recording_date", title: "Date",
-                  render: function (data, type, row, meta) {
-                          if (type === 'display') {
-                              if(data){
-                                  return convertISO8601ToHumanDay(data);
-                              }
-                              else
-                              {
-                                  return "Undefined";
-                              }
-                          } else {
-                              return data;
-                          }
-                      }},
-                  {% if not form.instance.is_unique %}
-                    { data: "quantity", title: "Quantity"},
-                  {% endif %},
-                  { data: "location_source.id", title: "Source",
-                    render: function(data,type,row,meta){
-                    if(type === "display"){
-                        link = "<a href=\"/location/"+row.location_source.id+"\">"+row.location_source.name+"</a>";
-                        return link;
-                    }
-                    return row.location_source.name;
-                  }},
-                  { data: "comment", title: "Comment"},
-                  { data: "creator.get_full_name", title: "Creator"},
-              ]
-     });
+load_consume_table({{form.instance.id}});
 
 </script>
