@@ -288,7 +288,7 @@ stock_table = $(".element-location-table[data-element-id={{form.instance.id}}]")
                                 {
                                     project = row.project.id;
                                 }
-                                button = '<button type="button" class="btn btn-primary event" href="#" data-stock="'+data+'" data-form="/formmoveeventmodal?stock='+data+'&project='+project+'" title="Move"';
+                                button = '<button type="button" class="btn btn-primary event" href="#" data-stock="'+data+'" data-event-type="move" data-element-id="{{form.instance.id}}" data-form="/formmoveeventmodal?stock='+data+'&project='+project+'" title="Move"';
                                 permission_move=  {% if perms.Mindkeepr.add_moveevent  %} true {% else %} false {% endif %};
                                 if(!permission_move)
                                 {
