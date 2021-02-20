@@ -3,6 +3,7 @@ $(document).on('hide.bs.modal',"#eventModal", function (evt) {
     // Assuming that an update just got completed
     if($(evt.target).data("element-id"))
     {
+        console.log($(evt.target).data("element-id"));
         $(".element-"+$(evt.target).data("event-type")+"-table[data-element-id="+$(evt.target).data("element-id")+"]").DataTable().rows().invalidate().draw();
         $(".element-stock-table[data-element-id="+$(evt.target).data("element-id")+"]").DataTable().rows().invalidate().draw();
     }

@@ -1,8 +1,8 @@
+
 {% block event_extra_btns %}
 {% endblock %}
 
-<div class="modal hide" id="eventModal">
-</div>
+
 
 <div class="container-fluid">
 
@@ -74,7 +74,7 @@
 
         <table
         data-element-id="{{form.instance.id}}"
-        class="table compact table-striped table-bordered element-location-table"
+        class="table compact table-striped table-bordered element-stock-table"
         style="width:100%">
         </table>
     </div>
@@ -141,197 +141,6 @@
 </script>
 <script>
 
-stock_table = $(".element-location-table[data-element-id={{form.instance.id}}]").DataTable({
-              "dom": '<"top">rt<"bottom"lip><"clear">',
-              'serverSide': true,
-              "responsive": true,
-              'ajax': '/api/v1/stocks?element={{form.instance.id}}&format=datatables',
-              "columnDefs": [
-                {
-                    "targets": [ 0,{% if form.instance.is_unique %}2{%else%}3{% endif %} ],
-                    "visible": false,
-                    "searchable": false
-                },
-                {
-                    "targets": '_all',
-                    "defaultContent": ""
-                }
-              ],
-              "fnCreatedRow": function( nRow, aData, iDataIndex ) {
-                  $(nRow).attr('id',"#elt-{{ form.instance.id }}-stock-"+aData.id);
-                  //$(nRow).attr("id","ee")
-              },
-              'columns': [
-                  { data: 'id', title: "Id" },
-                  { data: "location", title: "Location",
-                        render: function(data, type, row, meta){
-
-                            if(type === 'display'){
-                                url = "/locations/"+data.id;
-                                ret = '<a href="' + url + '">' +data.name+   '</a>';
-                                return ret;
-                            }
-
-                            return data.name;}},
-                  {% if not form.instance.is_unique %}
-                  { data: 'quantity', title: "Quantity" },
-                  {% endif %}
-                  {data: "status", title:"Status"},
-                  { data: "project.id", title: "Project",
-                    render: function(data,type,row,meta){
-                    if(type === "display"){
-                        if(data)
-                        {
-                        link = "<a href=\"/project/"+data+"\">"+row.project.name+"</a>";
-                        return link;
-                        }
-                    }
-                    if(data)
-                    {
-                        return row.project.name;
-                    }
-
-                  }},
-                  { data: 'id', title: "Borrow",
-                    render: function(data, type, row, meta){
-                        project = "";
-                                if(row.project)
-                                {
-                                    project = row.project.id;
-                                }
-                            if(type === 'display'){
-
-                                button = '<button type="button" class="btn btn-primary event" href="#" data-stock="'+data+'" data-event-type="borrow" data-element-id="{{form.instance.id}}" data-form="/formborroweventmodal?stock='+data+'&project='+project+'" title="Borrow" ' ;
-                                permission_borrow =  {% if perms.Mindkeepr.add_borrowevent  %} true {% else %} false {% endif %};
-                                if(!permission_borrow || row.status!="FREE")
-                                {
-                                    button+="disabled";
-                                }
-                                button+= ">Borrow</button>";
-                                return button;
-                            }
-
-                            return "";
-                        }},
-                  { data: 'id', title: "Reserve",
-                    render: function(data, type, row, meta){
-                            if(type === 'display'){
-                                button = "";
-                                if(row.project)//if not reserved
-                                {
-                                    button = '<button type="button" class="btn btn-primary event" href="#" data-element-id="{{form.instance.id}}" data-event-type="unreserve" data-stock="'+data+'"  data-form="/formunuseeventmodal?stock='+data+'" title="Unreserve"'
-
-                                    permission_unuse=  {% if perms.Mindkeepr.add_unuseevent  %} true {% else %} false {% endif %};
-                                    if(!permission_unuse)
-                                    {
-                                        button +=  "disabled";
-                                    }
-                                    button += '>Unreserve</button>';
-                                }
-                                else
-                                {
-                                    button = '<button type="button" class="btn btn-primary event" href="#" data-stock="'+data+'" data-element-id="{{form.instance.id}}" data-event-type="reserve" data-form="/formuseeventmodal?stock='+data+'" title="Reserve"'
-
-                                    permission_use=  {% if perms.Mindkeepr.add_useevent  %} true {% else %} false {% endif %};
-                                    if(!permission_use)
-                                    {
-                                        button +=  "disabled";
-                                    }
-                                    button += '>Reserve</button>';
-                                }
-                                return button;
-                            }
-
-                            return "";
-                        }},
-
-                        {% if form.instance.is_consummable %}
-                        { data: "id", title: "Consume",
-                        render: function(data,type,row,meta){
-                        if(type === 'display'){
-                                button = '<button type="button" class="btn btn-primary event" href="#" data-stock="'+data+'" data-element-id="{{form.instance.id}}" data-event-type="consume"  data-form="/formconsumeeventmodal?stock='+data+'" title="Consume"';
-                                permission_consume=  {% if perms.Mindkeepr.add_consumeevent  %} true {% else %} false {% endif %};
-                                if(!permission_consume)
-                                {
-                                    button +=  "disabled";
-                                }
-                                button += '>Consume</button>';
-
-                                return button;
-                            }
-
-                            return "";
-                        }},
-                        {% endif %}
-                        { data: 'id', title: "Sell",
-                        render: function(data, type, row, meta){
-                            if(type === 'display'){
-                                button = '<button type="button" class="btn btn-primary event" href="#" data-stock="'+data+'" data-event-type="sell" data-element-id="{{form.instance.id}}" data-form="/formselleventmodal?stock='+data+'" title="Sell"';
-                                permission_sell=  {% if perms.Mindkeepr.add_sellevent  %} true {% else %} false {% endif %};
-                                if(row.status!="FREE" || !permission_sell)
-                                {
-                                    button +=  "disabled";
-                                }
-
-                                button += '>Sell</button>';
-
-                                return button;
-                            }
-
-                            return "";
-                        }},
-                        { data: 'id', title: "Move",
-                        render: function(data, type, row, meta){
-                            if(type === 'display'){
-                                project = "";
-                                if(row.project)
-                                {
-                                    project = row.project.id;
-                                }
-                                button = '<button type="button" class="btn btn-primary event" href="#" data-stock="'+data+'" data-event-type="move" data-element-id="{{form.instance.id}}" data-form="/formmoveeventmodal?stock='+data+'&project='+project+'" title="Move"';
-                                permission_move=  {% if perms.Mindkeepr.add_moveevent  %} true {% else %} false {% endif %};
-                                if(!permission_move)
-                                {
-                                    button +=  "disabled";
-                                }
-
-                                button += '>Move</button>';
-
-                                return button;
-                            }
-
-                            return "";
-                        }},
-
-            ],
-
-    });
-
-    $(document).on("click",".event", function(ev) { // for each edit contact url
-        ev.preventDefault(); // prevent navigation
-        var url = $(this).data("form"); // get form from url
-
-        $("#eventModal").load(url, function() { // load the url into the modal
-            $(this).modal('show'); // display the modal on url load
-        });
-        var evttype=$(this).data("event-type");
-
-        if(evttype === undefined)
-        {
-            evttype="";
-        }
-        var idelement=$(this).data("element-id");
-
-        if(idelement === undefined)
-        {
-            idelement="";
-        }
-        // To know which event modal got closed, to refresh the right data
-        $("#eventModal").attr("data-event-type",evttype);
-        $("#eventModal").attr("data-element-id",idelement);
-        return false; // prevent the click propagation
-    });
-
 
 load_buy_table({{form.instance.id}},
             {% if form.instance.is_unique %} true {% else %} false {% endif %},
@@ -358,4 +167,17 @@ load_reserve_table({{form.instance.id}},
 
 load_consume_table({{form.instance.id}});
 
+
+
+                load_element_stock_table({{form.instance.id}},
+                {% if perms.Mindkeepr.add_borrowevent  %} true {% else %} false {% endif %},
+                {% if perms.Mindkeepr.add_useevent  %} true {% else %} false {% endif %},
+                {% if perms.Mindkeepr.add_unuseevent  %} true {% else %} false {% endif %},
+                {% if perms.Mindkeepr.add_consumeevent  %} true {% else %} false {% endif %},
+                {% if perms.Mindkeepr.add_sellevent  %} true {% else %} false {% endif %},
+                {% if perms.Mindkeepr.add_moveevent  %} true {% else %} false {% endif %}
+                );
+
+
 </script>
+
