@@ -33,22 +33,24 @@
                     </form>
                 </div>
                 <div class="tab-pane" id="pelements">
+                    <table
+                    data-project-id="{{form.instance.id}}"
+                    class="table compact table-striped table-bordered project-stock-table"
+                    style="width:100%"></table>
 
-                    <table>
-                    <tr><th>Element</th><th>Quantity</th><th>Location</th><th>Status</th><th>Project</th>
-                    </tr>
-                    {% for rep in form.instance.stock_repartitions.all %}
-                    <tr>
-                        <td><a href="/element/{{rep.element.id}}">{{rep.element.name}}</a></td>
-                        <td>{{rep.quantity}}</td>
-                        <td><a href="/location/{{rep.location.id}}">{{rep.location.name}}</a></td>
-                        <td>{{rep.status}}</td>
-                        <td><a href="/project/{{rep.project.id}}">{{rep.project}}</a></td>
-                    </tr>
-                    {% endfor %}
-                    </table>
                 </div>
             </div>
+
+            <script>
+                load_project_stock_table({{form.instance.id}},
+                {% if perms.Mindkeepr.add_borrowevent  %} true {% else %} false {% endif %},
+                {% if perms.Mindkeepr.add_useevent  %} true {% else %} false {% endif %},
+                {% if perms.Mindkeepr.add_unuseevent  %} true {% else %} false {% endif %},
+                {% if perms.Mindkeepr.add_consumeevent  %} true {% else %} false {% endif %},
+                {% if perms.Mindkeepr.add_sellevent  %} true {% else %} false {% endif %},
+                {% if perms.Mindkeepr.add_moveevent  %} true {% else %} false {% endif %}
+                );
+            </script>
 
 
         </div>

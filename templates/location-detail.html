@@ -8,14 +8,10 @@
 
 
 
-
-
-
-
 <div class="container">
     <div class="card">
         <div class="card-header">
-            Location
+            Location - {{form.instance.name}}
         </div>
         <div class="card-body">
 
@@ -44,22 +40,23 @@
 
     <div class="tab-pane" id="pelements">
 
-    <table>
-<tr><th>Component</th><th>Quantity</th><th>Status</th><th>Project</th>
-</tr>
-{% for rep in form.instance.stock_repartitions.all %}
-<tr>
-    <td><a href="/element/{{rep.element.id}}">{{rep.element.name}}</a></td>
-    <td>{{rep.quantity}}</td>
-    <td>{{rep.status}}</td>
-    <td>{% if rep.project %}<a href="/project/{{rep.project.id}}">{{rep.project}}</a>{% else %} - {% endif %}</td>
-</tr>
-{% endfor %}
-</table>
+<table
+data-location-id="{{form.instance.id}}"
+class="table compact table-striped table-bordered location-stock-table"
+style="width:100%"></table>
     </div>
 </div>
 
-
+<script>
+    load_location_stock_table({{form.instance.id}},
+    {% if perms.Mindkeepr.add_borrowevent  %} true {% else %} false {% endif %},
+    {% if perms.Mindkeepr.add_useevent  %} true {% else %} false {% endif %},
+    {% if perms.Mindkeepr.add_unuseevent  %} true {% else %} false {% endif %},
+    {% if perms.Mindkeepr.add_consumeevent  %} true {% else %} false {% endif %},
+    {% if perms.Mindkeepr.add_sellevent  %} true {% else %} false {% endif %},
+    {% if perms.Mindkeepr.add_moveevent  %} true {% else %} false {% endif %}
+    );
+</script>
 
 
 

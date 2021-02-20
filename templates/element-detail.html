@@ -17,8 +17,7 @@
 {% block event_extra_btns %}
 {% endblock %}
 
-<div class="modal hide" id="eventModal">
-</div>
+
 
 <div class="container-fluid">
 
@@ -90,7 +89,7 @@
 
         <table
         data-element-id="{{form.instance.id}}"
-        class="table compact table-striped table-bordered element-location-table"
+        class="table compact table-striped table-bordered element-stock-table"
         style="width:100%">
         </table>
     </div>
@@ -156,7 +155,7 @@
         });
 </script>
 <script>
-
+/*
 stock_table = $(".element-location-table[data-element-id={{form.instance.id}}]").DataTable({
               "dom": '<"top">rt<"bottom"lip><"clear">',
               'serverSide': true,
@@ -322,31 +321,8 @@ stock_table = $(".element-location-table[data-element-id={{form.instance.id}}]")
             ],
 
     });
+*/
 
-    $(document).on("click",".event", function(ev) { // for each edit contact url
-        ev.preventDefault(); // prevent navigation
-        var url = $(this).data("form"); // get form from url
-
-        $("#eventModal").load(url, function() { // load the url into the modal
-            $(this).modal('show'); // display the modal on url load
-        });
-        var evttype=$(this).data("event-type");
-
-        if(evttype === undefined)
-        {
-            evttype="";
-        }
-        var idelement=$(this).data("element-id");
-
-        if(idelement === undefined)
-        {
-            idelement="";
-        }
-        // To know which event modal got closed, to refresh the right data
-        $("#eventModal").attr("data-event-type",evttype);
-        $("#eventModal").attr("data-element-id",idelement);
-        return false; // prevent the click propagation
-    });
 
 
 load_buy_table({{form.instance.id}},
@@ -373,6 +349,18 @@ load_reserve_table({{form.instance.id}},
                 {% if perms.Mindkeepr.add_unuseevent  %} true {% else %} false {% endif %});
 
 load_consume_table({{form.instance.id}});
+
+
+
+                load_element_stock_table({{form.instance.id}},
+                {% if perms.Mindkeepr.add_borrowevent  %} true {% else %} false {% endif %},
+                {% if perms.Mindkeepr.add_useevent  %} true {% else %} false {% endif %},
+                {% if perms.Mindkeepr.add_unuseevent  %} true {% else %} false {% endif %},
+                {% if perms.Mindkeepr.add_consumeevent  %} true {% else %} false {% endif %},
+                {% if perms.Mindkeepr.add_sellevent  %} true {% else %} false {% endif %},
+                {% if perms.Mindkeepr.add_moveevent  %} true {% else %} false {% endif %}
+                );
+
 
 </script>
 

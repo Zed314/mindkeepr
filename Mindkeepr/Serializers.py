@@ -7,7 +7,8 @@ from Mindkeepr.event_serializers import (BorrowEventSerializer,
                                           IncidentEventSerializer,
                                           SellEventSerializer,
                                           UseEventSerializer,
-                                          UserSerializer)
+                                          UserSerializer,
+                                          ElementShortSerializer)
 from Mindkeepr.models import (Attribute, Category, Component, Element,
                                Location, Machine, Tool, Book, StockRepartition,
                                BorrowEvent, Event,Project)
@@ -73,9 +74,10 @@ class StockRepartitionSerializer(serializers.HyperlinkedModelSerializer):
 
     location = LocationSerializer()
     project = ProjectSerializer()
+    element = ElementShortSerializer()
     class Meta:
         model = StockRepartition
-        fields = ("id", "quantity", "location", "project", "status")
+        fields = ("id", "quantity", "location", "project","element", "status")
         depth = 2
 
 
