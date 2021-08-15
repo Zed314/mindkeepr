@@ -202,6 +202,9 @@ STATIC_ROOT = os.path.join(BASE_DIR, "static")
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 MEDIA_URL = '/media/'
 
+LOGIN_REDIRECT_URL="/"
+LOGOUT_REDIRECT_URL="/"
+
 if os.environ.get("DEV"):
     from MindkeeprMain.dev import *
 else:
