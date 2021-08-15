@@ -240,6 +240,8 @@ class Component(Consumable,Element):
     datasheet = models.FileField(upload_to='datasheet', blank=True, null=True)
     pass
 
+
+
 class Tool(Element):
     """ Tool """
     pass
@@ -572,6 +574,92 @@ class Machine(Element):
         max_length=3,
         choices=STATUS,
         default="OK",
+    )
+
+
+class Movie(models.Model):
+    """ Movie in DVD/Bluray format """
+    def is_unique(self):
+        return True
+
+    GENRES = [
+       ('ACT', "Action"),
+       ('ADV', "Adventure"),
+       ('ANI', "Animation"),
+       ('COM', "Comedy"),
+       ('CRI', "Crime"),
+       ('DRA', "Drama"),
+       ('FAM', "Family"),
+       ('FAN', "Fantasy"),
+       ('HIS', "History"),
+       ('HOR', "Horror"),
+       ('MUS', "Music"),
+       ('MYS', "Mystery"),
+       ('ROM', "Romance"),
+       ('SFI', "Science Fiction"),
+       ('TVM', "TV Movie"),
+       ('THR', "Thriller"),
+       ('WAR', "War"),
+       ('WES', "Western"),
+       ('UNK', "Unknown"),
+    ]
+    first_genre = models.CharField(
+        max_length=3,
+        choices=GENRES,
+        default="UNK",
+    )
+    second_genre = models.CharField(
+        max_length=3,
+        choices=GENRES,
+        default="UNK",
+    )
+
+
+class MovieCase(Element):
+    """ Movie in DVD/Bluray format """
+    FORMAT = [
+       ('DVD', "DVD"),
+       ('BLU', "Bluray"),
+       ("UNK", "UNKNOWN")
+    ]
+
+    SUB_FORMAT = [
+       ('DVD', "DVD"),
+       ('DVB', "DVD + Bluray"),
+       ('BLU', "Bluray"),
+       ('B3D', "Bluray 3D"),
+       ('B4K', "Bluray 4K"),
+       ("UNK", "UNKNOWN")
+    ]
+    CATEGORY = [
+       ('CHI', "Children"),
+       ('HOR', "Horror"),
+       ('NEW', "New"),
+       ('COM', "Comedy"),
+       ('DRA', "Drama"),
+       ("ACT", "Action")
+    ]
+    movie = models.ForeignKey('Movie',
+                                on_delete=models.CASCADE,
+                                related_name='cases',
+                                null=True)
+    custom_id = models.IntegerField("Custom id", unique=True, null=False, blank=False)
+    ean = models.CharField(max_length=13)
+    nb_disk = models.IntegerField("Number of disks", null=False, blank=False)
+    format_disk = models.CharField(
+        max_length=3,
+        choices=FORMAT,
+        default="UNK",
+    )
+    subformat_disk = models.CharField(
+        max_length=3,
+        choices=SUB_FORMAT,
+        default="UNK",
+    )
+    category_box = models.CharField(
+        max_length=3,
+        choices=SUB_FORMAT,
+        default="UNK",
     )
 
 
