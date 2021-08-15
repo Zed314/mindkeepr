@@ -25,6 +25,7 @@ from Mindkeepr.Serializers import (CategorySerializer, CategorySerializerFull, C
                                     StockRepartitionSerializer, UserDetailedSerializer, BuyEventSerializer)
 
 from rest_framework import  viewsets
+from rest_framework.permissions import IsAuthenticated
 from django.utils.decorators import method_decorator
 from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.core.exceptions import PermissionDenied
@@ -36,16 +37,25 @@ from django.http import HttpResponse
 
 
 class LoginRequiredMixin():
-    @method_decorator(login_required)
-    @csrf_exempt
-    def dispatch(self, *args, **kwargs):
-        return super().dispatch(*args, **kwargs)
 
-class EventsView(LoginRequiredMixin,viewsets.ModelViewSet):
+    def get_permissions(self):
+        self.permission_classes = [IsAuthenticated, ]
+        return super().get_permissions()
+
+    #@method_decorator(login_required)
+    #@csrf_exempt
+    #def dispatch(self, *args, **kwargs):
+    #    return super().dispatch(*args, **kwargs)
+
+class EventsView(LoginRequiredMixin, viewsets.ModelViewSet):
 
     serializer_class = EventSerializer
+
+
     def perform_create(self, serializer):
-        serializer.save(creator=self.request.user)
+        serializer.save()
+#    serializer.save(creator=self.request.user)
+
 
     def get_queryset(self):
         queryset = Event.objects.all()
@@ -135,6 +145,7 @@ class MaintenancesView(LoginRequiredMixin,viewsets.ModelViewSet):
         if user is not None:
             queryset = queryset.filter(assignee_id=user).filter(is_done=False)
         return queryset
+
 class IncidentsView(LoginRequiredMixin, viewsets.ModelViewSet):
     serializer_class = IncidentEventSerializer
 
@@ -213,8 +224,7 @@ class ProjectsView(LoginRequiredMixin,viewsets.ModelViewSet):
         queryset = searchFilter(queryset, self.request)
         return queryset
 
-class ElementsView(LoginRequiredMixin,viewsets.ModelViewSet):
-
+class ElementsView(LoginRequiredMixin, viewsets.ModelViewSet):
     serializer_class = ElementSerializer
     def get_queryset(self):
         queryset = Element.objects.all()

@@ -29,12 +29,13 @@ class SerializerFactory:
         serializer = ser_class(**kwargs)
         return serializer
 
-class ProjectSerializer(serializers.HyperlinkedModelSerializer):
+
+class ProjectShortSerializer(serializers.HyperlinkedModelSerializer):
     id = serializers.IntegerField(required=False)
     class Meta:
         model = Project
-        fields = ("id", "name","description")
-        depth = 2
+        fields = ["id"]
+
 
 class ElementShortSerializer(serializers.HyperlinkedModelSerializer):
     id = serializers.IntegerField(required=False)
@@ -114,9 +115,15 @@ class UserSerializer(serializers.ModelSerializer):
           model = User
           fields = ('id', 'username',"first_name","last_name","get_full_name","email")
 
+class UserSerializerShort(serializers.ModelSerializer):
+    id = serializers.IntegerField(required=False)
+    class Meta:
+        model = User
+        fields = ['id']
+
 class EventFieldMixin(serializers.Serializer):
     recording_date = serializers.ReadOnlyField()
-    creator = UserSerializer()
+    creator = UserSerializer(read_only=True, default=serializers.CreateOnlyDefault(serializers.CurrentUserDefault()))
 
 @SerializerFactory.register('SellEvent')
 class SellEventSerializer(EventFieldMixin, serializers.HyperlinkedModelSerializer):
@@ -149,7 +156,7 @@ class BuyEventSerializer(EventFieldMixin, serializers.HyperlinkedModelSerializer
 
     element = ElementShortSerializer()
     location_destination = LocationShortSerializer()
-    project = ProjectSerializer()
+    project = ProjectShortSerializer(required=False)
 
     class Meta:
         model = BuyEvent
@@ -177,7 +184,7 @@ class UseEventSerializer(EventFieldMixin, serializers.HyperlinkedModelSerializer
     location_destination = LocationShortSerializer()
     location_source = LocationShortSerializer()
     element = ElementShortSerializer()
-    project = ProjectSerializer()
+    project = ProjectShortSerializer()
 
     class Meta:
         model = UseEvent
@@ -192,7 +199,8 @@ class UseEventSerializer(EventFieldMixin, serializers.HyperlinkedModelSerializer
         location_destination = Location.objects.get(
             id=validated_data.pop('location_destination')["id"])
         element = Element.objects.get(id=validated_data.pop('element')["id"])
-        use_event = UseEvent(**validated_data, element=element,
+        project = Project.objects.get(id=validated_data.pop('project')["id"])
+        use_event = UseEvent(**validated_data, element=element, project=project,
                              location_source=location_source, location_destination=location_destination)
         if use_event.is_add_to_element_possible():
             use_event.save()
@@ -250,7 +258,7 @@ class BorrowEventSerializer(EventFieldMixin, serializers.HyperlinkedModelSeriali
     location_source = LocationShortSerializer()
     element = ElementShortSerializer()
     is_returned = serializers.ReadOnlyField()
-    return_event = ReturnEventSerializerShort()
+    return_event = ReturnEventSerializerShort(required=False)
     class Meta:
         model = BorrowEvent
         fields = EventSerializer.Meta.fields + ("element", "quantity", "is_returned",
@@ -310,8 +318,8 @@ class ReturnEventSerializer(EventFieldMixin, serializers.HyperlinkedModelSeriali
 
 @SerializerFactory.register('MaintenanceEvent')
 class MaintenanceEventSerializer(EventFieldMixin, serializers.HyperlinkedModelSerializer):
-    element = ElementShortSerializer()
-    assignee = UserSerializer()
+    element = ElementShortSerializer(required=False)
+    assignee = UserSerializerShort(required=False)
     class Meta:
         model = MaintenanceEvent
         fields = EventSerializer.Meta.fields + ("assignee", "is_done","scheduled_date","completion_date","element")
@@ -320,7 +328,11 @@ class MaintenanceEventSerializer(EventFieldMixin, serializers.HyperlinkedModelSe
 
     def create(self, validated_data):
         machine = Machine.objects.get(id=validated_data.pop('element')["id"])
-        maintenance_event = MaintenanceEvent(**validated_data, element=machine)
+        try:
+            assignee = User.objects.get(id=validated_data.pop("assignee")["id"])
+        except Exception:
+            raise serializers.ValidationError('Missing assignee.')
+        maintenance_event = MaintenanceEvent(**validated_data, element=machine, assignee=assignee)
         if maintenance_event.is_add_to_element_possible():
             maintenance_event.save()
             return maintenance_event

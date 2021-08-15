@@ -48,7 +48,7 @@ class APITestCase(TestCase):
             "recording_date" : None,
             "quantity" : 5,
             #"is_returned": False,
-            "scheduled_return_date": "2021-03-14",
+            "scheduled_return_date": "2040-03-14",
             "location_source" : {'id':self.location.id},
             "element" : {'id':self.component.id}
         }

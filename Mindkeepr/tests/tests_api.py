@@ -120,6 +120,7 @@ class APITestCase(TestCase):
         request = factory.post(reverse('element-list'),element,format= 'json')
         request.user = self.dumb_user
         response = view_element_create(request)
+
         self.assertEqual(response.status_code,201)
 
         element.pop('type')

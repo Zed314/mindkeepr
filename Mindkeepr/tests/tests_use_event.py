@@ -14,7 +14,7 @@ class APITestCase(TestCase):
         self.location = models.Location.objects.create(name = "Location 1")
         self.location2 = models.Location.objects.create(name = "Location 2")
         self.component = models.Component.objects.create(name = "Component 1",description="First component !")
-
+        self.project = models.Project.objects.create(name = "Bob and Tesla")
         self.view_event_create = EventsView.as_view({'post':'create'})
 
     def test_use_event_post(self):
@@ -45,7 +45,8 @@ class APITestCase(TestCase):
             "quantity" : 5,
             "location_destination" : {'id':self.location.id},
             "location_source" : {'id':self.location.id},
-            "element" : {'id':self.component.id}
+            "element" : {'id':self.component.id},
+            "project" : {"id":self.project.id}
         }
 
         request = factory.post('/api/events',use_event,format= 'json')

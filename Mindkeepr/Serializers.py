@@ -43,6 +43,8 @@ class ProjectSerializer(serializers.HyperlinkedModelSerializer):
         fields = ("id", "name","description","manager")
         depth = 2
 
+
+
 class LocationFullSerializer(serializers.HyperlinkedModelSerializer):
     id = serializers.IntegerField(required=False)
 
@@ -110,6 +112,12 @@ class CategoryIdSerializerFull(serializers.ModelSerializer):
     class Meta:
         model = Category
         fields = ['id']
+
+class CategorySerializerShortShort(serializers.HyperlinkedModelSerializer):
+    id = serializers.IntegerField()
+    class Meta:
+        model = Category
+        fields = ["id"]
 
 class CategorySerializerShort(serializers.HyperlinkedModelSerializer):
     id = serializers.IntegerField()
@@ -201,11 +209,17 @@ class ElementSerializer(serializers.HyperlinkedModelSerializer):
 #                  "comment")
 
 class ElementFieldMixin(serializers.Serializer):
-    category = CategorySerializer()
+    category = CategorySerializerShortShort()
     stock_repartitions = StockRepartitionSerializer(many=True, read_only=True)
     buy_history = BuyEventSerializer(many=True, read_only=True)
     sell_history = SellEventSerializer(many=True, read_only=True)
     borrow_history = BorrowEventSerializer(many=True, read_only=True)
+    def get_category(self, validated_data):
+        try:
+            category = Category.objects.get(id=validated_data.pop("category")["id"])
+        except Exception:
+            raise serializers.ValidationError('Missing category.')
+        return {"category":category}
 
 
 class MachineSerializer(ElementFieldMixin, serializers.HyperlinkedModelSerializer):
@@ -215,7 +229,7 @@ class MachineSerializer(ElementFieldMixin, serializers.HyperlinkedModelSerialize
      #   return obj.get_status_display()
     #status = serializers.SerializerMethodField(read_only=True, source='get_status_name')
     status= serializers.CharField(
-        source='get_status_display'
+        source='get_status_display',read_only=True
     )
     class Meta:
         model = Machine
@@ -223,7 +237,8 @@ class MachineSerializer(ElementFieldMixin, serializers.HyperlinkedModelSerialize
         depth = 1
 
     def create(self, validated_data):
-        machine = Machine.objects.create(**validated_data)
+        category = self.get_category(validated_data)
+        machine = Machine.objects.create(**validated_data,**category)
         return machine
 
 
@@ -236,7 +251,8 @@ class ToolSerializer(ElementFieldMixin, serializers.HyperlinkedModelSerializer):
         depth = 1
 
     def create(self, validated_data):
-        tool = Tool.objects.create(**validated_data)
+        category = self.get_category(validated_data)
+        tool = Tool.objects.create(**validated_data,**category)
         return tool
 
 
@@ -249,12 +265,12 @@ class BookSerializer(ElementFieldMixin, serializers.HyperlinkedModelSerializer):
         depth = 1
 
     def create(self, validated_data):
-        book = Book.objects.create(**validated_data)
+        category = self.get_category(validated_data)
+        book = Book.objects.create(**validated_data, **category)
         return book
 
 
 class ComponentSerializer(ElementFieldMixin, serializers.HyperlinkedModelSerializer):
-    category = CategorySerializerShort()
     attributes = AttributeSerializer(many=True, required=False)
 
     class Meta:
@@ -263,8 +279,7 @@ class ComponentSerializer(ElementFieldMixin, serializers.HyperlinkedModelSeriali
         depth = 1
 
     def create(self, validated_data):
-        category = Category.objects.get(
-            id=validated_data.pop('category')["id"])
+        category = self.get_category(validated_data)
         component = Component.objects.create(
-            **validated_data, category=category)
+            **validated_data, **category)#, category=category)
         return component
