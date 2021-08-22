@@ -1,5 +1,5 @@
 from Mindkeepr.models import Event, BuyEvent, UseEvent, SellEvent, ConsumeEvent, ReturnEvent, BorrowEvent, MaintenanceEvent, IncidentEvent, MoveEvent, UnUseEvent
-from Mindkeepr.models import Component, Location, StockRepartition, Element, Machine, Project
+from Mindkeepr.models import Location, Element, Machine, Project
 from django.contrib.auth.models import User
 from rest_framework import serializers
 from typing import Callable

@@ -6,6 +6,6 @@ from .move_event import *
 from .use_event import *
 from .unuse_event import *
 from .consume_event import *
-from .borrow_event import *
 from .return_event import *
+from .borrow_event import *
 from .maintenance_event import *

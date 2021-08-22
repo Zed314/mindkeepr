@@ -5,6 +5,7 @@ from django.db.models import Sum
 #from . import Event
 from ..category import Category
 from ..location import Location
+from ..stock_repartition import StockRepartition
 
 class Element(PolymorphicModel):
     """ Object in the Inventory. """

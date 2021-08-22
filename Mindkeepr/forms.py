@@ -2,9 +2,10 @@
 Forms used by Django
 """
 
-from django.forms import ModelForm, DateInput
+from django.forms import ModelForm
 from django import forms
 from . import models
+from Mindkeepr.models.elements.attachment import Attachment
 
 from django.forms.models import inlineformset_factory
 from django_select2 import forms as s2forms
@@ -338,7 +339,7 @@ class AttributeForm(ModelForm):
 class AttachmentForm(ModelForm):
 
     class Meta:
-        model = models.Attachment
+        model = Attachment
         fields = ['name','file']
 
 class ElementForm(ModelForm):
@@ -396,5 +397,5 @@ AttributeFormSet = inlineformset_factory(
     extra=1, can_delete=True)
 
 AttachmentFormSet = inlineformset_factory(
-    models.Element, models.Attachment, form=AttachmentForm,
+    models.Element, Attachment, form=AttachmentForm,
     extra=1, can_delete=True)

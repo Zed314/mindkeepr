@@ -27,35 +27,6 @@ def create_user_profile(sender, instance, created, **kwargs):
 post_save.connect(create_user_profile, sender=User)
 
 
-
-
-
-class Project(models.Model):
-    """ Project, so a set of user that works together to build things by buying,
-    using or consuming elements """
-    name = models.CharField("name", max_length=40, blank=False, null=False)
-    description = models.CharField("description", max_length=300, blank=True, null=False)
-    image = models.ImageField(upload_to='images', blank=True, null=True)
-    manager = models.ForeignKey(User, on_delete=models.PROTECT, null=True, related_name="managed_projects")
-    users = models.ManyToManyField(User, related_name="projects")
-
-    def __str__(self):
-        return self.name
-
-
-
-
-class Consumable():
-    """ An element that is meant to be consumed by a machine/eaten or permenantly used in a project """
-    # TODO make component inherit from Consumable
-    def is_consummable(self):
-        return True
-
-class Attachment(models.Model):
-    name = models.CharField("value", max_length=200, blank=False, null=False, default="")
-    file = models.FileField(upload_to="attachments")
-    element = models.ForeignKey(Element, on_delete=models.CASCADE, related_name='attachments')
-
 class Attribute(models.Model):
     """ Extra attributes with a name and a string value, attached to a Element """
     name = models.CharField("name", max_length=200, blank=False, null=False)
@@ -69,53 +40,6 @@ class Attribute(models.Model):
     #        models.UniqueConstraint(fields=[
     #                                'element_attached', 'name'], name='Unique set of element and name'),
     #    ]
-
-
-class Component(Consumable,Element):
-    """ Electronic component """
-    datasheet = models.FileField(upload_to='datasheet', blank=True, null=True)
-    pass
-
-class Tool(Element):
-    """ Tool """
-    pass
-
-class Book(Element):
-    """ Book """
-    # TODO Add ISBN/Barcode
-    def is_unique(self):
-        return True
-
-
-
-class StockRepartition(models.Model):
-    """ Represents a stock element (like a _lot_), a set of Element that have
-     a status, a location and a project (if status is RESERVED) """
-    """ TODO : Add project if reserved """
-    STATUS = {
-        ('FREE', "Free"),
-        ('RESERVED', "Reserved")
-    }
-    location = models.ForeignKey(
-        'location', on_delete=models.PROTECT, null=True, related_name="stock_repartitions")
-    quantity = models.IntegerField("Quantity", null=False, blank=False)
-    status = models.CharField("Status",
-                              null=False,
-                              blank=False,
-                              max_length=200,
-                              choices=STATUS)
-    element = models.ForeignKey('Element',
-                                on_delete=models.PROTECT,
-                                related_name='stock_repartitions',
-                                null=True)
-    project = models.ForeignKey('Project', on_delete = models.PROTECT, related_name='stock_repartitions',null=True)
-    class Meta:#todo add project to constraint
-        constraints = [
-            models.UniqueConstraint(fields=[
-                                    'element', 'location', 'status','project'], name='Unique set of location, status and element'),
-        ]
-        # todo also override  validate_unique method
-
 
 class PrintElement(models.Model):
     quantity = models.IntegerField("Quantity", null=False, blank=False)

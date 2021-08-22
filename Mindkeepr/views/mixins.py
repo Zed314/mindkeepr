@@ -1,0 +1,120 @@
+from rest_framework.permissions import IsAuthenticated
+
+from django.core.exceptions import PermissionDenied
+from django.shortcuts import get_object_or_404
+from Mindkeepr.models.stock_repartition import StockRepartition
+from Mindkeepr.models.elements import Element
+from Mindkeepr.models import Project, Location
+from Mindkeepr.models.events import BorrowEvent
+
+
+class LoginRequiredMixin():
+
+    def get_permissions(self):
+        self.permission_classes = [IsAuthenticated, ]
+        return super().get_permissions()
+
+    #@method_decorator(login_required)
+    #@csrf_exempt
+    #def dispatch(self, *args, **kwargs):
+    #    return super().dispatch(*args, **kwargs)
+
+
+class PermissionRequiredAtFormValidMixin():
+    def form_valid(self, form):
+        if not(self.request.user.has_perm(self.permission_required)):
+            raise PermissionDenied()
+        return super(PermissionRequiredAtFormValidMixin, self).form_valid(form)
+
+class PresetElementQuantitySourceMixin():
+
+    def __init__(self):
+        self._disabled_fields = []
+
+    def get_form(self, form_class=None):
+        form = super().get_form(form_class)
+        form.disable_html_fields(self._disabled_fields)
+        return form
+
+    def get_initial(self):
+        initial = super().get_initial()
+        try:
+            idstock = int(self.request.GET['stock'])
+            stock = get_object_or_404(StockRepartition, pk=idstock)
+            initial['element'] = stock.element
+            initial['location_source'] = stock.location
+            initial['status'] = stock.status
+            # TODO : handle this case : stock with no project should be preset as empty except for reserve event
+            # So refactoring needed
+            # also : move & borrow currently ask for project src…
+            # ok for consume tho
+            if(stock.project):
+                initial["project"] = stock.project
+                self._disabled_fields.append("project")
+            self._disabled_fields.append('element')
+            self._disabled_fields.append("location_source")
+            self._disabled_fields.append("status")
+            if(stock.element.is_unique):
+                initial['quantity'] = 1
+                self._disabled_fields.append('quantity')
+
+        except KeyError:
+            pass
+        try:
+            idelement = int(self.request.GET['element'])
+            initial['element'] = get_object_or_404(Element, pk=idelement)
+            self._disabled_fields.append('element')
+        except KeyError:
+            pass
+        # try:
+        #    idmachine = int(self.request.GET['machine'])
+        #    initial['machine'] = get_object_or_404(Element, pk=idmachine)
+        #    self._disabled_fields.append('machine')
+        # except KeyError:
+        #    pass
+        try:
+            idlocationsrc = int(self.request.GET['locationsrc'])
+            initial['location_source'] = get_object_or_404(
+                Location, pk=idlocationsrc)
+            self._disabled_fields.append('location_source')
+        except KeyError:
+            pass
+        try:
+            status = self.request.GET['status']
+            initial['status'] = status
+            self._disabled_fields.append('status')
+        except KeyError:
+            pass
+        try:
+            idelt = int(self.request.GET['element'])
+            elt = get_object_or_404(Element, pk=idelt)
+            if(elt.is_unique):
+                initial['quantity'] = 1
+                self._disabled_fields.append('quantity')
+        except KeyError:
+            pass
+        try:
+            initial['quantity'] = int(self.request.GET['quantity'])
+        except KeyError:
+            initial['quantity'] = 1
+            pass
+        try:
+            idprojectsrc = int(self.request.GET['project'])
+            if (idprojectsrc != 0):
+                initial['project'] = get_object_or_404(
+                    Project, pk=idprojectsrc)
+            self._disabled_fields.append('project')
+        except ValueError:
+            self._disabled_fields.append("project")
+        except KeyError:
+            pass
+        try:
+            idborrowsrc = int(self.request.GET['borrow'])
+            if (idborrowsrc != 0):
+                initial['borrow_associated'] = get_object_or_404(
+                    BorrowEvent, pk=idborrowsrc)
+                self._disabled_fields.append('borrow_associated')
+        except KeyError:
+            pass
+        # except ValueError:
+        return initial

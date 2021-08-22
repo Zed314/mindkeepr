@@ -1,9 +1,10 @@
 from django.contrib import admin
 
 
-from Mindkeepr.models import Component, Location, Element, Machine
-from Mindkeepr.models import Event, BuyEvent, UseEvent, ConsumeEvent, ReturnEvent, MaintenanceEvent, Attachment, UserProfile, Category
-
+from Mindkeepr.models import Component, Location, Element
+from Mindkeepr.models.events import *
+from Mindkeepr.models import UserProfile, Category
+from Mindkeepr.models.elements.attachment import Attachment
 
 class ProfiletInline(admin.TabularInline):
     model = UserProfile

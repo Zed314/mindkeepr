@@ -1,7 +1,6 @@
 from polymorphic.models import PolymorphicModel
 from django.db import models
 from django.contrib.auth.models import User
-#from .models import Project
 
 
 class Event(PolymorphicModel):
