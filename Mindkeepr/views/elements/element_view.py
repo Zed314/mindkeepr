@@ -15,6 +15,8 @@ from Mindkeepr.models.elements import Component,Machine,Tool,Book
 from Mindkeepr.forms import ToolForm,MachineForm,ComponentForm,BookForm
 from django.core.exceptions import PermissionDenied
 
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import render
 
 class ElementsView(LoginRequiredMixin, viewsets.ModelViewSet):
     serializer_class = ElementSerializer
@@ -132,3 +134,17 @@ class ElementDelete(LoginRequiredMixin, PermissionRequiredMixin, DeleteView):
     permission_required = "Mindkeepr.delete_element"
     template_name = "element-confirm-delete.html"
     success_url = "/"
+
+
+@login_required(login_url='/accounts/login')
+def elements(request):
+    return render(request, "element-list.html")
+
+
+class ElementUpdateEmbedded(ElementUpdate):
+    templates = {
+        Component: 'element-detail-embedded.html',
+        Machine: 'machine-detail-embedded.html',
+        Tool: 'element-detail-embedded.html',
+        Book: "element-detail-embedded.html"
+    }

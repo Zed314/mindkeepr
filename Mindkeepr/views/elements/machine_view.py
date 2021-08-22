@@ -7,6 +7,9 @@ from Mindkeepr.models.elements import Machine
 from Mindkeepr.Serializers import MachineSerializer
 from Mindkeepr.forms import MachineForm
 
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import render
+
 class MachinesView(LoginRequiredMixin, viewsets.ModelViewSet):
     serializer_class = MachineSerializer
 
@@ -29,3 +32,8 @@ class MachineCreate(ElementCreate):
     def form_class(self):
         return MachineForm
     success_url = None
+
+
+@login_required(login_url='/accounts/login')
+def machines(request):
+    return render(request, "machine-list.html")

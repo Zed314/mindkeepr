@@ -7,17 +7,13 @@ from Mindkeepr.models.elements import Element
 from Mindkeepr.models import Project, Location
 from Mindkeepr.models.events import BorrowEvent
 
+#"from .mixins import PermissionRequiredAtFormValidMixin
 
 class LoginRequiredMixin():
 
     def get_permissions(self):
         self.permission_classes = [IsAuthenticated, ]
         return super().get_permissions()
-
-    #@method_decorator(login_required)
-    #@csrf_exempt
-    #def dispatch(self, *args, **kwargs):
-    #    return super().dispatch(*args, **kwargs)
 
 
 class PermissionRequiredAtFormValidMixin():
@@ -66,12 +62,7 @@ class PresetElementQuantitySourceMixin():
             self._disabled_fields.append('element')
         except KeyError:
             pass
-        # try:
-        #    idmachine = int(self.request.GET['machine'])
-        #    initial['machine'] = get_object_or_404(Element, pk=idmachine)
-        #    self._disabled_fields.append('machine')
-        # except KeyError:
-        #    pass
+
         try:
             idlocationsrc = int(self.request.GET['locationsrc'])
             initial['location_source'] = get_object_or_404(

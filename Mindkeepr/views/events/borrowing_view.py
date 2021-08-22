@@ -6,6 +6,10 @@ from Mindkeepr.event_serializers import BorrowEventSerializer
 from Mindkeepr.models.events import BorrowEvent
 from . import EventViewModal
 from Mindkeepr.forms import BorrowEventForm, ReturnEventForm
+
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import render
+
 class BorrowingsView(LoginRequiredMixin,viewsets.ModelViewSet):
     serializer_class = BorrowEventSerializer
 
@@ -31,3 +35,7 @@ class ReturnEventViewModal(EventViewModal):
     permission_required = "Mindkeepr.add_returnevent"
     form_class = ReturnEventForm
     success_url = '/formreturneventmodal'
+
+@login_required(login_url='/accounts/login')
+def borrowings(request):
+    return render(request, "borrowings.html")

@@ -7,6 +7,9 @@ from Mindkeepr.models.elements import Component
 from Mindkeepr.Serializers import ComponentSerializer
 from Mindkeepr.forms import ComponentForm
 
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import render
+
 class ComponentsView(LoginRequiredMixin, viewsets.ModelViewSet):
 
     serializer_class = ComponentSerializer
@@ -31,3 +34,6 @@ class ComponentCreate(ElementCreate):
         return ComponentForm
     success_url = None
 
+@login_required(login_url='/accounts/login')
+def components(request):
+    return render(request, "component-list.html")

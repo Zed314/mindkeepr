@@ -1,6 +1,7 @@
 from rest_framework import viewsets
 from ..mixins import LoginRequiredMixin
-
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import render
 from ..search import searchFilter
 from . import ElementCreate
 from Mindkeepr.models.elements import Book
@@ -31,3 +32,7 @@ class BookCreate(ElementCreate):
     def form_class(self):
         return BookForm
     success_url = None
+
+@login_required(login_url='/accounts/login')
+def books(request):
+    return render(request, "book-list.html")

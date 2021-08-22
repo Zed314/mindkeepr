@@ -8,6 +8,8 @@ from Mindkeepr.models.elements import Tool
 from Mindkeepr.Serializers import ToolSerializer
 
 from Mindkeepr.forms import ToolForm
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import render
 
 class ToolsView(LoginRequiredMixin, viewsets.ModelViewSet):
 
@@ -31,3 +33,8 @@ class ToolCreate(ElementCreate):
     def form_class(self):
         return ToolForm
     success_url = None
+
+
+@login_required(login_url='/accounts/login')
+def tools(request):
+    return render(request, "tool-list.html")
