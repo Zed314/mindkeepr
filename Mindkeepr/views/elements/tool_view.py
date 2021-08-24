@@ -5,7 +5,7 @@ from ..search import searchFilter
 from . import ElementCreate
 
 from Mindkeepr.models.elements import Tool
-from Mindkeepr.Serializers import ToolSerializer
+from Mindkeepr.serializers.elements.tool import ToolSerializer
 
 from Mindkeepr.forms import ToolForm
 from django.contrib.auth.decorators import login_required

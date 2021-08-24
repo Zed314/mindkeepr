@@ -5,7 +5,7 @@ from django.shortcuts import render
 from ..search import searchFilter
 from . import ElementCreate
 from Mindkeepr.models.elements import Book
-from Mindkeepr.Serializers import BookSerializer
+from Mindkeepr.serializers.elements.book import BookSerializer
 
 from Mindkeepr.forms import BookForm
 

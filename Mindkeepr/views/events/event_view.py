@@ -11,7 +11,7 @@ from django.contrib.auth.mixins import PermissionRequiredMixin
 from ..mixins import PresetElementQuantitySourceMixin
 
 from Mindkeepr.models.events import Event
-from Mindkeepr.event_serializers import EventSerializer
+from Mindkeepr.serializers.events.event import EventSerializer
 
 class EventsView(LoginRequiredMixin, viewsets.ModelViewSet):
 

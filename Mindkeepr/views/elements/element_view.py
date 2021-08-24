@@ -1,8 +1,9 @@
+from Mindkeepr.serializers.elements.element import ElementSerializer
 from rest_framework import viewsets
 from ..mixins import LoginRequiredMixin
 
 from Mindkeepr.models.elements import Element
-from Mindkeepr.Serializers import ElementSerializer
+#from Mindkeepr.serializers.elements import ElementSerializer
 
 from ..search import searchFilter
 from django.db import transaction

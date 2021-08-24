@@ -1,7 +1,7 @@
 
 from rest_framework import  viewsets
 from ..mixins import LoginRequiredMixin
-from Mindkeepr.event_serializers import MaintenanceEventSerializer
+from Mindkeepr.serializers.events.maintenance_event import MaintenanceEventSerializer
 from django.views.generic.edit import UpdateView
 from Mindkeepr.models.events import MaintenanceEvent
 from . import EventViewModal

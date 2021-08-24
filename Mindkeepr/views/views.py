@@ -2,7 +2,7 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.models import User
 from django.shortcuts import redirect, render
 from django.views.generic import DetailView
-from Mindkeepr.Serializers import UserDetailedSerializer
+from Mindkeepr.serializers.user import UserDetailedSerializer
 
 from rest_framework import viewsets
 

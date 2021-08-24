@@ -4,7 +4,7 @@ from ..mixins import LoginRequiredMixin
 from ..search import searchFilter
 from . import ElementCreate
 from Mindkeepr.models.elements import Component
-from Mindkeepr.Serializers import ComponentSerializer
+from Mindkeepr.serializers.elements.component import ComponentSerializer
 from Mindkeepr.forms import ComponentForm
 
 from django.contrib.auth.decorators import login_required

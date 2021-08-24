@@ -1,7 +1,7 @@
 
 from rest_framework import  viewsets
 from ..mixins import LoginRequiredMixin
-from Mindkeepr.event_serializers import UseEventSerializer
+from Mindkeepr.serializers.events.use_event import UseEventSerializer
 
 from Mindkeepr.models.events import UseEvent
 from . import EventViewModal

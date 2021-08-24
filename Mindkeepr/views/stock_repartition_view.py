@@ -1,6 +1,6 @@
 from .mixins import LoginRequiredMixin
 from rest_framework import viewsets
-from Mindkeepr.Serializers import StockRepartitionSerializer
+from Mindkeepr.serializers.stock_repartition import StockRepartitionSerializer
 from Mindkeepr.models import StockRepartition
 
 class StockRepartitionsView(LoginRequiredMixin, viewsets.ModelViewSet):
