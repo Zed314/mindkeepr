@@ -1,11 +1,12 @@
-from Mindkeepr.event_serializers import ElementShortSerializer, LocationShortSerializer
 from rest_framework import serializers
-from .event import EventSerializer
+
+from .event import EventSerializer, EventFieldMixin
 from Mindkeepr.models.events import MoveEvent
 from Mindkeepr.models.elements import Element
 from Mindkeepr.models import Location
 from ..serializer_factory import SerializerFactory
-from . import ElementShortSerializer, LocationShortSerializer, EventFieldMixin
+from ..elements.element_short import ElementShortSerializer
+from ..location import LocationShortSerializer
 
 @SerializerFactory.register('MoveEvent')
 class MoveEventSerializer(EventFieldMixin, serializers.HyperlinkedModelSerializer):

@@ -1,11 +1,10 @@
 from rest_framework import serializers
 from Mindkeepr.models.elements.tool import Tool
 
-from Mindkeepr.serializers.elements.element import ElementFieldMixin
-from .element import ElementSerializer
+from .element import ElementFieldMixin, ElementSerializer
+from ..serializer_factory import SerializerFactory
 
-
-
+@SerializerFactory.register("Tool")
 class ToolSerializer(ElementFieldMixin, serializers.HyperlinkedModelSerializer):
 
     class Meta:

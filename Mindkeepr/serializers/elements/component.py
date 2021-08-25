@@ -4,7 +4,9 @@ from Mindkeepr.models import Component
 
 from .element import ElementFieldMixin, ElementSerializer
 from ..attribute import AttributeSerializer
+from ..serializer_factory import SerializerFactory
 
+@SerializerFactory.register("Component")
 class ComponentSerializer(ElementFieldMixin, serializers.HyperlinkedModelSerializer):
     attributes = AttributeSerializer(many=True, required=False)
 

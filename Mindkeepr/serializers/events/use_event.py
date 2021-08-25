@@ -1,12 +1,13 @@
 from rest_framework import serializers
-from .event import EventSerializer
+
 from Mindkeepr.models.events import UseEvent
 from Mindkeepr.models.elements import Element
+from Mindkeepr.models.project import Project
 from Mindkeepr.models import Location
 from Mindkeepr.serializers.location import LocationShortSerializer
 from ..serializer_factory import SerializerFactory
 from ..elements.element_short import ElementShortSerializer
-from .event import EventFieldMixin
+from .event import EventFieldMixin, EventSerializer
 from ..project import ProjectShortSerializer
 
 @SerializerFactory.register('UseEvent')

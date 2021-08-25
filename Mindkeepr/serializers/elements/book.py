@@ -3,7 +3,9 @@ from Mindkeepr.models.elements.book import Book
 
 from Mindkeepr.serializers.elements.element import ElementFieldMixin
 from .element import ElementSerializer
+from ..serializer_factory import SerializerFactory
 
+@SerializerFactory.register("Book")
 class BookSerializer(ElementFieldMixin, serializers.HyperlinkedModelSerializer):
 
     class Meta:

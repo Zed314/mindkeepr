@@ -5,7 +5,9 @@ from Mindkeepr.models import Machine
 from .element import ElementSerializer, ElementFieldMixin
 
 from ..events.maintenance_event import MaintenanceEventSerializer
+from ..serializer_factory import SerializerFactory
 
+@SerializerFactory.register("Machine")
 class MachineSerializer(ElementFieldMixin, serializers.HyperlinkedModelSerializer):
 
     maintenance_history = MaintenanceEventSerializer(many=True, read_only=True)

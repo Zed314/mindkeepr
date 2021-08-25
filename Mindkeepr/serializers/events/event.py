@@ -9,11 +9,11 @@ class EventFieldMixin(serializers.Serializer):
     creator = UserSerializer(read_only=True, default=serializers.CreateOnlyDefault(serializers.CurrentUserDefault()))
 
 
-class EventSerializer(serializers.HyperlinkedModelSerializer):
+class EventSerializer(SerializerFactory, serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = Event
-        fields = ("id", "type", "recording_date","creator", "comment")
+        fields = ("id", "type", "recording_date", "creator", "comment")
         depth = 1
         extra_kwargs = {
             "type": {
@@ -48,7 +48,6 @@ class EventSerializer(serializers.HyperlinkedModelSerializer):
         serializer = SerializerFactory.create_serializer(type,context=self.context)
         if(serializer):
             return serializer.create(validated_data)
-
         raise serializers.ValidationError('Unknown or missing type.')
 
     def update(self, instance, validated_data):

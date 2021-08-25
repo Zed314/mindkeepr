@@ -1,10 +1,13 @@
 from rest_framework import serializers
-from .event import EventSerializer
+
 from Mindkeepr.models.events import UnUseEvent
 from Mindkeepr.models.elements import Element
 from Mindkeepr.models import Location
 
+from .event import EventSerializer, EventFieldMixin
+from ..serializer_factory import SerializerFactory
 from ..elements.element_short import ElementShortSerializer
+from ..location import LocationShortSerializer
 
 @SerializerFactory.register('UnUseEvent')
 class UnUseEventSerializer(EventFieldMixin, serializers.HyperlinkedModelSerializer):
