@@ -1,8 +1,8 @@
 
 from django.db import models
 from django.contrib.auth.models import User
-from . import Event
-from ..elements.machine import Machine
+from .event import Event
+
 from datetime import date
 
 class MaintenanceEvent(Event):

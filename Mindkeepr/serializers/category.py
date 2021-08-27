@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from Mindkeepr.models import Category
+from Mindkeepr.models.category import Category
 
 from .fields import RecursiveField
 

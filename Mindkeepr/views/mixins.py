@@ -3,9 +3,10 @@ from rest_framework.permissions import IsAuthenticated
 from django.core.exceptions import PermissionDenied
 from django.shortcuts import get_object_or_404
 from Mindkeepr.models.stock_repartition import StockRepartition
-from Mindkeepr.models.elements import Element
-from Mindkeepr.models import Project, Location
-from Mindkeepr.models.events import BorrowEvent
+from Mindkeepr.models.elements.element import Element
+from Mindkeepr.models.project import Project
+from Mindkeepr.models.location import Location
+from Mindkeepr.models.events.borrow_event import BorrowEvent
 
 #"from .mixins import PermissionRequiredAtFormValidMixin
 

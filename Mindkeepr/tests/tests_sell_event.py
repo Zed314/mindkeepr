@@ -12,7 +12,7 @@ class APITestCase(TestCase):
         self.dumb_user = User.objects.create_user('benoit', 'benoit@example.fr')
         self.location = models.Location.objects.create(name = "Location 1")
         self.location2 = models.Location.objects.create(name = "Location 2")
-        self.component = models.Component.objects.create(name = "Component 1",description="First component !")
+        self.component = models.elements.Component.objects.create(name = "Component 1",description="First component !")
         #stock_repartition = models.StockRepartition.objects.create(quantity=1,status="FREE",location=self.location)
         #self.component.stock_repartitions.add(stock_repartition)
         #stock_repartition = models.StockRepartition.objects.create(quantity=5,status="RESERVED",location=self.location)

@@ -6,7 +6,7 @@ from django.urls import reverse_lazy
 from django.contrib.auth.mixins import PermissionRequiredMixin
 from rest_framework import viewsets
 from Mindkeepr.forms import ProjectForm
-from Mindkeepr.models import Project
+from Mindkeepr.models.project import Project
 from Mindkeepr.serializers.project import ProjectSerializer
 from django.views.generic.list import ListView
 from .search import searchFilter

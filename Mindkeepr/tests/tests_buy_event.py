@@ -13,7 +13,7 @@ class APITestCase(TestCase):
         self.dumb_user = User.objects.create_user('benoit', 'benoit@example.fr')
         location = models.Location.objects.create(name = "Location 1")
         location = models.Location.objects.create(name = "Location 2")
-        self.component = models.Component.objects.create(name = "Component 1",description="First component !")
+        self.component = models.elements.Component.objects.create(name = "Component 1",description="First component !")
 
         self.view_event_create = EventsView.as_view({'post':'create'})
         self.view_event_list = EventsView.as_view({'get':'list'})

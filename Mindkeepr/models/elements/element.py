@@ -2,7 +2,7 @@ from polymorphic.models import PolymorphicModel
 from django.db import models
 from django.contrib.auth.models import User
 from django.db.models import Sum
-#from . import Event
+
 from ..category import Category
 from ..location import Location
 from ..stock_repartition import StockRepartition

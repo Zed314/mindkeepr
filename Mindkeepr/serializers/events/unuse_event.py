@@ -1,8 +1,8 @@
 from rest_framework import serializers
 
-from Mindkeepr.models.events import UnUseEvent
-from Mindkeepr.models.elements import Element
-from Mindkeepr.models import Location
+from Mindkeepr.models.events.unuse_event import UnUseEvent
+from Mindkeepr.models.elements.element import Element
+from Mindkeepr.models.location import Location
 
 from .event import EventSerializer, EventFieldMixin
 from ..serializer_factory import SerializerFactory

@@ -1,6 +1,6 @@
 
-from . import element
+from .element import Element
 
-class Tool(element.Element):
+class Tool(Element):
     """ Tool """
     pass

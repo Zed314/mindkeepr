@@ -1,4 +1,4 @@
-from django.db import models
+
 
 class Consumable():
     """ An element that is meant to be consumed by a machine/eaten or permenantly used in a project """

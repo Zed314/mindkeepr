@@ -1,4 +1,4 @@
-from Mindkeepr.models import UserProfile
+from Mindkeepr.models.models import UserProfile
 from Mindkeepr.forms import UserProfileForm
 from .mixins import LoginRequiredMixin
 from django.contrib.auth.mixins import PermissionRequiredMixin

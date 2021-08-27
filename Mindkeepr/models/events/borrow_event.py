@@ -2,8 +2,8 @@
 from django.db import models
 from datetime import date
 
-from . import Event
-from . import ReturnEvent
+from .event import Event
+from .return_event import ReturnEvent
 
 class BorrowEvent(Event):
     quantity = models.IntegerField("Quantity", null=False, blank=False)

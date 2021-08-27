@@ -1,6 +1,6 @@
 from .mixins import LoginRequiredMixin
 from Mindkeepr.serializers.category import CategorySerializer,CategorySerializerFull, CategorySerializerShort
-from Mindkeepr.models import Category
+from Mindkeepr.models.category import Category
 from rest_framework import viewsets
 
 class CategoryView(LoginRequiredMixin, viewsets.ModelViewSet):

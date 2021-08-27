@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from Mindkeepr.models import Component
+from Mindkeepr.models.elements import Component
 
 from .element import ElementFieldMixin, ElementSerializer
 from ..attribute import AttributeSerializer

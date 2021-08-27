@@ -1,8 +1,8 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User
 
-from Mindkeepr.models.events import MaintenanceEvent
-from Mindkeepr.models.elements import Machine
+from Mindkeepr.models.events.maintenance_event import MaintenanceEvent
+from Mindkeepr.models.elements.machine import Machine
 
 from ..serializer_factory import SerializerFactory
 from .event import EventSerializer, EventFieldMixin

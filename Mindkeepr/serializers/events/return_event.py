@@ -1,7 +1,8 @@
 from rest_framework import serializers
 from .event import EventSerializer
-from Mindkeepr.models.events import BorrowEvent, ReturnEvent
-from Mindkeepr.models import Location
+from Mindkeepr.models.events.borrow_event import BorrowEvent
+from Mindkeepr.models.events.return_event import ReturnEvent
+from Mindkeepr.models.location import Location
 
 from .event import EventFieldMixin
 from .borrow_event_short import BorrowEventShortSerializer

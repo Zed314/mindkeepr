@@ -18,9 +18,11 @@ from django.contrib import admin
 from django.urls import path, include
 from rest_framework import routers
 from Mindkeepr import views
-from Mindkeepr.views import BorrowingsView, ComponentsView, ElementsView, EventsView, LocationView, LocationViewFull, MachinesView, \
-    ToolsView, BooksView, CategoryView,CategoryViewFull,CategoryViewShort, MaintenancesView, BorrowingsView, ProjectsView, UserView, StockRepartitionsView, \
-    IncidentsView,ConsumesView, ReservesView, SellsView, BuysView
+from Mindkeepr.views.events import *
+#BorrowingsView,  EventsView, MaintenancesView, BorrowingsView, \
+    #IncidentsView,ConsumesView, ReservesView, SellsView, BuysView
+from Mindkeepr.views.elements import ComponentsView, ElementsView, ToolsView, BooksView, MachinesView
+from Mindkeepr.views import LocationView, LocationViewFull, CategoryView, CategoryViewFull, CategoryViewShort,  ProjectsView, UserView, StockRepartitionsView
 
 # for static files in dev only…
 from django.conf import settings
@@ -80,17 +82,17 @@ urlpatterns = [
     path("element/print/remove/<int:pk>/<int:qty>",views.remove_from_print_list),
     path("element/print/all",views.print_print_list),
     path("printlist",views.print_list_disp),
-    path('formborroweventmodal', views.events.BorrowEventViewModal.as_view()),
-    path('formreturneventmodal', views.events.ReturnEventViewModal.as_view()),
-    path('formbuyeventmodal', views.events.BuyEventViewModal.as_view()),
-    path('formselleventmodal', views.events.SellEventViewModal.as_view()),
-    path('formuseeventmodal', views.events.UseEventViewModal.as_view()),
-    path('formmoveeventmodal', views.events.MoveEventViewModal.as_view()),
-    path('formunuseeventmodal', views.events.UnUseEventViewModal.as_view()),
-    path('formmaintenanceeventmodal', views.events.MaintenanceEventViewModal.as_view()),
-    path('formincidenteventmodal', views.events.IncidentEventViewModal.as_view()),
-    path('formmaintenanceeventmodal/<int:pk>', views.MaintenanceEventUpdateViewModal.as_view()),
-    path('formconsumeeventmodal', views.ConsumeEventViewModal.as_view()),
+    path('formborroweventmodal', borrowing_view.BorrowEventViewModal.as_view()),
+    path('formreturneventmodal', borrowing_view.ReturnEventViewModal.as_view()),
+    path('formbuyeventmodal', buy_view.BuyEventViewModal.as_view()),
+    path('formselleventmodal', sell_view.SellEventViewModal.as_view()),
+    path('formuseeventmodal', reserve_view.UseEventViewModal.as_view()),
+    path('formmoveeventmodal', move_view.MoveEventViewModal.as_view()),
+    path('formunuseeventmodal', reserve_view.UnUseEventViewModal.as_view()),
+    path('formmaintenanceeventmodal', maintenance_view.MaintenanceEventViewModal.as_view()),
+    path('formincidenteventmodal', incident_view.IncidentEventViewModal.as_view()),
+    path('formmaintenanceeventmodal/<int:pk>', maintenance_view.MaintenanceEventUpdateViewModal.as_view()),
+    path('formconsumeeventmodal', consume_view.ConsumeEventViewModal.as_view()),
     path('elements', views.elements,name="elements-list"),
     path("components", views.components,name="components-list"),
     path("machines",views.machines,name="machines-list"),

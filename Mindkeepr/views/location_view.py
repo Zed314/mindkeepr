@@ -2,7 +2,7 @@ from .mixins import PermissionRequiredAtFormValidMixin, LoginRequiredMixin
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.contrib.auth.mixins import PermissionRequiredMixin
 from Mindkeepr.forms import LocationForm
-from Mindkeepr.models import Location
+from Mindkeepr.models.location import Location
 from Mindkeepr.serializers.location import LocationSerializer, LocationFullSerializer
 from django.urls import reverse_lazy
 from django.views.generic.list import ListView

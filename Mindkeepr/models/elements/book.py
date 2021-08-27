@@ -1,7 +1,7 @@
 
-from . import element
+from .element import Element
 
-class Book(element.Element):
+class Book(Element):
     """ Book """
     # TODO Add ISBN/Barcode
     def is_unique(self):

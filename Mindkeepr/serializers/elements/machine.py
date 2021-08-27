@@ -1,7 +1,7 @@
 
 from rest_framework import serializers
 
-from Mindkeepr.models import Machine
+from Mindkeepr.models.elements import Machine
 from .element import ElementSerializer, ElementFieldMixin
 
 from ..events.maintenance_event import MaintenanceEventSerializer

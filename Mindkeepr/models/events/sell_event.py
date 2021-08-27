@@ -2,7 +2,7 @@
 
 from django.db import models
 
-from . import Event
+from .event import Event
 
 class SellEvent(Event):
     """ Delete and sells the UNRESERVED stock_repartition associated """

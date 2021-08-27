@@ -1,5 +1,6 @@
 
-from Mindkeepr.models import  Element, PrintList
+from Mindkeepr.models import  Element
+from Mindkeepr.models.models import PrintList
 
 from Mindkeepr.printer import Printer
 from django.shortcuts import render

@@ -1,7 +1,7 @@
 
 from django.db import models
 
-from . import Event
+from .event import Event
 class BuyEvent(Event):
     """ Adds new element with FREE status """
     price = models.FloatField("Price", null=False, blank=False)

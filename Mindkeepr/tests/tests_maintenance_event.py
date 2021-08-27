@@ -11,10 +11,10 @@ class APITestCase(TestCase):
         self.user = User.objects.create_superuser('mindkeepr', 'mindkeepr@example.fr', 'admin')
         self.dumb_user = User.objects.create_user('benoit', 'benoit@example.fr')
         self.location = models.Location.objects.create(name = "Location 1")
-        self.component = models.Component.objects.create(name = "Component 1",description="First component !")
+        self.component = models.elements.Component.objects.create(name = "Component 1",description="First component !")
         stock_repartition = models.StockRepartition.objects.create(quantity=1,status="FREE",location=self.location)
         self.component.stock_repartitions.add(stock_repartition)
-        self.machine = models.Machine.objects.create(name = "Prusa",description="3D printer")
+        self.machine = models.elements.Machine.objects.create(name = "Prusa",description="3D printer")
         stock_repartition = models.StockRepartition.objects.create(quantity=1,status="FREE",location=self.location)
         self.machine.stock_repartitions.add(stock_repartition)
 

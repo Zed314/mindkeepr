@@ -1,8 +1,8 @@
 from rest_framework import serializers
 
-from Mindkeepr.models.events import BorrowEvent
-from Mindkeepr.models.elements import Element
-from Mindkeepr.models import Location
+from Mindkeepr.models.events.borrow_event import BorrowEvent
+from Mindkeepr.models.elements.element import Element
+from Mindkeepr.models.location import Location
 from ..serializer_factory import SerializerFactory
 from .event import EventSerializer, EventFieldMixin
 from ..location import LocationShortSerializer

@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from Mindkeepr.models import Location
+from Mindkeepr.models.location import Location
 from .fields import RecursiveField
 
 class LocationShortSerializer(serializers.HyperlinkedModelSerializer):

@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from Mindkeepr.models import Project
+from Mindkeepr.models.project import Project
 from .user import UserSerializer
 
 class ProjectShortSerializer(serializers.HyperlinkedModelSerializer):

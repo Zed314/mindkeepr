@@ -1,7 +1,7 @@
 
 from django.db import models
 
-from . import Event
+from .event import Event
 
 
 class ConsumeEvent(Event):

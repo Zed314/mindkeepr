@@ -1,9 +1,13 @@
 from django.contrib import admin
+from Mindkeepr.models import events
 
 
-from Mindkeepr.models import Component, Location, Element
-from Mindkeepr.models.events import *
-from Mindkeepr.models import UserProfile, Category
+from Mindkeepr.models.elements.component import Component
+from Mindkeepr.models.elements.element import Element
+from Mindkeepr.models.location import Location
+from Mindkeepr.models.events import use_event,buy_event, consume_event, event
+from Mindkeepr.models.models import UserProfile
+from Mindkeepr.models.category import Category
 from Mindkeepr.models.elements.attachment import Attachment
 
 class ProfiletInline(admin.TabularInline):
@@ -11,18 +15,18 @@ class ProfiletInline(admin.TabularInline):
 
 
 class BuyEventInline(admin.TabularInline):
-    model = BuyEvent
+    model = buy_event.BuyEvent
 
 class UseEventInline(admin.TabularInline):
-    model = UseEvent
+    model = use_event.UseEvent
 
 class ConsumeEventInline(admin.TabularInline):
-    model = ConsumeEvent
+    model = consume_event.ConsumeEvent
 
 class AttachmentInline(admin.TabularInline):
     model = Attachment
 
-@admin.register(Event)
+@admin.register(event.Event)
 class EventAdmin(admin.ModelAdmin):
     pass
 

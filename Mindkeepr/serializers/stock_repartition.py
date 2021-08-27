@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from Mindkeepr.models import StockRepartition
+from Mindkeepr.models.stock_repartition import StockRepartition
 from .location import LocationSerializer
 from .project import ProjectSerializer
 from .elements.element_short import ElementShortSerializer

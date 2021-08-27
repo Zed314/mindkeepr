@@ -3,7 +3,7 @@ from django.test import Client
 from django.contrib.auth.models import AnonymousUser,User
 from rest_framework.test import APIRequestFactory
 from rest_framework.test import RequestsClient
-from Mindkeepr.views import ComponentsView, ElementsView
+from Mindkeepr.views.elements import ComponentsView, ElementsView
 from Mindkeepr.views import EventsView
 from Mindkeepr import models
 
@@ -13,7 +13,7 @@ class APITestCase(TestCase):
         self.dumb_user = User.objects.create_user('benoit', 'benoit@example.fr')
         self.location = models.Location.objects.create(name = "Location 1")
         self.location2 = models.Location.objects.create(name = "Location 2")
-        self.component = models.Component.objects.create(name = "Component 1",description="First component !")
+        self.component = models.elements.Component.objects.create(name = "Component 1",description="First component !")
         self.project = models.Project.objects.create(name = "Bob and Tesla")
         self.view_event_create = EventsView.as_view({'post':'create'})
 

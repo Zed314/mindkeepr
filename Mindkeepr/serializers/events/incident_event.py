@@ -1,8 +1,8 @@
 from rest_framework import serializers
 
 
-from Mindkeepr.models.events import IncidentEvent
-from Mindkeepr.models.elements import Machine
+from Mindkeepr.models.events.incident_event import IncidentEvent
+from Mindkeepr.models.elements.machine import Machine
 from ..serializer_factory import SerializerFactory
 from .event import EventSerializer, EventFieldMixin
 from ..elements.element_short import ElementShortSerializer

@@ -11,7 +11,7 @@ class APITestCase(TestCase):
         self.dumb_user = User.objects.create_user('benoit', 'benoit@example.fr')
         self.location = models.Location.objects.create(name = "Location 1")
         self.location2 = models.Location.objects.create(name = "Location 2")
-        self.component = models.Component.objects.create(name = "Component 1",description="First component !")
+        self.component = models.elements.Component.objects.create(name = "Component 1",description="First component !")
         self.view_event_create = EventsView.as_view({'post':'create'})
 
 
@@ -70,7 +70,7 @@ class APITestCase(TestCase):
         self.assertEqual(self.component.quantity_owned,20)
         self.assertEqual(self.component.quantity_available,15)
 
-        borrow_event = models.BorrowEvent.objects.get(id=id_borrow_event)
+        borrow_event = models.events.BorrowEvent.objects.get(id=id_borrow_event)
         self.assertEqual(borrow_event.is_returned,False)
         self.assertEqual(borrow_event.is_date_overdue,False)
 
@@ -106,9 +106,9 @@ class APITestCase(TestCase):
         self.assertEqual(self.component.quantity_owned,20)
         self.assertEqual(self.component.quantity_available,20)
 
-        borrow_event = models.BorrowEvent.objects.get(id=id_borrow_event)
+        borrow_event = models.events.BorrowEvent.objects.get(id=id_borrow_event)
         self.assertEqual(borrow_event.is_returned,True)
         self.assertEqual(borrow_event.is_date_overdue,False)
 
-        return_event = models.ReturnEvent.objects.get(id=id_return_event)
+        return_event = models.events.ReturnEvent.objects.get(id=id_return_event)
         self.assertEqual(return_event.is_date_overdue,False)

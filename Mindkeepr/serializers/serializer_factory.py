@@ -17,7 +17,7 @@ class SerializerFactory:
         return inner_wrapper
 
     @classmethod
-    def create_serializer(cls, name: str, **kwargs) -> 'ExecutorBase':
+    def create_serializer(cls, name: str, **kwargs):
 
         if name not in cls.registry:
             return None

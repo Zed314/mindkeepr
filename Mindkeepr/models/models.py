@@ -9,7 +9,6 @@ from django.db.models.signals import post_save
 from .events import *
 
 from .elements import *
-from . import Location
 
 def username(self):
     return self.first_name + " " + self.last_name
