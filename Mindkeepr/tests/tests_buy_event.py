@@ -57,7 +57,7 @@ class APITestCase(TestCase):
         self.assertEqual(stock_repartition.quantity,40)
         self.assertEqual(stock_repartition.location.id,1)
         self.assertEqual(stock_repartition.status,"FREE")
-
+        self.assertEqual(response.data["creator"]["id"],self.dumb_user.id)
 
         buy_event["location_destination"]={"id":2}
         request = factory.post(reverse('event-list'),buy_event,format= 'json')
@@ -71,3 +71,4 @@ class APITestCase(TestCase):
         self.assertEqual(stock_repartition.location.id,2)
         self.assertEqual(stock_repartition.status,"FREE")
         self.assertEqual(component.quantity_available,60)
+        self.assertEqual(response.data["creator"]["id"],self.dumb_user.id)

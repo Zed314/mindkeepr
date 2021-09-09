@@ -17,6 +17,7 @@ class IncidentEventSerializer(EventFieldMixin, serializers.HyperlinkedModelSeria
         ordering = EventSerializer.Meta.ordering
 
     def create(self, validated_data):
+        self.add_event_read_only_default_fields(validated_data)
         element = Machine.objects.get(id=validated_data.pop('element')["id"])
         incident_event = IncidentEvent(**validated_data, element=element)
         if incident_event.is_add_to_element_possible():

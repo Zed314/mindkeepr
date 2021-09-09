@@ -36,7 +36,7 @@ class APITestCase(TestCase):
         response = self.view_event_create(request)
         self.assertEqual(response.status_code,201)
 
-
+        self.assertEqual(response.data["creator"]["id"],self.dumb_user.id)
         consume_event = {
             "comment" : "For Tesla coil",
             "type": "ConsumeEvent",
@@ -50,7 +50,7 @@ class APITestCase(TestCase):
         request.user = self.dumb_user
         response = self.view_event_create(request)
         self.assertEqual(response.status_code,201)
-
+        self.assertEqual(response.data["creator"]["id"],self.dumb_user.id)
 
         self.assertEqual(len(self.component.stock_repartitions.all()),1)
         stock_repartition = self.component.stock_repartitions.all()[0]

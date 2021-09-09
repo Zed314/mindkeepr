@@ -38,6 +38,7 @@ class APITestCase(TestCase):
         request.user = self.dumb_user
         response = self.view_event_create(request)
         self.assertEqual(response.status_code,201)
+        self.assertEqual(response.data["creator"]["id"],self.dumb_user.id)
 
 
         stock_repartition = self.component.stock_repartitions.all()[0]
@@ -59,6 +60,7 @@ class APITestCase(TestCase):
         request.user = self.dumb_user
         response = self.view_event_create(request)
         self.assertEqual(response.status_code,201)
+        self.assertEqual(response.data["creator"]["id"],self.dumb_user.id)
 
         stock_repartitions = self.component.stock_repartitions.all()
 

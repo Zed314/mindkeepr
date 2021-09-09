@@ -8,6 +8,12 @@ class EventFieldMixin(serializers.Serializer):
     recording_date = serializers.ReadOnlyField()
     creator = UserSerializer(read_only=True, default=serializers.CreateOnlyDefault(serializers.CurrentUserDefault()))
 
+    def add_event_read_only_default_fields(self, validated_data):
+        # Include default for read_only `creator` field
+        # for some reason, it is not possible to have read only and default value https://www.django-rest-framework.org/community/release-notes/#380
+        # https://stackoverflow.com/questions/35518273/how-to-set-current-user-to-user-field-in-django-rest-framework
+        #print(self.fields["creator"].get_default())
+        validated_data["creator"] = self.fields["creator"].get_default()
 
 class EventSerializer(SerializerFactory, serializers.HyperlinkedModelSerializer):
 

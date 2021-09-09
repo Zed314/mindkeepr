@@ -67,6 +67,10 @@ class APITestCase(TestCase):
         self.assertEqual(self.component.quantity_owned,20)
         self.assertEqual(self.component.quantity_available,15)
 
+        self.assertEqual(response.data["beneficiary"]["id"],self.dumb_user.id)
+        self.assertEqual(response.data["creator"]["id"],self.dumb_user.id)
+
+
         borrow_event["location_source"]={"id":self.location2.id}
         request = factory.post('/api/events',borrow_event,format= 'json')
         request.user = self.dumb_user

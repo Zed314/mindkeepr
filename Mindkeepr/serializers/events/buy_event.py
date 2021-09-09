@@ -24,6 +24,7 @@ class BuyEventSerializer(EventFieldMixin, serializers.HyperlinkedModelSerializer
         ordering = EventSerializer.Meta.ordering
 
     def create(self, validated_data):
+        self.add_event_read_only_default_fields(validated_data)
         location = Location.objects.get(
             id=validated_data.pop('location_destination')["id"])
         element = Element.objects.get(id=validated_data.pop('element')["id"])

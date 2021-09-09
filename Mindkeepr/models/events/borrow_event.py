@@ -1,8 +1,10 @@
 
 from django.db import models
+from django.contrib.auth.models import User
 from datetime import date
 
 from .event import Event
+
 from .return_event import ReturnEvent
 
 class BorrowEvent(Event):
@@ -16,6 +18,7 @@ class BorrowEvent(Event):
                                 related_name='borrow_history',
                                 null=True)
 
+    beneficiary = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
     @property
     def is_date_overdue(self):
         if self.is_returned:

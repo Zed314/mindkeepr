@@ -39,6 +39,7 @@ class ReturnEventSerializer(EventFieldMixin, serializers.HyperlinkedModelSeriali
         ordering = EventSerializer.Meta.ordering
 
     def create(self, validated_data):
+        self.add_event_read_only_default_fields(validated_data)
         location_destination= Location.objects.get(
             id=validated_data.pop('location_destination')["id"])
         borrow_event = BorrowEvent.objects.get(id=validated_data.pop('borrow_associated')["id"])

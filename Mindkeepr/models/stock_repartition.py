@@ -7,7 +7,7 @@ class StockRepartition(models.Model):
     """ TODO : Add project if reserved """
     STATUS = {
         ('FREE', "Free"),
-        ('RESERVED', "Reserved")
+        ('RESERVED', "Reserved"),# Allocatied to a project
     }
     location = models.ForeignKey(
         'location', on_delete=models.PROTECT, null=True, related_name="stock_repartitions")

@@ -15,13 +15,14 @@ Including another URLconf
 """
 from django.conf.urls import url
 from django.contrib import admin
+from django.db.models import base
 from django.urls import path, include
 from rest_framework import routers
 from Mindkeepr import views
 from Mindkeepr.views.events import *
 #BorrowingsView,  EventsView, MaintenancesView, BorrowingsView, \
     #IncidentsView,ConsumesView, ReservesView, SellsView, BuysView
-from Mindkeepr.views.elements import ComponentsView, ElementsView, ToolsView, BooksView, MachinesView
+from Mindkeepr.views.elements import ComponentsView, ElementsView, ToolsView, BooksView, MachinesView, MovieCasesView
 from Mindkeepr.views import LocationView, LocationViewFull, CategoryView, CategoryViewFull, CategoryViewShort,  ProjectsView, UserView, StockRepartitionsView
 
 # for static files in dev only…
@@ -52,6 +53,7 @@ router.register(r'incidents', IncidentsView, basename='incident')
 router.register(r'projects', ProjectsView, basename='project')
 router.register(r'stocks', StockRepartitionsView, basename='stockrepartitions')
 router.register(r'user', UserView, basename='user')
+router.register(r"moviecases", MovieCasesView, basename="moviecase")
 
 urlpatterns = [
     path('accounts/login/', auth_views.LoginView.as_view(), name='login'),

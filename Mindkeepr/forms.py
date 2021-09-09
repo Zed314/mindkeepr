@@ -287,7 +287,7 @@ class BorrowEventForm(DisableFieldsMixin, PresetLocationSourceAndQuantityMixin, 
                                 }))
     class Meta:
         model = models.events.BorrowEvent
-        fields = ['element', 'location_source',
+        fields = ['element', 'location_source', "beneficiary",
                   'quantity', 'scheduled_return_date', 'comment']
 
 
@@ -308,7 +308,7 @@ class BorrowEventUpdateForm(ModelForm):
     class Meta:
         model = models.events.BorrowEvent
         fields = ['element', 'location_source',
-                  'quantity', 'scheduled_return_date', 'comment']
+                  'quantity', 'scheduled_return_date', "beneficiary",'comment']
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -363,7 +363,6 @@ class MachineForm(ElementForm):
         fields = ElementForm.fields
         widgets = ElementForm.widgets
 
-
 class ToolForm(ElementForm):
     class Meta:
         model = models.elements.Tool
@@ -373,6 +372,12 @@ class ToolForm(ElementForm):
 class BookForm(ElementForm):
     class Meta:
         model = models.elements.Book
+        fields = ElementForm.fields
+        widgets = ElementForm.widgets
+
+class MovieCaseForm(ElementForm):
+    class Meta:
+        model = models.elements.MovieCase
         fields = ElementForm.fields
         widgets = ElementForm.widgets
 

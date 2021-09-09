@@ -24,6 +24,7 @@ class UnUseEventSerializer(EventFieldMixin, serializers.HyperlinkedModelSerializ
         ordering = EventSerializer.Meta.ordering
 
     def create(self, validated_data):
+        self.add_event_read_only_default_fields(validated_data)
         location_source = Location.objects.get(
             id=validated_data.pop('location_source')["id"])
         location_destination = Location.objects.get(
