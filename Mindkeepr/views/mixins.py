@@ -1,4 +1,4 @@
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, DjangoModelPermissions
 
 from django.core.exceptions import PermissionDenied
 from django.shortcuts import get_object_or_404
@@ -13,7 +13,13 @@ from Mindkeepr.models.events.borrow_event import BorrowEvent
 class LoginRequiredMixin():
 
     def get_permissions(self):
-        self.permission_classes = [IsAuthenticated, ]
+        if not self.permission_classes:
+            self.permission_classes = [IsAuthenticated, ]
+        return super().get_permissions()
+
+class LoginAndPermissionRequiredMixin():
+    def get_permissions(self):
+        self.permission_classes = [IsAuthenticated, DjangoModelPermissions]
         return super().get_permissions()
 
 
@@ -106,6 +112,9 @@ class PresetElementQuantitySourceMixin():
                 initial['borrow_associated'] = get_object_or_404(
                     BorrowEvent, pk=idborrowsrc)
                 self._disabled_fields.append('borrow_associated')
+                if(initial['borrow_associated'].element.is_unique):
+                    initial['location_destination'] = initial['borrow_associated'].location_source
+                    self._disabled_fields.append('location_destination')
         except KeyError:
             pass
         # except ValueError:

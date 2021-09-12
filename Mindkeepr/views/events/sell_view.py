@@ -1,13 +1,13 @@
 
 from rest_framework import  viewsets
-from ..mixins import LoginRequiredMixin
+from ..mixins import LoginAndPermissionRequiredMixin
 from Mindkeepr.serializers.events.sell_event import SellEventSerializer
 
 from Mindkeepr.models.events import SellEvent
 from . import EventViewModal
 from Mindkeepr.forms import SellEventForm
 
-class SellsView(LoginRequiredMixin, viewsets.ModelViewSet):
+class SellsView(LoginAndPermissionRequiredMixin, viewsets.ModelViewSet):
     serializer_class = SellEventSerializer
 
     def get_queryset(self):

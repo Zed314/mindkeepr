@@ -4,12 +4,16 @@ from django.contrib.auth.models import AnonymousUser,User
 from rest_framework.test import APIRequestFactory
 
 from Mindkeepr.views import EventsView
+from Mindkeepr.views.events.sell_view import SellsView
 from Mindkeepr import models
+from django.contrib.auth.models import Permission
 
 class APITestCase(TestCase):
     def setUp(self):
         self.user = User.objects.create_superuser('mindkeepr', 'mindkeepr@example.fr', 'admin')
         self.dumb_user = User.objects.create_user('benoit', 'benoit@example.fr')
+        self.sell_allowed_user = User.objects.create_user('zigzag', 'zigzag@example.fr')
+        self.sell_allowed_user.user_permissions.add(Permission.objects.get(codename='add_sellevent'))
         self.location = models.Location.objects.create(name = "Location 1")
         self.location2 = models.Location.objects.create(name = "Location 2")
         self.component = models.elements.Component.objects.create(name = "Component 1",description="First component !")
@@ -18,7 +22,7 @@ class APITestCase(TestCase):
         #stock_repartition = models.StockRepartition.objects.create(quantity=5,status="RESERVED",location=self.location)
         #self.component.stock_repartitions.add(stock_repartition)
         self.view_event_create = EventsView.as_view({'post':'create'})
-
+        self.view_sellevent_create = SellsView.as_view({"post":"create"})
 
     def test_sell_event_post(self):
         factory = APIRequestFactory()
@@ -35,16 +39,9 @@ class APITestCase(TestCase):
         }
 
         request = factory.post('/api/events',buy_event,format= 'json')
-        request.user = self.dumb_user
+        request.user = self.user
         response = self.view_event_create(request)
         self.assertEqual(response.status_code,201)
-        self.assertEqual(response.data["creator"]["id"],self.dumb_user.id)
-
-
-        stock_repartition = self.component.stock_repartitions.all()[0]
-        self.assertEqual(stock_repartition.quantity,20)
-        self.assertEqual(stock_repartition.location.id,self.location.id)
-        self.assertEqual(stock_repartition.status,"FREE")
 
         sell_event = {
             "comment" : "Selling the stocks",
@@ -58,9 +55,19 @@ class APITestCase(TestCase):
 
         request = factory.post('/api/events',sell_event,format= 'json')
         request.user = self.dumb_user
+        response = self.view_sellevent_create(request)
+        self.assertEqual(response.status_code,403)
+        request = factory.post('/api/events',sell_event,format= 'json')
+        request.user = self.sell_allowed_user
         response = self.view_event_create(request)
+        self.assertEqual(response.status_code,403)
+        request = factory.post('/api/events',sell_event,format= 'json')
+        request.user = self.sell_allowed_user
+        response = self.view_sellevent_create(request)
         self.assertEqual(response.status_code,201)
-        self.assertEqual(response.data["creator"]["id"],self.dumb_user.id)
+
+
+        self.assertEqual(response.data["creator"]["id"],self.sell_allowed_user.id)
 
         stock_repartitions = self.component.stock_repartitions.all()
 
@@ -73,8 +80,8 @@ class APITestCase(TestCase):
 
         sell_event["location_source"]={"id":self.location2.id}
         request = factory.post('/api/events',sell_event,format= 'json')
-        request.user = self.dumb_user
-        response = self.view_event_create(request)
+        request.user = self.sell_allowed_user
+        response = self.view_sellevent_create(request)
 
         self.assertEqual(response.status_code,400)
 

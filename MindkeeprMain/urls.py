@@ -20,8 +20,6 @@ from django.urls import path, include
 from rest_framework import routers
 from Mindkeepr import views
 from Mindkeepr.views.events import *
-#BorrowingsView,  EventsView, MaintenancesView, BorrowingsView, \
-    #IncidentsView,ConsumesView, ReservesView, SellsView, BuysView
 from Mindkeepr.views.elements import ComponentsView, ElementsView, ToolsView, BooksView, MachinesView, MovieCasesView
 from Mindkeepr.views import LocationView, LocationViewFull, CategoryView, CategoryViewFull, CategoryViewShort,  ProjectsView, UserView, StockRepartitionsView
 
@@ -45,7 +43,7 @@ router.register(r'locations', LocationView, basename='location')
 router.register(r'borrowings', BorrowingsView, basename='borrowing')
 router.register(r'maintenances', MaintenancesView, basename='maintenance')
 router.register(r'reserves', ReservesView, basename='reserve')
-#router.register(r'returns', ReturnsView, basename='return')
+router.register(r'returns', ReturnsView, basename='return')
 router.register(r'consumes',  ConsumesView, basename='consume')
 router.register(r'buys',  BuysView, basename='buy')
 router.register(r'sells',  SellsView, basename='sell')
@@ -85,7 +83,7 @@ urlpatterns = [
     path("element/print/all",views.print_print_list),
     path("printlist",views.print_list_disp),
     path('formborroweventmodal', borrowing_view.BorrowEventViewModal.as_view()),
-    path('formreturneventmodal', borrowing_view.ReturnEventViewModal.as_view()),
+    path('formreturneventmodal', return_view.ReturnEventViewModal.as_view()),
     path('formbuyeventmodal', buy_view.BuyEventViewModal.as_view()),
     path('formselleventmodal', sell_view.SellEventViewModal.as_view()),
     path('formuseeventmodal', reserve_view.UseEventViewModal.as_view()),

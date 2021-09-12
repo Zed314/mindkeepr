@@ -1,5 +1,5 @@
 from rest_framework import  viewsets
-from ..mixins import LoginRequiredMixin
+from ..mixins import LoginRequiredMixin, LoginAndPermissionRequiredMixin
 from django.views.generic.edit import UpdateView
 from django.core.exceptions import PermissionDenied
 from django.urls import reverse_lazy
@@ -12,10 +12,14 @@ from ..mixins import PresetElementQuantitySourceMixin
 
 from Mindkeepr.models.events import Event
 from Mindkeepr.serializers.events.event import EventSerializer
+from rest_framework.permissions import IsAuthenticated, DjangoModelPermissions
 
-class EventsView(LoginRequiredMixin, viewsets.ModelViewSet):
+class EventsView(LoginAndPermissionRequiredMixin, viewsets.ModelViewSet):
 
     serializer_class = EventSerializer
+
+        #if permission to create event, no other is necessary to post on api/event.
+        #permission to create event is required to post on api/event
 
     def perform_create(self, serializer):
         serializer.save()
@@ -44,24 +48,24 @@ class EventUpdate(LoginRequiredMixin, UpdateView):
         MoveEvent: MoveEventForm
     }
     _permission_required = {
-        # BorrowEvent : "Mindkeepr.change_borrowevent",
-        # ReturnEvent : "Mindkeepr.change_returnevent",
-        # MaintenanceEvent : "Mindkeepr.change_maintenanceevent",
-        # IncidentEvent : "Mindkeepr.change_incidentevent",
-        # UseEvent : "Mindkeepr.change_useevent",
-        # UnUseEvent : "Mindkeepr.change_unuseevent",
-        # SellEvent : "Mindkeepr.change_sellevent",
-        # BuyEvent : "Mindkeepr.change_buyevent",
-        #MoveEvent : "Mindkeepr.change_moveevent"
-        BorrowEvent: "Mindkeepr.change_event",
-        ReturnEvent: "Mindkeepr.change_event",
-        MaintenanceEvent: "Mindkeepr.change_event",
-        IncidentEvent: "Mindkeepr.change_event",
-        UseEvent: "Mindkeepr.change_event",
-        UnUseEvent: "Mindkeepr.change_event",
-        SellEvent: "Mindkeepr.change_event",
-        BuyEvent: "Mindkeepr.change_event",
-        MoveEvent: "Mindkeepr.change_event"
+        BorrowEvent : "Mindkeepr.change_borrowevent",
+        ReturnEvent : "Mindkeepr.change_returnevent",
+        MaintenanceEvent : "Mindkeepr.change_maintenanceevent",
+        IncidentEvent : "Mindkeepr.change_incidentevent",
+        UseEvent : "Mindkeepr.change_useevent",
+        UnUseEvent : "Mindkeepr.change_unuseevent",
+        SellEvent : "Mindkeepr.change_sellevent",
+        BuyEvent : "Mindkeepr.change_buyevent",
+        MoveEvent : "Mindkeepr.change_moveevent"
+        #BorrowEvent: "Mindkeepr.change_event",
+        #ReturnEvent: "Mindkeepr.change_event",
+        #MaintenanceEvent: "Mindkeepr.change_event",
+        #IncidentEvent: "Mindkeepr.change_event",
+        #UseEvent: "Mindkeepr.change_event",
+        #UnUseEvent: "Mindkeepr.change_event",
+        #SellEvent: "Mindkeepr.change_event",
+        #BuyEvent: "Mindkeepr.change_event",
+        #MoveEvent: "Mindkeepr.change_event"
 
 
     }

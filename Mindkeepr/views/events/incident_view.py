@@ -1,12 +1,12 @@
 
 from rest_framework import  viewsets
-from ..mixins import LoginRequiredMixin
+from ..mixins import LoginAndPermissionRequiredMixin
 from Mindkeepr.serializers.events.incident_event import IncidentEventSerializer
 
 from Mindkeepr.models.events import IncidentEvent
 from . import EventViewModal
 from Mindkeepr.forms import IncidentEventForm
-class IncidentsView(LoginRequiredMixin, viewsets.ModelViewSet):
+class IncidentsView(LoginAndPermissionRequiredMixin, viewsets.ModelViewSet):
     serializer_class = IncidentEventSerializer
 
     def get_queryset(self):
