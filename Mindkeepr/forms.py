@@ -2,7 +2,7 @@
 Forms used by Django
 """
 
-from django.forms import ModelForm
+from django.forms import ModelForm, fields
 from django import forms
 from . import models
 from Mindkeepr.models.elements.attachment import Attachment
@@ -375,10 +375,18 @@ class BookForm(ElementForm):
         fields = ElementForm.fields
         widgets = ElementForm.widgets
 
+class MovieForm(ModelForm):
+    class Meta:
+        model = models.elements.Movie
+        fields = ("original_language","original_title","local_title","vote_average", "vote_count", "release_date","poster","budget","remote_api_id","trailer_video_url")
+
 class MovieCaseForm(ElementForm):
     class Meta:
         model = models.elements.MovieCase
-        fields = ElementForm.fields
+        fields = ElementForm.fields + ["movie","custom_id", "ean", "nb_disk",
+    "format_disk" ,
+    "subformat_disk",
+    "category_box"]
         widgets = ElementForm.widgets
 
 class LocationForm(ModelForm):

@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% load display_shortcuts %}
+
+{% block body_content %}
+
+<div class="container">
+    <div class="card">
+        <div class="card-header">
+            {{ form.instance.name }}&nbsp;-&nbsp;{% block type_element %}{{ form.instance|get_class }}{% endblock %}
+        </div>
+        <div class="card-body">
+            <div class="container-fluid">
+                <div class="tab-content">
+                    <div class="tab-pane active" id="elt-{{form.instance.id}}-main">
+                        {% if form.instance.image %}
+                        <a href="{{form.instance.image.url}}"><img width=100px src="{{ form.instance.image.url }}"/></a>
+                        {% endif %}
+                        <form id="form-element-{{ form.instance.id }}" enctype="multipart/form-data" method="post">
+                        {% csrf_token %}
+                        <table>
+                            {{ form.as_p }}
+                        </table>
+                            {% if  request.resolver_match.kwargs.pk %}
+                            <input type="submit" value="Update">
+                            {% else %}
+                            <input type="submit" value="Save">
+                            {% endif %}
+                        </form>
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

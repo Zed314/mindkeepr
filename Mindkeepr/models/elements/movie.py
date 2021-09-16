@@ -8,16 +8,21 @@ class Movie(models.Model):
     """ Movie in DVD/Bluray format """
     def is_unique(self):
         return True
-
+    #todo : dvd is maintainable, so is machine. mixin ?
     original_language = models.CharField(max_length=30, null=True, blank=True)
     original_title = models.CharField(max_length=100,  null=True, blank=True)
+    nationality = models.CharField(max_length=30,blank=True, null=True)
     local_title = models.CharField(max_length=100)
+    catch_phrase = models.CharField(max_length=100,blank=True,null=True)
+    synopsis = models.CharField(max_length=1000, blank=True, null=True)
+    time_length = models.IntegerField(null=True, blank=True)
     vote_average = models.FloatField( null=True, blank=True)
-    vote_count = models.IntegerField()
+    vote_count = models.IntegerField(blank=True)
     release_date = models.DateField( null=True, blank=True)
     poster = models.ImageField( null=True, blank=True)
+    poster_url = models.URLField(null=True, blank=True)
     budget = models.FloatField(null=True)
-    remote_api_id = models.IntegerField()
+    remote_api_id = models.IntegerField(blank=True)
     trailer_video_url = models.URLField(null=True, blank=True)
     # replaced by comments
     #summary = models.CharField(max_length=2000)

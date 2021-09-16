@@ -20,7 +20,7 @@ from django.urls import path, include
 from rest_framework import routers
 from Mindkeepr import views
 from Mindkeepr.views.events import *
-from Mindkeepr.views.elements import ComponentsView, ElementsView, ToolsView, BooksView, MachinesView, MovieCasesView
+from Mindkeepr.views.elements import ComponentsView, ElementsView, ToolsView, BooksView, MachinesView, MovieCasesView, MoviesView
 from Mindkeepr.views import LocationView, LocationViewFull, CategoryView, CategoryViewFull, CategoryViewShort,  ProjectsView, UserView, StockRepartitionsView
 
 # for static files in dev only…
@@ -35,6 +35,7 @@ router.register(r'components', ComponentsView, basename='component')
 router.register(r'machines', MachinesView, basename='machine')
 router.register(r'tools', ToolsView, basename='tool')
 router.register(r'books', BooksView, basename='book')
+router.register(r'movies', MoviesView, basename='book')
 router.register(r'categories', CategoryView, basename='category')
 router.register(r'categoriesFull', CategoryViewFull, basename='categoryfull')
 router.register(r'categoriesShort', CategoryViewShort, basename='categoryshort')
@@ -62,6 +63,8 @@ urlpatterns = [
     path('component', views.ComponentCreate.as_view()),
     path('tool', views.ToolCreate.as_view()),
     path('book', views.BookCreate.as_view()),
+    path('movie', views.MovieCreate.as_view()),
+    path('moviecase', views.MovieCaseCreate.as_view()),
     path('location', views.LocationCreate.as_view()),
     path('project', views.ProjectCreate.as_view()),
     path('locations', views.LocationList.as_view()),
@@ -98,6 +101,7 @@ urlpatterns = [
     path("machines",views.machines,name="machines-list"),
     path("books",views.books,name="books-list"),
     path("tools",views.tools,name="tools-list"),
+    path("movies",views.movies,name="movies-list"),
     path('', views.index),
     path('api/v1/', include(router.urls)),
     path('oidc/', include('mozilla_django_oidc.urls')),

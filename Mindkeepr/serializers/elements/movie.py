@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from Mindkeepr.models.elements.movie import MovieCase
+from Mindkeepr.models.elements.movie import MovieCase, Movie
 
 from .element import ElementFieldMixin, ElementSerializer
 from ..serializer_factory import SerializerFactory
@@ -14,5 +14,18 @@ class MovieCaseSerializer(ElementFieldMixin, serializers.HyperlinkedModelSeriali
 
     def create(self, validated_data):
         category = self.get_category(validated_data)
-        tool = MovieCase.objects.create(**validated_data,**category)
-        return tool
+        moviecase = MovieCase.objects.create(**validated_data,**category)
+        return moviecase
+
+@SerializerFactory.register("Movie")
+class MovieSerializer(serializers.HyperlinkedModelSerializer):
+
+    class Meta:
+        model = Movie
+        fields = ["local_title"]
+        depth = 1
+
+    def create(self, validated_data):
+        #category = self.get_category(validated_data)
+        movie = Movie.objects.create(**validated_data)
+        return movie
