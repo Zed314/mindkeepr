@@ -5,7 +5,7 @@ from django.db import models
 from .element import Element
 
 class Movie(models.Model):
-    """ Movie in DVD/Bluray format """
+
     def is_unique(self):
         return True
     #todo : dvd is maintainable, so is machine. mixin ?
@@ -13,14 +13,15 @@ class Movie(models.Model):
     original_title = models.CharField(max_length=100,  null=True, blank=True)
     nationality = models.CharField(max_length=30,blank=True, null=True)
     local_title = models.CharField(max_length=100)
-    catch_phrase = models.CharField(max_length=100,blank=True,null=True)
+    catch_phrase = models.CharField(max_length=300,blank=True,null=True)
     synopsis = models.CharField(max_length=1000, blank=True, null=True)
     time_length = models.IntegerField(null=True, blank=True)
-    vote_average = models.FloatField( null=True, blank=True)
-    vote_count = models.IntegerField(blank=True)
+    #vote_average = models.FloatField( null=True, blank=True)
+    #vote_count = models.IntegerField(blank=True,null=True)
     release_date = models.DateField( null=True, blank=True)
+    backdrop_image = models.ImageField( null=True, blank=True)
     poster = models.ImageField( null=True, blank=True)
-    poster_url = models.URLField(null=True, blank=True)
+   # poster_url = models.URLField(null=True, blank=True)
     budget = models.FloatField(null=True)
     remote_api_id = models.IntegerField(blank=True)
     trailer_video_url = models.URLField(null=True, blank=True)
@@ -36,6 +37,7 @@ class Movie(models.Model):
        ('COM', "Comedy"),
        ('CRI', "Crime"),
        ('DRA', "Drama"),
+       ("DOC", "Documentary"),
        ('FAM', "Family"),
        ('FAN', "Fantasy"),
        ('HIS', "History"),
@@ -60,7 +62,11 @@ class Movie(models.Model):
         choices=GENRES,
         default="UNK",
     )
-
+    def __str__(self):
+        if(self.release_date):
+            return "{} ({})".format(self.local_title,self.release_date.year)
+        else:
+            return self.local_title
 
 
 class MovieCase(Element):
@@ -68,16 +74,17 @@ class MovieCase(Element):
     FORMAT = [
        ('DVD', "DVD"),
        ('BLU', "Bluray"),
-       ("UNK", "UNKNOWN")
+       #("UNK", "UNKNOWN")
     ]
-
     SUB_FORMAT = [
        ('DVD', "DVD"),
-       ('DVB', "DVD + Bluray"),
+       #('DVB', "DVD + Bluray"),
        ('BLU', "Bluray"),
        ('B3D', "Bluray 3D"),
+       ('BB3', "Bluray + Bluray 3D"),
        ('B4K', "Bluray 4K"),
-       ("UNK", "UNKNOWN")
+       ('BB4', "Bluray + Bluray 4K"),
+       #("UNK", "UNKNOWN")
     ]
     CATEGORY = [
        ('CHI', "Children"),
@@ -91,21 +98,28 @@ class MovieCase(Element):
                                 on_delete=models.CASCADE,
                                 related_name='cases',
                                 null=True)
-    custom_id = models.IntegerField("Custom id", unique=True, null=False, blank=False)
-    ean = models.CharField(max_length=13)
+    custom_id = models.IntegerField("Custom id", unique=False, null=False, blank=False)
+    ean = models.CharField(max_length=13,unique=True)
     nb_disk = models.IntegerField("Number of disks", null=False, blank=False)
     format_disk = models.CharField(
         max_length=3,
         choices=FORMAT,
-        default="UNK",
+        default="BLU",
     )
     subformat_disk = models.CharField(
         max_length=3,
         choices=SUB_FORMAT,
-        default="UNK",
+        default="BLU",
     )
     category_box = models.CharField(
         max_length=3,
-        choices=SUB_FORMAT,
+        choices=CATEGORY,
         default="UNK",
     )
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['custom_id', 'format_disk'], name='Unicity of custom id by format (DVD/Bluray)')
+    ]
+    def __str__(self):
+        return "{} ({}{:03d})".format(self.name,self.format_disk[0],self.custom_id)

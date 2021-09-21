@@ -86,8 +86,9 @@ TEMPLATES = [
 WSGI_APPLICATION = 'MindkeeprMain.wsgi.application'
 
 REST_FRAMEWORK = {
+    #todo : temp
     'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.IsAuthenticated',
+       # 'rest_framework.permissions.IsAuthenticated',
     ],
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework.authentication.BasicAuthentication',

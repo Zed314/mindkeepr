@@ -26,9 +26,12 @@ class ConsumeEventInline(admin.TabularInline):
 class AttachmentInline(admin.TabularInline):
     model = Attachment
 
+class MovieInline(admin.TabularInline):
+    model = Movie
+
 @admin.register(MovieCase)
 class MovieCaseAdmin(admin.ModelAdmin):
-    pass
+    pass#inlines = (MovieInline)
 
 @admin.register(Movie)
 class MovieAdmin(admin.ModelAdmin):

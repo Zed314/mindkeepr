@@ -2,6 +2,7 @@
 Forms used by Django
 """
 
+from Mindkeepr.models.elements.element import Element
 from django.forms import ModelForm, fields
 from django import forms
 from . import models
@@ -378,16 +379,41 @@ class BookForm(ElementForm):
 class MovieForm(ModelForm):
     class Meta:
         model = models.elements.Movie
-        fields = ("original_language","original_title","local_title","vote_average", "vote_count", "release_date","poster","budget","remote_api_id","trailer_video_url")
+        fields = ("original_language","original_title","local_title","release_date","poster","budget","remote_api_id","trailer_video_url")
 
 class MovieCaseForm(ElementForm):
+
     class Meta:
         model = models.elements.MovieCase
-        fields = ElementForm.fields + ["movie","custom_id", "ean", "nb_disk",
-    "format_disk" ,
-    "subformat_disk",
-    "category_box"]
+        fields = ['name', "category", "custom_id", "externalapiid", "ean", "nb_disk",
+                                                                        "format_disk" ,
+                                                                        "subformat_disk",
+                                                                        "category_box",
+                                                                        "price"]
+        fields = ElementForm.fields + [ "custom_id", "ean", "nb_disk",
+                                                          "format_disk" ,
+                                                          "subformat_disk",
+                                                          "category_box"]
         widgets = ElementForm.widgets
+def get_initial():
+    return 123
+#only for interactive add !!
+NB_DISK= [tuple([x,x]) for x in range(1,4)]
+class MovieCaseInteractiveForm(DisableFieldsMixin,ModelForm):
+    externalapiid = forms.CharField(max_length=30)
+    price = forms.FloatField(required=False,initial=0.0)
+    nb_disk = forms.IntegerField(label="How many disks ?", widget=forms.Select(choices=NB_DISK))
+    category_box = forms.TypedChoiceField(choices=models.elements.MovieCase.CATEGORY, initial='NEW')
+    custom_id = forms.IntegerField(label="ID (leave blank to get one automatically)",required=False)
+    class Meta:
+        model = models.elements.MovieCase
+        fields = ['name', "category", "externalapiid", "custom_id", "ean", "nb_disk",
+                                                                        "subformat_disk",
+                                                                        "category_box",
+                                                                        "price"]
+        widgets = {
+            "category": CategoryWidget
+    }
 
 class LocationForm(ModelForm):
 

@@ -19,6 +19,8 @@ from django.db.models import base
 from django.urls import path, include
 from rest_framework import routers
 from Mindkeepr import views
+from Mindkeepr.views.elements import movie_view
+from Mindkeepr.views.elements.movie_view import moviecases
 from Mindkeepr.views.events import *
 from Mindkeepr.views.elements import ComponentsView, ElementsView, ToolsView, BooksView, MachinesView, MovieCasesView, MoviesView
 from Mindkeepr.views import LocationView, LocationViewFull, CategoryView, CategoryViewFull, CategoryViewShort,  ProjectsView, UserView, StockRepartitionsView
@@ -35,7 +37,7 @@ router.register(r'components', ComponentsView, basename='component')
 router.register(r'machines', MachinesView, basename='machine')
 router.register(r'tools', ToolsView, basename='tool')
 router.register(r'books', BooksView, basename='book')
-router.register(r'movies', MoviesView, basename='book')
+router.register(r'movies', MoviesView, basename='movie')
 router.register(r'categories', CategoryView, basename='category')
 router.register(r'categoriesFull', CategoryViewFull, basename='categoryfull')
 router.register(r'categoriesShort', CategoryViewShort, basename='categoryshort')
@@ -63,6 +65,7 @@ urlpatterns = [
     path('component', views.ComponentCreate.as_view()),
     path('tool', views.ToolCreate.as_view()),
     path('book', views.BookCreate.as_view()),
+    path("addMovie",views.addMovieInteractive),
     path('movie', views.MovieCreate.as_view()),
     path('moviecase', views.MovieCaseCreate.as_view()),
     path('location', views.LocationCreate.as_view()),
@@ -96,12 +99,14 @@ urlpatterns = [
     path('formincidenteventmodal', incident_view.IncidentEventViewModal.as_view()),
     path('formmaintenanceeventmodal/<int:pk>', maintenance_view.MaintenanceEventUpdateViewModal.as_view()),
     path('formconsumeeventmodal', consume_view.ConsumeEventViewModal.as_view()),
+    path("formmoviemodal",movie_view.MovieViewModal.as_view()),
+    path("formmoviecasemodal",movie_view.MovieCaseViewModal.as_view()),
     path('elements', views.elements,name="elements-list"),
     path("components", views.components,name="components-list"),
     path("machines",views.machines,name="machines-list"),
     path("books",views.books,name="books-list"),
     path("tools",views.tools,name="tools-list"),
-    path("movies",views.movies,name="movies-list"),
+    path("moviecases",moviecases,name="moviecases-list"),
     path('', views.index),
     path('api/v1/', include(router.urls)),
     path('oidc/', include('mozilla_django_oidc.urls')),

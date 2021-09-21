@@ -41,3 +41,7 @@ def bureau(request):
 class ProfileView(LoginRequiredMixin, DetailView):
     model = User
     template_name = "profile/profile.html"
+
+@login_required(login_url='/accounts/login')
+def addMovieInteractive(request):
+    return render(request, "add-movie-interactive.html")
