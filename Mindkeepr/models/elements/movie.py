@@ -4,6 +4,11 @@ from django.db import models
 
 from .element import Element
 
+class MovieGenre(models.Model):
+    #remote_api_id = models.IntegerField(blank=False, null=False, unique=True)
+    name_en = models.CharField(max_length=30,blank=False, null=False)
+    name_fr = models.CharField(max_length=30,blank=False, null=False)
+
 class Movie(models.Model):
 
     def is_unique(self):
@@ -29,7 +34,7 @@ class Movie(models.Model):
     #summary = models.CharField(max_length=2000)
     # replaced by description
     #tagline = models.CharField(max_length=1000)
-
+    genres = models.ManyToManyField(MovieGenre)
     GENRES = [
        ('ACT', "Action"),
        ('ADV', "Adventure"),

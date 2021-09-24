@@ -1,4 +1,5 @@
 from django.http.response import JsonResponse
+from tmdbv3api import tmdb
 from Mindkeepr import models
 from rest_framework import viewsets
 from ..mixins import LoginRequiredMixin
@@ -6,10 +7,10 @@ from ..mixins import LoginRequiredMixin
 from ..search import searchFilter
 from . import ElementCreate
 
-from Mindkeepr.models.elements import MovieCase, Movie
+from Mindkeepr.models.elements import MovieCase, Movie, MovieGenre
 from Mindkeepr.models.events import BuyEvent
 from Mindkeepr.models.location import Location
-from Mindkeepr.serializers.elements.movie import MovieSerializer, MovieCaseSerializer
+from Mindkeepr.serializers.elements.movie import MovieSerializer, MovieGenreSerializer, MovieCaseSerializer
 
 from Mindkeepr.forms import MovieCaseInteractiveForm, MovieForm, DisableFieldsMixin
 from django.contrib.auth.decorators import login_required
@@ -68,8 +69,11 @@ class MoviesView( PresetMovieMixin, viewsets.ModelViewSet):
         queryset = searchFilter(queryset, self.request)
         return queryset
 
-
-
+#todo : put back login
+class MovieGenresView(viewsets.ModelViewSet):
+    serializer_class = MovieGenreSerializer
+    def get_queryset(self):
+        return MovieGenre.objects.all()
 
 class MovieCreate(LoginRequiredMixin, PermissionRequiredMixin, PresetMovieMixin, CreateView):
     permission_required = "Mindkeepr.add_movie"
@@ -241,11 +245,9 @@ def create_movie_from_tmdb(tmdb_movie):
     trailer_video_url = ""
     release_date = None
 
-
-    if(len(tmdb_movie.genres)>=1):
-        first_genre = dict_genre[tmdb_movie.genres[0].id]
-    if(len(tmdb_movie.genres)>=2):
-        second_genre = dict_genre[tmdb_movie.genres[1].id]
+    genres = []
+    for genre in tmdb_movie.genres:
+        genres.append(MovieGenre.objects.get(id=genre.id))
     if(len(tmdb_movie.production_countries)>=1):
         nationality=tmdb_movie.production_countries[0].name
     if(len(tmdb_movie.videos.results)>=1):
@@ -273,14 +275,20 @@ def create_movie_from_tmdb(tmdb_movie):
         synopsis=tmdb_movie.overview,
         nationality=nationality,
         trailer_video_url= trailer_video_url,
-        first_genre=first_genre,
-        second_genre=second_genre,
+        #genres=genres,
+        #second_genre=second_genre,
         release_date=release_date
         )
+
     if backdrop:
         mov.backdrop_image.save(backdrop_filename,backdrop)
     if poster:
         mov.poster.save(poster_filename,poster)
+    print(genres)
+    for genre in genres:
+        mov.genres.add(genre)
+
+    mov.save()
     return mov
 
 

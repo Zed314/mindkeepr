@@ -1,0 +1,163 @@
+[
+    {
+        "model": "Mindkeepr.MovieGenre",
+        "pk": 28,
+        "fields": {
+            "name_en": "Action",
+            "name_fr": "Action"
+        }
+    },
+    {
+        "model": "Mindkeepr.MovieGenre",
+        "pk": 12,
+        "fields": {
+            "name_en": "Adventure",
+            "name_fr": "Aventure"
+        }
+    },
+    {
+        "model": "Mindkeepr.MovieGenre",
+        "pk": 16,
+        "fields": {
+            "name_en": "Animation",
+            "name_fr": "Animation"
+        }
+    },
+    {
+        "model": "Mindkeepr.MovieGenre",
+        "pk": 35,
+        "fields": {
+            "name_en": "Comedy",
+            "name_fr": "Comedie"
+        }
+    },
+    {
+        "model": "Mindkeepr.MovieGenre",
+        "pk": 28,
+        "fields": {
+            "name_en": "Crime",
+            "name_fr": "Crime"
+        }
+    },
+    {
+        "model": "Mindkeepr.MovieGenre",
+        "pk": 80,
+        "fields": {
+            "name_en": "Comedy",
+            "name_fr": "Comedie"
+        }
+    },
+    {
+        "model": "Mindkeepr.MovieGenre",
+        "pk": 99,
+        "fields": {
+            "name_en": "Documentary",
+            "name_fr": "Documentaire"
+        }
+    },
+    {
+        "model": "Mindkeepr.MovieGenre",
+        "pk": 18,
+        "fields": {
+            "name_en": "Drama",
+            "name_fr": "Drame"
+        }
+    },
+    {
+        "model": "Mindkeepr.MovieGenre",
+        "pk": 10751,
+        "fields": {
+            "name_en": "Family",
+            "name_fr": "Famille"
+        }
+    },
+    {
+        "model": "Mindkeepr.MovieGenre",
+        "pk": 14,
+        "fields": {
+            "name_en": "Fantasy",
+            "name_fr": "Fantastique"
+        }
+    },
+    {
+        "model": "Mindkeepr.MovieGenre",
+        "pk": 36,
+        "fields": {
+            "name_en": "History",
+            "name_fr": "Histoire"
+        }
+    },
+    {
+        "model": "Mindkeepr.MovieGenre",
+        "pk": 27,
+        "fields": {
+            "name_en": "Horron",
+            "name_fr": "Horreur"
+        }
+    },
+    {
+        "model": "Mindkeepr.MovieGenre",
+        "pk": 10402,
+        "fields": {
+            "name_en": "Music",
+            "name_fr": "Music"
+        }
+    },
+    {
+        "model": "Mindkeepr.MovieGenre",
+        "pk": 9648,
+        "fields": {
+            "name_en": "Mystery",
+            "name_fr": "Mystères"
+        }
+    },
+    {
+        "model": "Mindkeepr.MovieGenre",
+        "pk": 10749,
+        "fields": {
+            "name_en": "Romance",
+            "name_fr": "Romance"
+        }
+    },
+    {
+        "model": "Mindkeepr.MovieGenre",
+        "pk": 878,
+        "fields": {
+            "name_en": "Science Fiction",
+            "name_fr": "Science Fiction"
+        }
+    },
+    {
+        "model": "Mindkeepr.MovieGenre",
+        "pk": 10770,
+        "fields": {
+            "name_en": "TV Movie",
+            "name_fr": "Téléfilm"
+        }
+    },
+    {
+        "model": "Mindkeepr.MovieGenre",
+        "pk": 53,
+        "fields": {
+            "name_en": "Thriller",
+            "name_fr": "Thriller"
+        }
+    },
+    {
+        "model": "Mindkeepr.MovieGenre",
+        "pk": 10752,
+        "fields": {
+            "name_en": "War",
+            "name_fr": "Guerre"
+        }
+    },
+    {
+        "model": "Mindkeepr.MovieGenre",
+        "pk": 37,
+        "fields": {
+            "name_en": "Western",
+            "name_fr": "Western"
+        }
+    }
+]
+

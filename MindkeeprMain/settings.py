@@ -45,7 +45,8 @@ INSTALLED_APPS = [
     'crispy_forms',
     'Mindkeepr',
     'django_cleanup',
-    "django_select2"
+    "django_select2",
+    "corsheaders"
 ]
 
 
@@ -60,7 +61,26 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'mozilla_django_oidc.middleware.SessionRefresh',
+    'corsheaders.middleware.CorsMiddleware'
 ]
+
+#TODO : for react, MUST BE CHANGED LATERRR
+ALLOWED_HOSTS=['*']
+
+CORS_ORIGIN_ALLOW_ALL = True
+
+
+#ALLOWED_HOSTS=['http://127.0.0.1:3001']
+#
+#CORS_ORIGIN_ALLOW_ALL = False
+#
+#
+#CORS_ORIGIN_WHITELIST = (
+#       'http://127.0.0.1:3001',
+#
+#)
+
+
 
 OIDC_RENEW_ID_TOKEN_EXPIRY_SECONDS = 180
 

@@ -22,7 +22,7 @@ from Mindkeepr import views
 from Mindkeepr.views.elements import movie_view
 from Mindkeepr.views.elements.movie_view import moviecases
 from Mindkeepr.views.events import *
-from Mindkeepr.views.elements import ComponentsView, ElementsView, ToolsView, BooksView, MachinesView, MovieCasesView, MoviesView
+from Mindkeepr.views.elements import ComponentsView, ElementsView, ToolsView, BooksView, MachinesView, MovieCasesView, MoviesView, MovieGenresView
 from Mindkeepr.views import LocationView, LocationViewFull, CategoryView, CategoryViewFull, CategoryViewShort,  ProjectsView, UserView, StockRepartitionsView
 
 # for static files in dev only…
@@ -38,6 +38,7 @@ router.register(r'machines', MachinesView, basename='machine')
 router.register(r'tools', ToolsView, basename='tool')
 router.register(r'books', BooksView, basename='book')
 router.register(r'movies', MoviesView, basename='movie')
+router.register(r"moviegenres", MovieGenresView, basename="moviegenre")
 router.register(r'categories', CategoryView, basename='category')
 router.register(r'categoriesFull', CategoryViewFull, basename='categoryfull')
 router.register(r'categoriesShort', CategoryViewShort, basename='categoryshort')
