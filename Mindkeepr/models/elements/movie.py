@@ -35,38 +35,7 @@ class Movie(models.Model):
     # replaced by description
     #tagline = models.CharField(max_length=1000)
     genres = models.ManyToManyField(MovieGenre)
-    GENRES = [
-       ('ACT', "Action"),
-       ('ADV', "Adventure"),
-       ('ANI', "Animation"),
-       ('COM', "Comedy"),
-       ('CRI', "Crime"),
-       ('DRA', "Drama"),
-       ("DOC", "Documentary"),
-       ('FAM', "Family"),
-       ('FAN', "Fantasy"),
-       ('HIS', "History"),
-       ('HOR', "Horror"),
-       ('MUS', "Music"),
-       ('MYS', "Mystery"),
-       ('ROM', "Romance"),
-       ('SFI', "Science Fiction"),
-       ('TVM', "TV Movie"),
-       ('THR', "Thriller"),
-       ('WAR', "War"),
-       ('WES', "Western"),
-       ('UNK', "Unknown"),
-    ]
-    first_genre = models.CharField(
-        max_length=3,
-        choices=GENRES,
-        default="UNK",
-    )
-    second_genre = models.CharField(
-        max_length=3,
-        choices=GENRES,
-        default="UNK",
-    )
+
     def __str__(self):
         if(self.release_date):
             return "{} ({})".format(self.local_title,self.release_date.year)

@@ -22,6 +22,7 @@ import requests
 import tempfile
 from django.core import files
 import datetime
+from ...serializers.pagination import CustomPagination
 
 class PresetMovieMixin():
     def get_initial(self):
@@ -57,7 +58,7 @@ class MovieCasesView(LoginRequiredMixin, viewsets.ModelViewSet):
 class MoviesView( PresetMovieMixin, viewsets.ModelViewSet):
 
     serializer_class = MovieSerializer
-
+    pagination_class = CustomPagination
     def perform_create(self, serializer):
         serializer.save(creator=self.request.user)
 
@@ -213,29 +214,7 @@ def get_image_url(image_url):
     #image.image.save(file_name, files.File(lf))
 
 def create_movie_from_tmdb(tmdb_movie):
-    dict_genre = {
-          28 :      'ACT',
-          12 :      'ADV',
-          16 :      'ANI',
-          35 :      'COM',
-          80 :      'CRI',
-          99 :      "DOC",
-          18 :      'DRA',
-          10751 :   'FAM',
-          14 :      'FAN',
-          36 :      'HIS',
-          27 :      'HOR',
-          10402 :   'MUS',
-          9648 :    'MYS',
-          10749 :   'ROM',
-          878 :     'SFI',
-          10770 :   'TVM',
-          53 :      'THR',
-          10752 :   'WAR',
-          37 :'WES',
-    }
-    first_genre = "UNK"
-    second_genre= "UNK"
+
     nationality = ""
     poster_url = ""
     backdrop = None
@@ -252,8 +231,7 @@ def create_movie_from_tmdb(tmdb_movie):
         nationality=tmdb_movie.production_countries[0].name
     if(len(tmdb_movie.videos.results)>=1):
         trailer_video_url = "http://www.youtube.com/watch?v=" + tmdb_movie.videos.results[0].key
-        #https://image.tmdb.org/t/p/w500/
-    #print(tmdb_movie,flush=True)
+
     if(tmdb_movie.backdrop_path):
         print(tmdb_movie,flush=True)
         backdrop_url = "https://image.tmdb.org/t/p/w500" + tmdb_movie.backdrop_path
@@ -275,8 +253,6 @@ def create_movie_from_tmdb(tmdb_movie):
         synopsis=tmdb_movie.overview,
         nationality=nationality,
         trailer_video_url= trailer_video_url,
-        #genres=genres,
-        #second_genre=second_genre,
         release_date=release_date
         )
 
@@ -284,11 +260,8 @@ def create_movie_from_tmdb(tmdb_movie):
         mov.backdrop_image.save(backdrop_filename,backdrop)
     if poster:
         mov.poster.save(poster_filename,poster)
-    print(genres)
-    for genre in genres:
-        mov.genres.add(genre)
+    mov.genres.set(genres)
 
-    mov.save()
     return mov
 
 

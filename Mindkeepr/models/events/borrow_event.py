@@ -39,3 +39,5 @@ class BorrowEvent(Event):
 
     def _add_to_element(self):
         return self.element.move_element(self.quantity, "FREE", "", self.location_source, None, None, None)
+
+#TODO : add potential borrow for future borrow (aka kind of reservation)
