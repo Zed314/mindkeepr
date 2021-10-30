@@ -1,5 +1,5 @@
 Django==3.1.13
-djangorestframework==3.11.0
+djangorestframework==3.11.2
 Markdown==3.1
 psycopg2==2.8.5
 pytz==2019.3
