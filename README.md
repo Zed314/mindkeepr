@@ -32,6 +32,7 @@ Root of API is on /api/v1/
 From them, it works as any RESTFul API : you can POST or GET ressources (some of them require login) :
 
 To create ressource :
+
     - Create ressource : POST api/v1/<ressource>s
     - Get ressource : GET api/v1/<ressource>s/<id>
     - Update ressource : POST api/v1/<ressource>s/<id> (with data in request body)
