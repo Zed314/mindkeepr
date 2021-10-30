@@ -15,12 +15,15 @@ Including another URLconf
 """
 from django.conf.urls import url
 from django.contrib import admin
+from django.db.models import base
 from django.urls import path, include
 from rest_framework import routers
 from Mindkeepr import views
-from Mindkeepr.views import BorrowingsView, ComponentsView, ElementsView, EventsView, LocationView, LocationViewFull, MachinesView, \
-    ToolsView, BooksView, CategoryView,CategoryViewFull,CategoryViewShort, MaintenancesView, BorrowingsView, ProjectsView, UserView, StockRepartitionsView, \
-    IncidentsView,ConsumesView, ReservesView, SellsView, BuysView
+from Mindkeepr.views.elements import movie_view
+from Mindkeepr.views.elements.movie_view import moviecases
+from Mindkeepr.views.events import *
+from Mindkeepr.views.elements import ComponentsView, ElementsView, ToolsView, BooksView, MachinesView, MovieCasesView, MoviesView, MovieGenresView
+from Mindkeepr.views import LocationView, LocationViewFull, CategoryView, CategoryViewFull, CategoryViewShort,  ProjectsView, UserView, StockRepartitionsView
 
 # for static files in dev only…
 from django.conf import settings
@@ -34,15 +37,18 @@ router.register(r'components', ComponentsView, basename='component')
 router.register(r'machines', MachinesView, basename='machine')
 router.register(r'tools', ToolsView, basename='tool')
 router.register(r'books', BooksView, basename='book')
+router.register(r'movies', MoviesView, basename='movie')
+router.register(r"moviegenres", MovieGenresView, basename="moviegenre")
 router.register(r'categories', CategoryView, basename='category')
 router.register(r'categoriesFull', CategoryViewFull, basename='categoryfull')
 router.register(r'categoriesShort', CategoryViewShort, basename='categoryshort')
 router.register(r'locationsFull', LocationViewFull, basename='locationfull')
 router.register(r'locations', LocationView, basename='location')
 router.register(r'borrowings', BorrowingsView, basename='borrowing')
+router.register(r'potentialborrowings', PotentialBorrowingsView, basename='potentialborrowing')
 router.register(r'maintenances', MaintenancesView, basename='maintenance')
 router.register(r'reserves', ReservesView, basename='reserve')
-#router.register(r'returns', ReturnsView, basename='return')
+router.register(r'returns', ReturnsView, basename='return')
 router.register(r'consumes',  ConsumesView, basename='consume')
 router.register(r'buys',  BuysView, basename='buy')
 router.register(r'sells',  SellsView, basename='sell')
@@ -50,6 +56,7 @@ router.register(r'incidents', IncidentsView, basename='incident')
 router.register(r'projects', ProjectsView, basename='project')
 router.register(r'stocks', StockRepartitionsView, basename='stockrepartitions')
 router.register(r'user', UserView, basename='user')
+router.register(r"moviecases", MovieCasesView, basename="moviecase")
 
 urlpatterns = [
     path('accounts/login/', auth_views.LoginView.as_view(), name='login'),
@@ -60,6 +67,9 @@ urlpatterns = [
     path('component', views.ComponentCreate.as_view()),
     path('tool', views.ToolCreate.as_view()),
     path('book', views.BookCreate.as_view()),
+    path("addMovie",views.addMovieInteractive),
+    path('movie', views.MovieCreate.as_view()),
+    path('moviecase', views.MovieCaseCreate.as_view()),
     path('location', views.LocationCreate.as_view()),
     path('project', views.ProjectCreate.as_view()),
     path('locations', views.LocationList.as_view()),
@@ -80,22 +90,26 @@ urlpatterns = [
     path("element/print/remove/<int:pk>/<int:qty>",views.remove_from_print_list),
     path("element/print/all",views.print_print_list),
     path("printlist",views.print_list_disp),
-    path('formborroweventmodal', views.BorrowEventViewModal.as_view()),
-    path('formreturneventmodal', views.ReturnEventViewModal.as_view()),
-    path('formbuyeventmodal', views.BuyEventViewModal.as_view()),
-    path('formselleventmodal', views.SellEventViewModal.as_view()),
-    path('formuseeventmodal', views.UseEventViewModal.as_view()),
-    path('formmoveeventmodal', views.MoveEventViewModal.as_view()),
-    path('formunuseeventmodal', views.UnUseEventViewModal.as_view()),
-    path('formmaintenanceeventmodal', views.MaintenanceEventViewModal.as_view()),
-    path('formincidenteventmodal', views.IncidentEventViewModal.as_view()),
-    path('formmaintenanceeventmodal/<int:pk>', views.MaintenanceEventUpdateViewModal.as_view()),
-    path('formconsumeeventmodal', views.ConsumeEventViewModal.as_view()),
+    path('formborroweventmodal', borrowing_view.BorrowEventViewModal.as_view()),
+    path('formpotentialborroweventmodal', borrowing_view.PotentialBorrowEventViewModal.as_view()),
+    path('formreturneventmodal', return_view.ReturnEventViewModal.as_view()),
+    path('formbuyeventmodal', buy_view.BuyEventViewModal.as_view()),
+    path('formselleventmodal', sell_view.SellEventViewModal.as_view()),
+    path('formuseeventmodal', reserve_view.UseEventViewModal.as_view()),
+    path('formmoveeventmodal', move_view.MoveEventViewModal.as_view()),
+    path('formunuseeventmodal', reserve_view.UnUseEventViewModal.as_view()),
+    path('formmaintenanceeventmodal', maintenance_view.MaintenanceEventViewModal.as_view()),
+    path('formincidenteventmodal', incident_view.IncidentEventViewModal.as_view()),
+    path('formmaintenanceeventmodal/<int:pk>', maintenance_view.MaintenanceEventUpdateViewModal.as_view()),
+    path('formconsumeeventmodal', consume_view.ConsumeEventViewModal.as_view()),
+    path("formmoviemodal",movie_view.MovieViewModal.as_view()),
+    path("formmoviecasemodal",movie_view.MovieCaseViewModal.as_view()),
     path('elements', views.elements,name="elements-list"),
     path("components", views.components,name="components-list"),
     path("machines",views.machines,name="machines-list"),
     path("books",views.books,name="books-list"),
     path("tools",views.tools,name="tools-list"),
+    path("moviecases",moviecases,name="moviecases-list"),
     path('', views.index),
     path('api/v1/', include(router.urls)),
     path('oidc/', include('mozilla_django_oidc.urls')),

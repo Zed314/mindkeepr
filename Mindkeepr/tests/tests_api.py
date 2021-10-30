@@ -15,7 +15,7 @@ class APITestCase(TestCase):
         self.dumb_user = User.objects.create_user('benoit', 'benoit@example.fr')
         location = models.Location.objects.create(name = "Location 1")
         location = models.Location.objects.create(name = "Location 2")
-        component = models.Component.objects.create(name = "Component 1",description="First component !")
+        component = models.elements.Component.objects.create(name = "Component 1",description="First component !")
         stock_repartition = models.StockRepartition.objects.create(quantity=1,status="FREE",location=location)
         component.stock_repartitions.add(stock_repartition)
         stock_repartition = models.StockRepartition.objects.create(quantity=5,status="RESERVED",location=location)
@@ -58,12 +58,12 @@ class APITestCase(TestCase):
 
         factory = APIRequestFactory()
         request = factory.get(reverse('component-list'))
-        force_authenticate(request,self.dumb_user)
+        force_authenticate(request,self.user)
         response = self.view_component_list(request)
         self.assertEqual(response.status_code,200)
 
         request = factory.get(reverse('element-list'))
-        force_authenticate(request,self.dumb_user)
+        force_authenticate(request,self.user)
         response = self.view_element_list(request)
         self.assertEqual(response.status_code,200)
 
@@ -74,7 +74,7 @@ class APITestCase(TestCase):
                                                           'description':'On the the most interesting piece of component',
                                                           'category': {'id':self.category.id}
                                                          },format= 'json')
-        request.user = self.dumb_user
+        request.user = self.user
 
         response = self.view_component_create(request)
         self.assertEqual(response.status_code,201)
@@ -84,7 +84,7 @@ class APITestCase(TestCase):
                                'type': 'Component',
                                'category': {'id':self.category.id}
                                },format= 'json')
-        request.user = self.dumb_user
+        request.user = self.user
         response = self.view_component_create(request)
         self.assertEqual(response.status_code,201)
 
@@ -93,7 +93,7 @@ class APITestCase(TestCase):
                                'type': 'Element',
                                'category': {'id':self.category.id}
                                },format= 'json')
-        request.user = self.dumb_user
+        request.user = self.user
         response = self.view_component_create(request)
         #type field ignored
         self.assertEqual(response.status_code,201)
@@ -103,7 +103,7 @@ class APITestCase(TestCase):
                                'type': 'DEADBEEF',
                                'category': {'id':self.category.id}
                                },format= 'json')
-        request.user = self.dumb_user
+        request.user = self.user
         response = self.view_component_create(request)
         #type field ignored
         self.assertEqual(response.status_code,201)
@@ -118,35 +118,35 @@ class APITestCase(TestCase):
                                }
         view_element_create = ElementsView.as_view({'post':'create'})
         request = factory.post(reverse('element-list'),element,format= 'json')
-        request.user = self.dumb_user
+        request.user = self.user
         response = view_element_create(request)
 
         self.assertEqual(response.status_code,201)
 
         element.pop('type')
         request = factory.post(reverse('element-list'),element,format= 'json')
-        request.user = self.dumb_user
+        request.user = self.user
         response = view_element_create(request)
         # If type not specified, fails
         self.assertEqual(response.status_code,400)
 
         element['type'] = ''
         request = factory.post(reverse('element-list'),element,format= 'json')
-        request.user = self.dumb_user
+        request.user = self.user
         response = view_element_create(request)
         # If type not specified, fails
         self.assertEqual(response.status_code,400)
 
         element['type'] = 'Element'
         request = factory.post(reverse('element-list'),element,format= 'json')
-        request.user = self.dumb_user
+        request.user = self.user
         response = view_element_create(request)
         # If type is "Element", fails
         self.assertEqual(response.status_code,400)
 
         element['type'] = 'Machine'
         request = factory.post(reverse('element-list'),element,format= 'json')
-        request.user = self.dumb_user
+        request.user = self.user
         response = view_element_create(request)
         # If type is "Element", fails
         self.assertEqual(response.status_code,201)
@@ -154,7 +154,7 @@ class APITestCase(TestCase):
 
         element['type'] = 'DEADBEEF'
         request = factory.post(reverse('element-list'),element,format= 'json')
-        request.user = self.dumb_user
+        request.user = self.user
         response = view_element_create(request)
         # If type not specified, fails
         self.assertEqual(response.status_code,400)
@@ -176,35 +176,35 @@ class APITestCase(TestCase):
         }
 
         request = factory.post(reverse('event-list'),buy_event,format= 'json')
-        request.user = self.dumb_user
+        request.user = self.user
         response = self.view_event_create(request)
 
         self.assertEqual(response.status_code,201)
 
         buy_event.pop('type')
         request = factory.post('/api/v1/events',buy_event,format= 'json')
-        request.user = self.dumb_user
+        request.user = self.user
         response = self.view_event_create(request)
         # If type not specified, fails
         self.assertEqual(response.status_code,400)
 
         buy_event['type'] = ''
         request = factory.post('/api/events',buy_event,format= 'json')
-        request.user = self.dumb_user
+        request.user = self.user
         response = self.view_event_create(request)
         # If type not specified, fails
         self.assertEqual(response.status_code,400)
 
         buy_event['type'] = 'Event'
         request = factory.post('/api/events',buy_event,format= 'json')
-        request.user = self.dumb_user
+        request.user = self.user
         response = self.view_event_create(request)
         # If type is "Element", fails
         self.assertEqual(response.status_code,400)
 
         buy_event['type'] = 'DEADBEEF'
         request = factory.post('/api/events',buy_event,format= 'json')
-        request.user = self.dumb_user
+        request.user = self.user
         response = self.view_event_create(request)
         # If type not specified, fails
         self.assertEqual(response.status_code,400)
@@ -225,7 +225,7 @@ class APITestCase(TestCase):
         }
 
         request = factory.post('/api/events',buy_event,format= 'json')
-        request.user = self.dumb_user
+        request.user = self.user
         response = self.view_event_create(request)
         self.assertEqual(response.status_code,201)
 
@@ -239,7 +239,7 @@ class APITestCase(TestCase):
             "element" : {'id':1}
         }
         request = factory.post('/api/events',sell_event,format= 'json')
-        request.user = self.dumb_user
+        request.user = self.user
         response = self.view_event_create(request)
         self.assertEqual(response.status_code,201)
 
@@ -253,7 +253,7 @@ class APITestCase(TestCase):
             "element" : {'id':1}
         }
         request = factory.post('/api/events',consume_event,format= 'json')
-        request.user = self.dumb_user
+        request.user = self.user
         response = self.view_event_create(request)
         self.assertEqual(response.status_code,201)
 

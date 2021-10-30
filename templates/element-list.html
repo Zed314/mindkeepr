@@ -18,6 +18,10 @@
     title="Add tool">Add tool</a>
   <a class=" btn btn-primary  {% if not perms.Mindkeepr.add_book %}disabled{% endif%}" href="/book"
     title="Add book">Add book</a>
+  <a class=" btn btn-primary  {% if not perms.Mindkeepr.add_movie %}disabled{% endif%}" href="/movie"
+    title="Add book">Add movie</a>
+  <a class=" btn btn-primary  {% if not perms.Mindkeepr.add_moviecase %}disabled{% endif%}" href="/moviecase"
+    title="Add book">Add movie case</a>
   <div class="row">
     <div class="col-md-2">
       <div class="card ">

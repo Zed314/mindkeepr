@@ -2,9 +2,11 @@
 Forms used by Django
 """
 
-from django.forms import ModelForm, DateInput
+from Mindkeepr.models.elements.element import Element
+from django.forms import ModelForm, fields
 from django import forms
 from . import models
+from Mindkeepr.models.elements.attachment import Attachment
 
 from django.forms.models import inlineformset_factory
 from django_select2 import forms as s2forms
@@ -77,17 +79,17 @@ class UserProfileForm(forms.ModelForm):
     """
     avatar = forms.ImageField(required=False)
     class Meta:
-        model = models.UserProfile
+        model = models.models.UserProfile
         fields = ['avatar']
 
 class BuyEventForm(DisableFieldsMixin, ModelForm):
     """ Form that handles creation of buy events """
     #location_destination = forms.ModelChoiceField(
     #    queryset=models.Location.objects.all())
-    element = forms.ModelChoiceField(queryset=models.Element.objects.all())
-    project = forms.ModelChoiceField(queryset=models.Project.objects.all(), required=False)
+    element = forms.ModelChoiceField(queryset=models.elements.Element.objects.all())
+    project = forms.ModelChoiceField(queryset=models.project.Project.objects.all(), required=False)
     class Meta:
-        model = models.BuyEvent
+        model = models.events.buy_event.BuyEvent
         fields = ['element', 'quantity', 'price', 'supplier',
                   'location_destination','project', 'comment']
         widgets = {
@@ -97,23 +99,23 @@ class BuyEventForm(DisableFieldsMixin, ModelForm):
 
 class MaintenanceEventForm(DisableFieldsMixin,ModelForm):
     """ Form that handles creation of consume events """
-    element = forms.ModelChoiceField(queryset=models.Machine.objects.all())
+    element = forms.ModelChoiceField(queryset=models.elements.Machine.objects.all())
     scheduled_date = forms.DateField(widget=forms.DateInput(attrs=
                                 {
                                     'class':'datepicker'
                                 }))
     class Meta:
-        model = models.MaintenanceEvent
+        model = models.events.MaintenanceEvent
         fields = ['element', 'scheduled_date', 'is_done', 'comment', 'assignee']
         widgets = {
             "assignee": UserWidget
         }
 class IncidentEventForm(DisableFieldsMixin, ModelForm):
     """ Form for incident event (Machine only) """
-    element = forms.ModelChoiceField(queryset=models.Machine.objects.all())
+    element = forms.ModelChoiceField(queryset=models.elements.Machine.objects.all())
 
     class Meta:
-        model = models.IncidentEvent
+        model = models.events.IncidentEvent
         fields = ['element', 'new_status', 'comment']
 
 
@@ -124,7 +126,7 @@ class ConsumeEventForm(DisableFieldsMixin, ModelForm):
     quantity = forms.IntegerField(min_value=1)
     #project = forms.ModelChoiceField(queryset=models.Project.objects.all(),required=True)
     class Meta:
-        model = models.ConsumeEvent
+        model = models.events.ConsumeEvent
         fields = ['comment', 'element', 'quantity', 'location_source','project']
         widgets = {
             "project" : ProjectWidget
@@ -135,7 +137,7 @@ class ConsumeEventForm(DisableFieldsMixin, ModelForm):
         if 'element' in self.data:
             try:
                 element_id = int(self.data.get('element'))
-                element = models.Element.objects.get(id=element_id)
+                element = models.elements.Element.objects.get(id=element_id)
                 # An element may be consumed by a project if its reserved by this project or
                 # if it is allocated by it
                 try:
@@ -201,7 +203,7 @@ class UnUseEventForm(DisableFieldsMixin,ModelForm):
     #project = forms.ModelChoiceField(
     #    queryset=models.Project.objects.all(),required=False)
     class Meta:
-        model = models.UnUseEvent
+        model = models.events.UnUseEvent
         fields = ['comment', 'element', 'quantity','project',
                   'location_source', 'location_destination']
         widgets = {
@@ -221,7 +223,7 @@ class MoveEventForm(DisableFieldsMixin,ModelForm):
     project = forms.ModelChoiceField(
         queryset=models.Project.objects.all(),required=False)
     class Meta:
-        model = models.MoveEvent
+        model = models.events.MoveEvent
         fields = ['comment', 'element', 'quantity','project', 'status',
                   'location_source', 'location_destination']
         widgets = {
@@ -243,7 +245,7 @@ class UseEventForm(DisableFieldsMixin, PresetLocationSourceAndQuantityMixin, Mod
     #    queryset=models.Project.objects.all())
 
     class Meta:
-        model = models.UseEvent
+        model = models.events.UseEvent
         fields = ['comment', 'element', 'quantity','project',
                   'location_source', 'location_destination']
         widgets = {
@@ -265,7 +267,7 @@ class SellEventForm(DisableFieldsMixin, PresetLocationSourceAndQuantityMixin, Mo
     quantity = forms.IntegerField(min_value=1)
 
     class Meta:
-        model = models.SellEvent
+        model = models.events.SellEvent
         fields = ['comment', 'element', 'price', 'quantity', 'location_source']
 
     def __init__(self, *args, **kwargs):
@@ -285,8 +287,8 @@ class BorrowEventForm(DisableFieldsMixin, PresetLocationSourceAndQuantityMixin, 
                                     'class':'datepicker'
                                 }))
     class Meta:
-        model = models.BorrowEvent
-        fields = ['element', 'location_source',
+        model = models.events.BorrowEvent
+        fields = ['element', 'location_source', "beneficiary",
                   'quantity', 'scheduled_return_date', 'comment']
 
 
@@ -298,16 +300,39 @@ class BorrowEventForm(DisableFieldsMixin, PresetLocationSourceAndQuantityMixin, 
         # and not the user filled form  for check purposes.
         #print(self.initial,flush=True)
 
+class PotentialBorrowEventForm(DisableFieldsMixin, PresetLocationSourceAndQuantityMixin, ModelForm):
+    element = forms.ModelChoiceField(queryset=models.Element.objects.filter(
+        stock_repartitions__in=models.StockRepartition.objects.filter(status="FREE")).distinct())
+    scheduled_return_date = forms.DateField(widget=forms.DateInput(attrs=
+                                {
+                                    'class':'datepicker'
+                                }))
+    scheduled_borrow_date = forms.DateField(widget=forms.DateInput(attrs=
+                                {
+                                    'class':'datepicker'
+                                }))
+    class Meta:
+        model = models.events.PotentialBorrowEvent
+        fields = ['element', "beneficiary", 'scheduled_borrow_date',
+                   'scheduled_return_date', 'comment']
 
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        #self.preset_location_quantity()
+        # TODO : init max qty using initial value
+        # ex : like it’s done for other init functions, but this time for the new prefill form,
+        # and not the user filled form  for check purposes.
+        #print(self.initial,flush=True)
 class BorrowEventUpdateForm(ModelForm):
 
     disabled_fields = ['element', 'scheduled_return_date',
                        'quantity', 'location_source']
 
     class Meta:
-        model = models.BorrowEvent
+        model = models.events.BorrowEvent
         fields = ['element', 'location_source',
-                  'quantity', 'scheduled_return_date', 'comment']
+                  'quantity', 'scheduled_return_date', "beneficiary",'comment']
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -317,12 +342,12 @@ class BorrowEventUpdateForm(ModelForm):
 
 class ReturnEventForm(DisableFieldsMixin,ModelForm):
     borrow_associated = forms.ModelChoiceField(
-        queryset=models.BorrowEvent.objects.all().filter(return_event__isnull=True))
+        queryset=models.events.BorrowEvent.objects.all().filter(return_event__isnull=True))
     #location_destination = forms.ModelChoiceField(
     #    queryset=models.Location.objects.all())
 
     class Meta:
-        model = models.ReturnEvent
+        model = models.events.ReturnEvent
         fields = ['borrow_associated', 'comment', 'location_destination']
         widgets = {
             "location_destination": LocationWidget
@@ -338,7 +363,7 @@ class AttributeForm(ModelForm):
 class AttachmentForm(ModelForm):
 
     class Meta:
-        model = models.Attachment
+        model = Attachment
         fields = ['name','file']
 
 class ElementForm(ModelForm):
@@ -352,28 +377,66 @@ class ElementForm(ModelForm):
 class ComponentForm(ElementForm):
     datasheet = forms.FileField(required=False)
     class Meta:
-        model = models.Component
+        model = models.elements.Component
         fields = ElementForm.fields + ['datasheet']
         widgets = ElementForm.widgets
 
 class MachineForm(ElementForm):
     class Meta:
-        model = models.Machine
+        model = models.elements.Machine
         fields = ElementForm.fields
         widgets = ElementForm.widgets
 
-
 class ToolForm(ElementForm):
     class Meta:
-        model = models.Tool
+        model = models.elements.Tool
         fields = ElementForm.fields
         widgets = ElementForm.widgets
 
 class BookForm(ElementForm):
     class Meta:
-        model = models.Book
+        model = models.elements.Book
         fields = ElementForm.fields
         widgets = ElementForm.widgets
+
+class MovieForm(ModelForm):
+    class Meta:
+        model = models.elements.Movie
+        fields = ("original_language","original_title","local_title","release_date","poster","budget","remote_api_id","trailer_video_url")
+
+class MovieCaseForm(ElementForm):
+
+    class Meta:
+        model = models.elements.MovieCase
+        fields = ['name', "category", "custom_id", "externalapiid", "ean", "nb_disk",
+                                                                        "format_disk" ,
+                                                                        "subformat_disk",
+                                                                        "category_box",
+                                                                        "price"]
+        fields = ElementForm.fields + [ "custom_id", "ean", "nb_disk",
+                                                          "format_disk" ,
+                                                          "subformat_disk",
+                                                          "category_box"]
+        widgets = ElementForm.widgets
+def get_initial():
+    return 123
+#only for interactive add !!
+NB_DISK= [tuple([x,x]) for x in range(1,4)]
+class MovieCaseInteractiveForm(DisableFieldsMixin,ModelForm):
+    externalapiid = forms.CharField(max_length=30)
+    price = forms.FloatField(required=False,initial=0.0)
+    nb_disk = forms.IntegerField(label="How many disks ?", widget=forms.Select(choices=NB_DISK))
+    category_box = forms.TypedChoiceField(choices=models.elements.MovieCase.CATEGORY, initial='NEW')
+    custom_id = forms.IntegerField(label="ID (leave blank to get one automatically)",required=False)
+    class Meta:
+        model = models.elements.MovieCase
+        fields = ['name', "category", "externalapiid", "custom_id", "ean", "nb_disk",
+                                                                        "subformat_disk",
+                                                                        "category_box",
+                                                                        "price"]
+        widgets = {
+            "category": CategoryWidget
+    }
 
 class LocationForm(ModelForm):
 
@@ -396,5 +459,5 @@ AttributeFormSet = inlineformset_factory(
     extra=1, can_delete=True)
 
 AttachmentFormSet = inlineformset_factory(
-    models.Element, models.Attachment, form=AttachmentForm,
+    models.Element, Attachment, form=AttachmentForm,
     extra=1, can_delete=True)

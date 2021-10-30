@@ -3,17 +3,21 @@ from django.test import Client
 from django.contrib.auth.models import AnonymousUser,User
 from rest_framework.test import APIRequestFactory
 from Mindkeepr.views import EventsView
+from Mindkeepr.views.events.return_view import ReturnsView
 from Mindkeepr import models
+from django.contrib.auth.models import Permission
 
 class APITestCase(TestCase):
     def setUp(self):
         self.user = User.objects.create_superuser('mindkeepr', 'mindkeepr@example.fr', 'admin')
         self.dumb_user = User.objects.create_user('benoit', 'benoit@example.fr')
+        self.return_allowed_user = User.objects.create_user('zigzag', 'zigzag@example.fr')
+        self.return_allowed_user.user_permissions.add(Permission.objects.get(codename='add_returnevent'))
         self.location = models.Location.objects.create(name = "Location 1")
         self.location2 = models.Location.objects.create(name = "Location 2")
-        self.component = models.Component.objects.create(name = "Component 1",description="First component !")
+        self.component = models.elements.Component.objects.create(name = "Component 1",description="First component !")
         self.view_event_create = EventsView.as_view({'post':'create'})
-
+        self.view_returnevent_create = ReturnsView.as_view({"post":"create"})
 
     def test_return_event_post(self):
         factory = APIRequestFactory()
@@ -30,10 +34,10 @@ class APITestCase(TestCase):
         }
 
         request = factory.post('/api/events',buy_event,format= 'json')
-        request.user = self.dumb_user
+        request.user = self.user
         response = self.view_event_create(request)
         self.assertEqual(response.status_code,201)
-
+        self.assertEqual(response.data["creator"]["id"],self.user.id)
 
         stock_repartition = self.component.stock_repartitions.all()[0]
         self.assertEqual(stock_repartition.quantity,20)
@@ -54,9 +58,10 @@ class APITestCase(TestCase):
         }
 
         request = factory.post('/api/events',borrow_event,format= 'json')
-        request.user = self.dumb_user
+        request.user = self.user
         response = self.view_event_create(request)
         self.assertEqual(response.status_code,201)
+        self.assertEqual(response.data["creator"]["id"],self.user.id)
         id_borrow_event = response.data["id"]
         stock_repartitions = self.component.stock_repartitions.all()
 
@@ -70,7 +75,7 @@ class APITestCase(TestCase):
         self.assertEqual(self.component.quantity_owned,20)
         self.assertEqual(self.component.quantity_available,15)
 
-        borrow_event = models.BorrowEvent.objects.get(id=id_borrow_event)
+        borrow_event = models.events.BorrowEvent.objects.get(id=id_borrow_event)
         self.assertEqual(borrow_event.is_returned,False)
         self.assertEqual(borrow_event.is_date_overdue,False)
 
@@ -86,8 +91,18 @@ class APITestCase(TestCase):
 
         request = factory.post('/api/events',return_event,format= 'json')
         request.user = self.dumb_user
+        response = self.view_returnevent_create(request)
+        self.assertEqual(response.status_code,403)
+        request = factory.post('/api/events',return_event,format= 'json')
+        request.user = self.return_allowed_user
         response = self.view_event_create(request)
+        self.assertEqual(response.status_code,403)
+        request = factory.post('/api/events',return_event,format= 'json')
+        request.user = self.return_allowed_user
+        response = self.view_returnevent_create(request)
         self.assertEqual(response.status_code,201)
+
+        self.assertEqual(response.data["creator"]["id"],self.return_allowed_user.id)
         id_return_event = response.data["id"]
 
         stock_repartitions = self.component.stock_repartitions.all()
@@ -106,9 +121,9 @@ class APITestCase(TestCase):
         self.assertEqual(self.component.quantity_owned,20)
         self.assertEqual(self.component.quantity_available,20)
 
-        borrow_event = models.BorrowEvent.objects.get(id=id_borrow_event)
+        borrow_event = models.events.BorrowEvent.objects.get(id=id_borrow_event)
         self.assertEqual(borrow_event.is_returned,True)
         self.assertEqual(borrow_event.is_date_overdue,False)
 
-        return_event = models.ReturnEvent.objects.get(id=id_return_event)
+        return_event = models.events.ReturnEvent.objects.get(id=id_return_event)
         self.assertEqual(return_event.is_date_overdue,False)

@@ -1,0 +1,147 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block extra_headers %}
+{% endblock %}
+{% block body_content %}
+
+<div class="modal hide" id="movieCaseModal">
+</div>
+<div class="modal hide" id="movieCaseSuccess">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Success</h5>
+        <button type="button" class="close" data-dismiss="modal">×</button>
+      </div>
+
+      <div class="modal-body">
+      <span id="modal-success-movie"></span> successfully added.
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class ='bg'> </div>
+<div class = 'container'>
+<div class ='favourite'>
+
+  </div>
+  <form class ='form'>
+  <input id="searchfieldmovie" type = 'search' placeholder ='search a film'>
+  <button type ='submit'> Search </button>
+    <i class="fa fa-star view-fav" aria-hidden="true"></i>
+
+  </form>
+    <div class ='error'> </div>
+</div>
+<div class = 'selectedFilm'> </div>
+<div class ='container'>
+
+  <div class ='films'/>
+</div>
+<div id ='result'> </div>
+
+<script>
+
+$(document).on("click",".movie", function(ev) { // for each edit contact url
+    ev.preventDefault(); // prevent navigation
+    var url = $(this).data("form"); // get form from url
+
+    $("#movieCaseModal").load(url, function() { // load the url into the modal
+        $(this).modal('show'); // display the modal on url load
+    });
+    return false; // prevent the click propagation
+});
+
+function loadData(search) {
+  //event.preventDefault();
+  // only display favourite list if items are there
+$(".view-fav").on("click", function() {
+  if ($.trim($(".favourite").html()).length) {
+    $(".favourite").fadeToggle();
+    $(".bg").fadeToggle();
+  }
+});
+
+
+
+  // api and end points
+  // create search with user input
+  const api = "&api_key=feb6f0eeaa0a72662967d77079850353";
+  const endpoint = `https://api.themoviedb.org/3/search/movie?query=${search}${api}&language=fr`;
+  const poster = "https://image.tmdb.org/t/p/w400/";
+
+  let gridHtml = "";
+  let selectedHtml = "";
+
+  $.getJSON(endpoint, function(data) {
+
+
+    // if no results display error message
+    if (data.results.length == 0) {
+      $(".error").html("No data found, search again.");
+    }
+    gridHtml=`<div class="row mt-5">`
+    // create the film layout
+    data.results.forEach(function (movie, index) {
+  date = new Date(movie.release_date);
+  year = date.getFullYear()
+      console.log(movie)
+      title_encoded = encodeURIComponent(movie.title)
+      gridHtml +=
+    `<div class="card" style="width: 15rem;">
+      <img class="card-img-top" src="${poster}${movie.poster_path}" alt="Card image cap">
+      <div class="card-body">
+        <h5 class="card-title">${movie.title} (${year})</h5>
+
+        <button type="button" class="btn btn-primary movie" href="#" data-title="${movie.title}"
+        data-form="/formmoviecasemodal?movieapiid=${movie.id}&name=${title_encoded}" title="Add movie" >Add movie
+        </button>
+      </div>
+    </div>`
+
+    ;
+
+      });
+    gridHtml+=` </div>`
+    $(".films").html(gridHtml);
+  });
+
+  // click of pop up image - add to favourites div
+ /* $("body").on("click", ".add-fav", function() {
+    // get the img src
+    let favItems = $(".selectedFilm__poster").attr("src");
+    $(".favourite").append(`<img class ="favImg" src ="${favItems}">`);
+    // bug - unsure why? duplicate images being displayed on click.
+    // removed any duplicated src
+    var img = $(".favImg");
+    var used = {};
+
+    img.each(function() {
+      var src = $(this).attr("src");
+      if (used[src]) $(this).remove();
+      used[src] = 1;
+    });
+    localStorage.getItem(favItems);
+  });
+  localStorage.setItem(favItems);
+*/
+}
+// start app
+
+
+// use submit to load the data
+const form = $(".form");
+form.submit(loadData);
+
+$('#searchfieldmovie').on('input', function() {
+    // do something
+   // alert("ee")
+    console.log($('#searchfieldmovie').val())
+    loadData($('#searchfieldmovie').val())
+});
+</script>
+{% endblock %}
