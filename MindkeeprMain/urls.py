@@ -45,6 +45,7 @@ router.register(r'categoriesShort', CategoryViewShort, basename='categoryshort')
 router.register(r'locationsFull', LocationViewFull, basename='locationfull')
 router.register(r'locations', LocationView, basename='location')
 router.register(r'borrowings', BorrowingsView, basename='borrowing')
+router.register(r'potentialborrowings', PotentialBorrowingsView, basename='potentialborrowing')
 router.register(r'maintenances', MaintenancesView, basename='maintenance')
 router.register(r'reserves', ReservesView, basename='reserve')
 router.register(r'returns', ReturnsView, basename='return')
@@ -90,6 +91,7 @@ urlpatterns = [
     path("element/print/all",views.print_print_list),
     path("printlist",views.print_list_disp),
     path('formborroweventmodal', borrowing_view.BorrowEventViewModal.as_view()),
+    path('formpotentialborroweventmodal', borrowing_view.PotentialBorrowEventViewModal.as_view()),
     path('formreturneventmodal', return_view.ReturnEventViewModal.as_view()),
     path('formbuyeventmodal', buy_view.BuyEventViewModal.as_view()),
     path('formselleventmodal', sell_view.SellEventViewModal.as_view()),

@@ -300,7 +300,30 @@ class BorrowEventForm(DisableFieldsMixin, PresetLocationSourceAndQuantityMixin, 
         # and not the user filled form  for check purposes.
         #print(self.initial,flush=True)
 
+class PotentialBorrowEventForm(DisableFieldsMixin, PresetLocationSourceAndQuantityMixin, ModelForm):
+    element = forms.ModelChoiceField(queryset=models.Element.objects.filter(
+        stock_repartitions__in=models.StockRepartition.objects.filter(status="FREE")).distinct())
+    scheduled_return_date = forms.DateField(widget=forms.DateInput(attrs=
+                                {
+                                    'class':'datepicker'
+                                }))
+    scheduled_borrow_date = forms.DateField(widget=forms.DateInput(attrs=
+                                {
+                                    'class':'datepicker'
+                                }))
+    class Meta:
+        model = models.events.PotentialBorrowEvent
+        fields = ['element', "beneficiary", 'scheduled_borrow_date',
+                   'scheduled_return_date', 'comment']
 
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        #self.preset_location_quantity()
+        # TODO : init max qty using initial value
+        # ex : like it’s done for other init functions, but this time for the new prefill form,
+        # and not the user filled form  for check purposes.
+        #print(self.initial,flush=True)
 class BorrowEventUpdateForm(ModelForm):
 
     disabled_fields = ['element', 'scheduled_return_date',

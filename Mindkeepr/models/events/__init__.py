@@ -1,5 +1,5 @@
 from .event import Event
-from .borrow_event import BorrowEvent
+from .borrow_event import BorrowEvent, PotentialBorrowEvent
 from .buy_event import BuyEvent
 from .consume_event import ConsumeEvent
 from .incident_event import IncidentEvent
