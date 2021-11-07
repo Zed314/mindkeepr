@@ -91,7 +91,7 @@
         "model": "Mindkeepr.MovieGenre",
         "pk": 27,
         "fields": {
-            "name_en": "Horron",
+            "name_en": "Horror",
             "name_fr": "Horreur"
         }
     },
