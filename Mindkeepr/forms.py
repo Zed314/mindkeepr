@@ -279,6 +279,7 @@ class BorrowEventForm(DisableFieldsMixin, PresetLocationSourceAndQuantityMixin, 
     """ Form for BorrowEvent """
     location_source = forms.ModelChoiceField(
         queryset=models.Location.objects.all())
+    potentialborrow = forms.ModelChoiceField(required=False,queryset=models.events.PotentialBorrowEvent.objects.all())
     element = forms.ModelChoiceField(queryset=models.Element.objects.filter(
         stock_repartitions__in=models.StockRepartition.objects.filter(status="FREE")).distinct())
     quantity = forms.IntegerField(min_value=1)
@@ -288,7 +289,7 @@ class BorrowEventForm(DisableFieldsMixin, PresetLocationSourceAndQuantityMixin, 
                                 }))
     class Meta:
         model = models.events.BorrowEvent
-        fields = ['element', 'location_source', "beneficiary",
+        fields = ['element', 'location_source', "beneficiary","potentialborrow",
                   'quantity', 'scheduled_return_date', 'comment']
 
 

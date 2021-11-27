@@ -36,13 +36,25 @@ class BorrowEvent(Event):
         except ReturnEvent.DoesNotExist:
             return False
 
+
+
     def is_add_to_element_possible(self):
-        return self.element.is_move_element_possible(self.quantity, "FREE", "", self.location_source, None, None, None)
+        quantity = 1
+        if not self.element.is_unique:
+            quantity = self.quantity
+            return self.element.is_move_element_possible(quantity, "FREE", "", self.location_source, None, None, None)
+        else:
+            is_free_of_potential_borrow = not PotentialBorrowEvent.objects.filter(element=self.element).filter(scheduled_return_date__gt=date.today(), scheduled_borrow_date__lt=self.scheduled_return_date).exists()
+            return is_free_of_potential_borrow and self.element.is_move_element_possible(quantity, "FREE", "", self.location_source, None, None, None)
+
+
 
     def _add_to_element(self):
-        return self.element.move_element(self.quantity, "FREE", "", self.location_source, None, None, None)
-
-#TODO : add potential borrow for future borrow (aka kind of reservation)
+        if self.element.is_unique and not self.quantity:
+            self.quantity = 1
+        if self.is_add_to_element_possible():
+            return self.element.move_element(self.quantity, "FREE", "", self.location_source, None, None, None)
+        return False
 
 class PotentialBorrowEvent(Event):
     """ Future borrow """
@@ -58,17 +70,18 @@ class PotentialBorrowEvent(Event):
 
     @property
     def is_begin_date_overdue(self):
-        return date.today() > self.scheduled_borrow_date
+        return  self.scheduled_borrow_date < date.today()
 
     def is_add_to_element_possible(self):
         if self.element.is_unique and not self.is_begin_date_overdue:
-            return not self.objects.all.filter(scheduled_return_date__gte=self.scheduled_borrow_date, scheduled_borrow_date__lte=self.scheduled_return_date).exists()
+            if self.scheduled_borrow_date < self.scheduled_return_date:
+                is_free_of_potential_borrow = not PotentialBorrowEvent.objects.filter(element=self.element).filter(scheduled_return_date__gt=self.scheduled_borrow_date, scheduled_borrow_date__lt=self.scheduled_return_date).exists()
+                is_free_of_borrow = not BorrowEvent.objects.filter(element=self.element).filter(scheduled_return_date__gt=self.scheduled_borrow_date, recording_date__lt=self.scheduled_return_date).exists()
+                return is_free_of_borrow and is_free_of_potential_borrow
+            else:
+                return False
         return False
 
     def _add_to_element(self):
         #for now, only unique is possible, todo :check dates
-        if self.element.is_unique and not self.is_begin_date_overdue:
-            print(PotentialBorrowEvent.objects.all().filter(scheduled_return_date__gte=self.scheduled_borrow_date, scheduled_borrow_date__lte=self.scheduled_return_date),flush=True)
-            return not PotentialBorrowEvent.objects.all().filter(scheduled_return_date__gte=self.scheduled_borrow_date, scheduled_borrow_date__lte=self.scheduled_return_date).exists()
-
-        return False
+        return self.is_add_to_element_possible()
