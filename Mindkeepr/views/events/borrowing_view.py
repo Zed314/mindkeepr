@@ -31,6 +31,11 @@ class BorrowEventViewModal(EventViewModal):
     form_class = BorrowEventForm
     success_url = '/formborroweventmodal'
 
+    def form_valid(self, form):
+        response =  super(BorrowEventViewModal, self).form_valid(form)
+        if form.cleaned_data["potentialborrow"]:
+            form.cleaned_data["potentialborrow"].delete()
+        return response
 
 @login_required(login_url='/accounts/login')
 def borrowings(request):
@@ -53,7 +58,7 @@ class PotentialBorrowingsView(LoginAndPermissionRequiredMixin,viewsets.ModelView
 
 class PotentialBorrowEventViewModal(EventViewModal):
     template_name = 'events/potential-borrow-event-detail-modal.html'
-    permission_required = "Mindkeepr.add_potential_borrowevent"
+    permission_required = "Mindkeepr.add_potentialborrowevent"
     form_class = PotentialBorrowEventForm
     success_url = '/formpotentialborroweventmodal'
 

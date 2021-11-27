@@ -6,7 +6,7 @@ from Mindkeepr.models.stock_repartition import StockRepartition
 from Mindkeepr.models.elements.element import Element
 from Mindkeepr.models.project import Project
 from Mindkeepr.models.location import Location
-from Mindkeepr.models.events.borrow_event import BorrowEvent
+from Mindkeepr.models.events.borrow_event import BorrowEvent, PotentialBorrowEvent
 
 #"from .mixins import PermissionRequiredAtFormValidMixin
 
@@ -117,5 +117,28 @@ class PresetElementQuantitySourceMixin():
                     self._disabled_fields.append('location_destination')
         except KeyError:
             pass
+        try:
+            idpotentialborrow = int(self.request.GET['potentialborrow'])
+
+            if (idpotentialborrow != 0):
+                #only the unique case is handled for now
+                initial['quantity'] = 1
+#
+                potentialborrowevent =  get_object_or_404(
+                    PotentialBorrowEvent, pk=idpotentialborrow)
+                initial['location_source'] = potentialborrowevent.element.stock_repartitions.all()[0].location
+                initial['element'] = potentialborrowevent.element
+                initial['status'] = potentialborrowevent.element.stock_repartitions.all()[0].status
+                initial["beneficiary"] = potentialborrowevent.beneficiary
+                initial["scheduled_return_date"] = potentialborrowevent.scheduled_return_date
+                initial["potentialborrow"] = potentialborrowevent
+                self._disabled_fields.append('quantity')
+                self._disabled_fields.append('location_source')
+                self._disabled_fields.append('element')
+                self._disabled_fields.append("beneficiary")
+                self._disabled_fields.append('status')
+        except KeyError:
+            pass
+
         # except ValueError:
         return initial

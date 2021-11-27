@@ -2,10 +2,14 @@ from polymorphic.models import PolymorphicModel
 from django.db import models
 from django.contrib.auth.models import User
 from django.db.models import Sum
+from datetime import date
+from django.db.models import Q
 
 from ..category import Category
 from ..location import Location
 from ..stock_repartition import StockRepartition
+
+
 
 class Element(PolymorphicModel):
     """ Object in the Inventory. """
@@ -54,6 +58,52 @@ class Element(PolymorphicModel):
             return 0
         return qty
 
+    def potential_borrow_intervals(self):
+        if not self.is_unique:
+            return
+        list_borrow_days =[]
+        applicable_borrows = self.future_borrows.filter(Q(scheduled_borrow_date__gte=date.today())|Q(scheduled_return_date__gte=date.today()))
+        for borrow in applicable_borrows:
+            list_borrow_days.append((borrow.scheduled_borrow_date,borrow.scheduled_return_date))
+        return list_borrow_days
+
+    def borrow_intervals(self):
+        if not self.is_unique:
+            return
+        list_borrow_days =[]
+        applicable_borrows = self.borrow_history.filter(Q(recording_date__gte=date.today())|Q(scheduled_return_date__gte=date.today())).order_by('recording_date')
+        for borrow in applicable_borrows:
+            list_borrow_days.append((borrow.recording_date,borrow.scheduled_return_date))
+        return list_borrow_days
+
+    #def all_borrow_intervals(self):
+    #    if not self.is_unique:
+    #        return
+    #    list_borrow_days =[]
+    #    applicable_borrows = self.borrow_history.all().order_by('scheduled_borrow_date')
+    #    for borrow in applicable_borrows:
+    #        list_borrow_days.append((borrow.scheduled_borrow_date,borrow.scheduled_return_date))
+    #    return list_borrow_days
+
+    def all_borrow_intervals(self, beg, end):
+        if not self.is_unique:
+            return
+        list_borrow_days =[]
+        list_potential_days = []
+        borrows = self.borrow_history.filter(Q(recording_date__gte=beg)|Q(scheduled_return_date__gte=beg)).exclude(Q(recording_date__gt=end)).order_by('recording_date')
+        for borrow in borrows:
+            list_borrow_days.append((borrow.recording_date,borrow.scheduled_return_date))
+        potential_borrows = self.future_borrows.filter(Q(scheduled_borrow_date__gte=beg)|Q(scheduled_return_date__gte=beg)).exclude(Q(scheduled_borrow_date__gt=end)).order_by('scheduled_borrow_date')
+        for borrow in potential_borrows:
+            list_potential_days.append((borrow.scheduled_borrow_date,borrow.scheduled_return_date))
+
+        return {"borrows":list_borrow_days,"potential":list_potential_days}
+
+
+
+
+
+    # todo :generic function of nb of availability between two dates
 
 
     @property

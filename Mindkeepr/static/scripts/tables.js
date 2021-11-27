@@ -501,7 +501,25 @@ function load_potentialborrow_table(id)
                     } else {
                         return data;
                     }
-                }}
+                }},
+                { data: 'id', title: "Borrow",
+                render: function(data, type, row, meta){
+                    project = "";
+                            if(row.project)
+                            {
+                                project = row.project.id;
+                            }
+                        if(type === 'display'){
+
+                            button = '<button type="button" class="btn btn-primary event" href="#"  data-event-type="borrow" data-form="/formborroweventmodal?project='+project+'&potentialborrow='+data+'&beneficiary='+row.beneficiary.id+'" title="Borrow" ' ;
+                            // TODO : check if free
+
+                            button+= ">Borrow</button>";
+                            return button;
+                        }
+
+                        return "";
+                    }},
 
         ]
 });

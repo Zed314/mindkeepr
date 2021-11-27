@@ -95,5 +95,14 @@ class MovieCase(Element):
         constraints = [
             models.UniqueConstraint(fields=['custom_id', 'format_disk'], name='Unicity of custom id by format (DVD/Bluray)')
     ]
+    #@property
+    def custom_id_display(self):
+        return "{}{:03d}".format(self.format_disk[0],self.custom_id)
+
     def __str__(self):
         return "{} ({}{:03d})".format(self.name,self.format_disk[0],self.custom_id)
+
+
+    @property
+    def is_unique(self):
+        return True
