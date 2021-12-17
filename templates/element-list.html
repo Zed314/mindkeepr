@@ -9,19 +9,20 @@
 <div class="modal hide" id="deleteModal">
 </div>
 <div class="container-fluid">
-
+<!--
   <a class=" btn btn-primary  {% if not perms.Mindkeepr.add_component %}disabled{% endif%}" href="/component"
     title="Add component">Add component</a>
   <a class=" btn btn-primary   {% if not perms.Mindkeepr.add_machine %}disabled{% endif%}" href="/machine"
     title="Add machine">Add machine</a>
   <a class=" btn btn-primary  {% if not perms.Mindkeepr.add_tool %}disabled{% endif%}" href="/tool"
-    title="Add tool">Add tool</a>
-  <a class=" btn btn-primary  {% if not perms.Mindkeepr.add_book %}disabled{% endif%}" href="/book"
+    title="Add tool">Add tool</a> -->
+    {% block topblock %}
+    <a class=" btn btn-primary  {% if not perms.Mindkeepr.add_book %}disabled{% endif%}" href="/book"
     title="Add book">Add book</a>
-  <a class=" btn btn-primary  {% if not perms.Mindkeepr.add_movie %}disabled{% endif%}" href="/movie"
-    title="Add book">Add movie</a>
-  <a class=" btn btn-primary  {% if not perms.Mindkeepr.add_moviecase %}disabled{% endif%}" href="/moviecase"
-    title="Add book">Add movie case</a>
+    <a class=" btn btn-primary  {% if not perms.Mindkeepr.add_movie %}disabled{% endif%}" href="/addMovie"
+    title="Add movie">Add movie</a>
+    {% endblock %}
+
   <div class="row">
     <div class="col-md-2">
       <div class="card ">

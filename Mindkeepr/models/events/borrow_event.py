@@ -50,9 +50,12 @@ class BorrowEvent(Event):
 
 
     def _add_to_element(self):
+        print(self.quantity,flush=True)
+        print(self.location_source,flush=True)
         if self.element.is_unique and not self.quantity:
             self.quantity = 1
         if self.is_add_to_element_possible():
+            # Does not work as we have a potential borrow with same boundaries...
             return self.element.move_element(self.quantity, "FREE", "", self.location_source, None, None, None)
         return False
 

@@ -5,7 +5,6 @@
 {% block body_content %}
 
 <h1>Bureau</h1>
-<a href="/borrowings">Emprunts</a>
 <div class="modal hide" id="showEventModal">
 </div>
 <div class="container">
@@ -19,14 +18,28 @@
             </tr>
           </thead>
         </table>
+        <table id="potentialborrow-table" class="table compact table-striped table-bordered" style="width:100%">
+          <thead>
+            <tr>
+              <div id="jstree_category"></div>
+
+            </tr>
+          </thead>
+        </table>
       </div>
     </div>
   </div>
+
+
+
+
+
+
 <script type="text/javascript">
 
 $('#events-table').DataTable({
               'serverSide': true,
-              'ajax': '/api/v1/{% block typeapi %}events{% endblock %}/?format=datatables',
+              'ajax': '/api/v1/{% block typeapi %}borrowings{% endblock %}/?format=datatables',
                "order": [[ 0, "desc" ]],
               'columns': [
                   { data: 'id', title: "ID" },
@@ -107,7 +120,85 @@ $('#events-table').DataTable({
 
           });
 
+          $("#potentialborrow-table").DataTable({
+        "dom": '<"top">rt<"bottom"lip><"clear">',
+        'serverSide': true,
+        "responsive": true,
+        'ajax': '/api/v1/potentialborrowings?format=datatables',
+        //"order": [[ 6, "desc"],[ 2, "desc" ]],
+        "columnDefs": [
+          {
+              "targets": '_all',
+              "defaultContent": ""
+          }
+        ],
+        columns: [
+            { data: "id", title: "ID", visible:false},
+            { data: "element.name", title: "Title"},
+            { data: "beneficiary.get_full_name", title: "For"},
+            { data: "recording_date", title: "Date",
+            render: function (data, type, row, meta) {
+                    if (type === 'display') {
+                        if(data){
+                            return convertISO8601ToHumanDay(data);
+                        }
+                        else
+                        {
+                            return "Undefined";
+                        }
+                    } else {
+                        return data;
+                    }
+                }},
+                { data: "scheduled_borrow_date", title: "From",
+            render: function (data, type, row, meta) {
+                    if (type === 'display') {
+                        if(data){
+                            return convertISO8601ToHumanDay(data);
+                        }
+                        else
+                        {
+                            return "Undefined";
+                        }
+                    } else {
+                        return data;
+                    }
+                }},
+                { data: "scheduled_return_date", title: "To",
+            render: function (data, type, row, meta) {
+                    if (type === 'display') {
+                        if(data){
+                            return convertISO8601ToHumanDay(data);
+                        }
+                        else
+                        {
+                            return "Undefined";
+                        }
+                    } else {
+                        return data;
+                    }
+                }},
+                { data: 'id', title: "Borrow",
+                render: function(data, type, row, meta){
+                    project = "";
+                            if(row.project)
+                            {
+                                project = row.project.id;
+                            }
+                        if(type === 'display'){
 
+                            button = '<button type="button" class="btn btn-primary event" href="#"  data-event-type="borrow" data-form="/formborroweventmodal?project='+project+'&potentialborrow='+data+'&beneficiary='+row.beneficiary.id+'" title="Borrow" ' ;
+                            // TODO : check if free
+
+                            button+= ">Borrow</button>";
+                            return button;
+                        }
+
+                        return "";
+                    }},
+
+        ]
+});
 </script>
 
 

@@ -11,11 +11,11 @@
    <script src="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.3.9/jstree.min.js"></script>
    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.2.1/themes/default/style.min.css" />
    <script
-          src="http://code.jquery.com/ui/1.12.1/jquery-ui.min.js"
+          src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"
           integrity="sha256-VazP97ZCwtekAsvgPBSUwPFKdrwD3unUfSGVYrahUqU="
           crossorigin="anonymous"></script>
 
-   <link rel="stylesheet" href="http://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css" />
+   <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css" />
    <link rel="shortcut icon" type="image/png" href="{% static '/icons/favicon.ico' %}"/>
    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.formset/1.2.2/jquery.formset.min.js">
    </script>
@@ -80,27 +80,15 @@ table.dataTable thead .sorting_desc {
       <li class="nav-item">
         <a class="nav-link" href="{% url 'elements-list' %}">Home<span class="sr-only">(current)</span></a>
       </li>
-      <li class="nav-item">
-        <a class="nav-link" href="{% url 'components-list' %}">Components</a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link" href="{% url 'machines-list' %}">Machines</a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link" href="{% url 'tools-list' %}">Tools</a>
-      </li>
+
       <li class="nav-item">
         <a class="nav-link" href="{% url 'books-list' %}">Books</a>
       </li>
-      <li class="nav-item">
-        <a class="nav-link" href="/locations">Locations</a>
-      </li>
+
       <li class="nav-item">
         <a class="nav-link" href="/moviecases">Movies</a>
       </li>
-      <li class="nav-item">
-        <a class="nav-link" href="/projects">Projects</a>
-      </li>
+
 
 
 
@@ -124,12 +112,29 @@ table.dataTable thead .sorting_desc {
 
       <a class="dropdown-item" href="{% url 'view_profile' request.user.id %}">Profile</a>
       <a class="dropdown-item" href="/printlist">Print list</a>
-      {% if request.user|has_group:"bureau" %}
+      {% if request.user|has_group:"staff" %}
       <div class="dropdown-divider"></div>
       <li class="nav-item">
-        <a class="dropdown-item" href="/bureau">Bureau</a>
+        <a class="dropdown-item" href="/staff">Staff</a>
       </li>
       {% endif %}
+      <div class="dropdown-divider"></div>
+      <li class="nav-item">
+        <a class="dropdown-item" href="{% url 'components-list' %}">Components</a>
+      </li>
+      <li class="nav-item">
+        <a class="dropdown-item" href="{% url 'machines-list' %}">Machines</a>
+      </li>
+      <li class="nav-item">
+        <a class="dropdown-item" href="{% url 'tools-list' %}">Tools</a>
+      </li>
+      <div class="dropdown-divider"></div>
+      <li class="nav-item">
+        <a class="dropdown-item" href="/locations">Locations</a>
+      </li>
+      <li class="nav-item">
+        <a class="dropdown-item" href="/projects">Projects</a>
+      </li>
       <div class="dropdown-divider"></div>
       <a class="dropdown-item" href=" {% url "logout" %}">Logout</a>
 
@@ -148,9 +153,7 @@ table.dataTable thead .sorting_desc {
 
 <div class="modal hide" id="eventModal">
 </div>
-
 {% block body_content %}
 {% endblock %}
-
 </body>
 </html>

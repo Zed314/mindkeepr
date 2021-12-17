@@ -137,6 +137,8 @@ class PresetElementQuantitySourceMixin():
                 self._disabled_fields.append('element')
                 self._disabled_fields.append("beneficiary")
                 self._disabled_fields.append('status')
+                self._disabled_fields.append("potentialborrow")
+                print(initial,flush=True)
         except KeyError:
             pass
 
