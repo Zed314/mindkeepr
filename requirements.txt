@@ -14,7 +14,6 @@ djangorestframework-datatables==0.5.2
 mozilla_django_oidc==2.0.0
 gunicorn==20.0.4
 django-select2==7.6.1
-django-redis==4.12.1
 tmdbv3api==1.7.6
 django-cors-headers==3.8.0
 #djangorestframework-simplejwt==4.8.0
