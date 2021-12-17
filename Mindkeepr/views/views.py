@@ -28,15 +28,16 @@ class UserView(LoginRequiredMixin, viewsets.ModelViewSet):
     queryset = User.objects.get_queryset().order_by('id')
     serializer_class = UserDetailedSerializer
 
-def is_bureau(user):
+def is_staff(user):
     # print(user.groups)
     # print(user.groups.filter(name='bureau').count())
-    return user.groups.filter(name='bureau').exists()
+    return user.groups.filter(name='staff').exists()
 
-@user_passes_test(is_bureau)
-@login_required(login_url='/accounts/login')
-def bureau(request):
-    return render(request, "bureau.html")
+
+#@login_required(login_url='/accounts/login')
+@user_passes_test(is_staff)
+def staff(request):
+    return render(request, "staff.html")
 
 class ProfileView(LoginRequiredMixin, DetailView):
     model = User

@@ -1,5 +1,9 @@
 {% extends 'element-list.html' %}
 {% load static %}
+{% block topblock %}
+<a class=" btn btn-primary  {% if not perms.Mindkeepr.add_movie %}disabled{% endif%}" href="/addMovie"
+title="Add movie">Add movie</a>
+{% endblock %}
 {% block typeapi %}moviecases{% endblock %}
 {% block elt_table_js %}
  var elt_table = $('#element-table').DataTable({

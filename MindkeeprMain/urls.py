@@ -74,7 +74,7 @@ urlpatterns = [
     path('project', views.ProjectCreate.as_view()),
     path('locations', views.LocationList.as_view()),
     path('projects', views.ProjectList.as_view()),
-    path('bureau', views.bureau,name='bureau'),
+    path('staff', views.staff,name='staff'),
     path('profile/<int:pk>', views.ProfileView.as_view(), name="view_profile"),
     path("profile/update/<int:pk>",views.UserProfileUpdate.as_view(), name="edit_profile"),
     path('project/<int:pk>', views.ProjectUpdate.as_view(),name='view_project'),

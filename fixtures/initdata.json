@@ -1,0 +1,35 @@
+[
+    {
+      "model": "Mindkeepr.category",
+      "pk": 1,
+      "fields": {
+        "name": "Root"
+      }
+    },
+    {
+      "model": "Mindkeepr.category",
+      "pk": 2,
+      "fields": {
+        "name": "Movies",
+        "parent": 1
+      }
+    },
+    {
+      "model":"Mindkeepr.location",
+      "pk": 1,
+      "fields":{
+        "name": "Root",
+        "description": "Main location"
+      }
+    },
+    {
+      "model":"Mindkeepr.location",
+      "pk": 2,
+      "fields":{
+        "name": "Movie library",
+        "description": "Where all movies are stored",
+        "parent":1
+      }
+    }
+
+  ]

@@ -4,5 +4,9 @@
 {% endblock %}
 {% block qtycolumn %}
 {% endblock %}
+{% block topblock %}
+<a class=" btn btn-primary  {% if not perms.Mindkeepr.add_book %}disabled{% endif%}" href="/book"
+title="Add book">Add book</a>
+{% endblock %}
 {% block title_extra %} - Books{% endblock %}
 {% block typeapi %}books{% endblock %}

@@ -1,6 +1,4 @@
-
-
-from .mixins import PermissionRequiredAtFormValidMixin, LoginRequiredMixin
+from .mixins import PermissionRequiredAtFormValidMixin
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.urls import reverse_lazy
 from django.contrib.auth.mixins import PermissionRequiredMixin
@@ -10,6 +8,7 @@ from Mindkeepr.models.project import Project
 from Mindkeepr.serializers.project import ProjectSerializer
 from django.views.generic.list import ListView
 from .search import searchFilter
+from django.contrib.auth.mixins import LoginRequiredMixin
 
 class ProjectsView(LoginRequiredMixin, viewsets.ModelViewSet):
     serializer_class = ProjectSerializer

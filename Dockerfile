@@ -7,6 +7,7 @@ RUN mkdir /code
 WORKDIR /code
 RUN mkdir /code/MindkeeprMain
 ADD ./MindkeeprMain/ /code/MindkeeprMain
+ADD ./fixtures/ /code/fixtures
 RUN mkdir /code/Mindkeepr
 ADD ./Mindkeepr/ /code/Mindkeepr
 RUN mkdir /code/templates
@@ -29,7 +30,8 @@ ENV PYTHONUNBUFFERED 1
 RUN apt-get update
 RUN apt-get install -y netcat
 RUN pip install --upgrade pip && pip install -r requirements.txt
-
+RUN python manage.py loaddata fixtures/initdata.json
+RUN python manage.py loaddata fixtures/moviegenre.json
 EXPOSE 80
 
 ENTRYPOINT ["/code/entrypoint.sh"]

@@ -1,4 +1,5 @@
-from .mixins import PermissionRequiredAtFormValidMixin, LoginRequiredMixin
+from .mixins import PermissionRequiredAtFormValidMixin
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.contrib.auth.mixins import PermissionRequiredMixin
 from Mindkeepr.forms import LocationForm

@@ -21,7 +21,7 @@ class Element(PolymorphicModel):
         "comment", max_length=1000, blank=True, null=False)
     category = models.ForeignKey(
         Category, on_delete=models.PROTECT, null=True)
-    image = models.ImageField(upload_to='images', blank=True, null=True)
+    image = models.ImageField(upload_to='element_images', blank=True, null=True)
     creator = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
     default_location = models.ForeignKey(Location, on_delete=models.SET_NULL, null = True)
 
