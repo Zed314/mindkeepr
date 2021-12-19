@@ -142,5 +142,4 @@ class PresetElementQuantitySourceMixin():
         except KeyError:
             pass
 
-        # except ValueError:
         return initial
