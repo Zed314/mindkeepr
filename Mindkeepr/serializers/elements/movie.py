@@ -12,7 +12,7 @@ class MovieCaseSerializer(ElementFieldMixin, serializers.HyperlinkedModelSeriali
 
     class Meta:
         model = MovieCase
-        fields = ["id","custom_id_display","name","format_disk","subformat_disk","nb_disk","custom_id","ean","category_box","category_box_display","borrow_history"] #ElementSerializer.Meta.fields
+        fields = ["id","custom_id_display","name","format_disk","subformat_disk","nb_disk","custom_id","ean","category_box","category_box_display","borrow_history","quantity_owned","type"] #ElementSerializer.Meta.fields
         depth = 1
     def get_category_box_display(self,obj):
             return obj.get_category_box_display()
@@ -23,7 +23,8 @@ class MovieGenreSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = MovieGenre
         fields = ["id","name_en","name_fr"]
-#@SerializerFactory.register("Movie")
+
+
 class MovieSerializer(serializers.HyperlinkedModelSerializer):
     cases = MovieCaseSerializer(many=True, read_only=True)
     class Meta:
@@ -31,8 +32,3 @@ class MovieSerializer(serializers.HyperlinkedModelSerializer):
         #fields = ["local_title","original_language"]
         fields = ["id","poster","original_title","local_title", "catch_phrase","synopsis","trailer_video_url","genres","cases"]
         depth = 1
-
-    #def create(self, validated_data):
-    #    #category = self.get_category(validated_data)
-    #    movie = Movie.objects.create(**validated_data)
-    #    return movie
