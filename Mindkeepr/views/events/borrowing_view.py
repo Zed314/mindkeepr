@@ -1,11 +1,11 @@
 
 from rest_framework import  viewsets
 from ..mixins import LoginAndPermissionRequiredMixin
-from Mindkeepr.serializers.events.borrow_event import BorrowEventSerializer,PotentialBorrowEventSerializer
+from Mindkeepr.serializers.events.borrow_event import BorrowEventSerializer
 
-from Mindkeepr.models.events import BorrowEvent, PotentialBorrowEvent
+from Mindkeepr.models.events import BorrowEvent
 from . import EventViewModal
-from Mindkeepr.forms import BorrowEventForm, PotentialBorrowEventForm
+from Mindkeepr.forms import BorrowEventForm
 
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
@@ -33,34 +33,11 @@ class BorrowEventViewModal(EventViewModal):
 
     def form_valid(self, form):
         response =  super(BorrowEventViewModal, self).form_valid(form)
-        if form.cleaned_data["potentialborrow"]:
-            form.cleaned_data["potentialborrow"].delete()
         return response
 
 @login_required(login_url='/accounts/login')
 def borrowings(request):
     return render(request, "borrowings.html")
-
-
-class PotentialBorrowingsView(LoginAndPermissionRequiredMixin,viewsets.ModelViewSet):
-    serializer_class = PotentialBorrowEventSerializer
-
-    def get_queryset(self):
-        queryset = PotentialBorrowEvent.objects.all()
-        user = self.request.query_params.get('user', None)
-        if user is not None:
-            queryset = queryset.filter(creator_id=user)
-        element = self.request.query_params.get('element', None)
-        if element is not None:
-            queryset = queryset.filter(element_id=element)
-
-        return queryset
-
-class PotentialBorrowEventViewModal(EventViewModal):
-    template_name = 'events/potential-borrow-event-detail-modal.html'
-    permission_required = "Mindkeepr.add_potentialborrowevent"
-    form_class = PotentialBorrowEventForm
-    success_url = '/formpotentialborroweventmodal'
 
 
 @login_required(login_url='/accounts/login')

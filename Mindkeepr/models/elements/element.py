@@ -108,8 +108,8 @@ class Element(PolymorphicModel):
 
     @property
     def quantity_owned(self):
-        if self.borrow_history.all().filter(return_event__isnull=True):
-            borrowed_quantity = self.borrow_history.all().filter(return_event__isnull=True).aggregate(
+        if self.borrow_history.all().filter(state="IN_PROGRESS"):
+            borrowed_quantity = self.borrow_history.all().filter(state="IN_PROGRESS").aggregate(
                 quantity_borrowed=Sum('quantity')).get("quantity_borrowed", 0)
             return self.quantity_not_borrowed + borrowed_quantity
         return self.quantity_not_borrowed

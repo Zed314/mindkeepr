@@ -18,7 +18,7 @@ the main project :
 
 ## Class diagram
 
-Event : BuyEvent, SellEvent, UseEvent, ConsumeEvent, BorrowEvent, ReturnEvent, MaintenanceEvent (for Machine only)
+Event : BuyEvent, SellEvent, UseEvent, ConsumeEvent, BorrowEvent, MaintenanceEvent (for Machine only)
 Element  : Component, Machine
 
 Each element have several StockRepartitions (quantity, Location, Status, Project (NYI)).
