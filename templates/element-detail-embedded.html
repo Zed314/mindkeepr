@@ -13,7 +13,6 @@
   <a class="nav-item nav-link" href="#elt-{{form.instance.id}}-buy" data-toggle="tab">Buy History</a>
   <a class="nav-item nav-link" href="#elt-{{form.instance.id}}-sell" data-toggle="tab">Sell History</a>
   <a class="nav-item nav-link" href="#elt-{{form.instance.id}}-borrow" data-toggle="tab">Borrow History</a>
-  <a class="nav-item nav-link" href="#elt-{{form.instance.id}}-potentialborrow" data-toggle="tab">Potential Borrow</a>
   <a class="nav-item nav-link" href="#elt-{{form.instance.id}}-reservation" data-toggle="tab">Reservation History</a>
   {% if form.instance.is_consummable %}
   <a class="nav-item nav-link" href="#elt-{{form.instance.id}}-consume" data-toggle="tab">Consume History</a>
@@ -72,8 +71,6 @@
     <div class="tab-pane" id="elt-{{form.instance.id}}-location">
         <button type="button" class="btn btn-primary event" href="#" data-event-type="buy" data-element-id="{{form.instance.id}}" data-form="/formbuyeventmodal?element={{form.instance.id}}" title="Buy"
         {% if not perms.Mindkeepr.add_buyevent or form.instance.is_unique_and_there %}disabled{% endif %}>Buy</button>
-<button type="button" class="btn btn-primary event" href="#" data-event-type="potentialborrow" data-element-id="{{form.instance.id}}" data-form="/formpotentialborroweventmodal?element={{form.instance.id}}" title="Future borrow"
-        {% if not perms.Mindkeepr.add_potentialborrowevent or not form.instance.is_unique %}disabled{% endif %}>Potential borrow</button>
         <table
         data-element-id="{{form.instance.id}}"
         class="table compact table-striped table-bordered element-stock-table"
@@ -98,12 +95,6 @@
     <table
     data-element-id="{{form.instance.id}}"
     class="table compact table-striped table-bordered element-borrow-table"
-    style="width:100%"></table>
-  </div>
-  <div class="tab-pane" id="elt-{{form.instance.id}}-potentialborrow">
-    <table
-    data-element-id="{{form.instance.id}}"
-    class="table compact table-striped table-bordered element-potentialborrow-table"
     style="width:100%"></table>
   </div>
   <div class="tab-pane" id="elt-{{form.instance.id}}-reservation">
@@ -164,11 +155,8 @@ load_sell_table({{form.instance.id}},
 
 load_borrow_table({{form.instance.id}},
                 {% if form.instance.is_unique %} true {% else %} false {% endif %},
-                {% if perms.Mindkeepr.add_borrowevent  %} true {% else %} false {% endif %},
-                {% if perms.Mindkeepr.add_returnevent  %} true {% else %} false {% endif %});
+                {% if perms.Mindkeepr.add_borrowevent  %} true {% else %} false {% endif %});
 
-
-load_potentialborrow_table({{form.instance.id}});
 
 load_reserve_table({{form.instance.id}},
                 {% if form.instance.is_unique %} true {% else %} false {% endif %},

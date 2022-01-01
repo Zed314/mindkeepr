@@ -18,14 +18,6 @@
             </tr>
           </thead>
         </table>
-        <table id="potentialborrow-table" class="table compact table-striped table-bordered" style="width:100%">
-          <thead>
-            <tr>
-              <div id="jstree_category"></div>
-
-            </tr>
-          </thead>
-        </table>
       </div>
     </div>
   </div>
@@ -124,7 +116,7 @@ $('#events-table').DataTable({
         "dom": '<"top">rt<"bottom"lip><"clear">',
         'serverSide': true,
         "responsive": true,
-        'ajax': '/api/v1/potentialborrowings?format=datatables',
+        'ajax': '/api/v1/borrowings?format=datatables',
         //"order": [[ 6, "desc"],[ 2, "desc" ]],
         "columnDefs": [
           {

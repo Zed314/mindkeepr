@@ -3,7 +3,7 @@ from django.contrib.auth.models import User
 from datetime import date
 import datetime
 from Mindkeepr.models.events.buy_event import BuyEvent
-from Mindkeepr.models.events.borrow_event import BorrowEvent, PotentialBorrowEvent
+from Mindkeepr.models.events.borrow_event import BorrowEvent
 from Mindkeepr import models
 from django.contrib.auth.models import Permission
 
@@ -11,16 +11,13 @@ class ModelTestCase(TestCase):
     def setUp(self):
         self.user = User.objects.create_superuser('mindkeepr', 'mindkeepr@example.fr', 'admin')
         self.dumb_user = User.objects.create_user('benoit', 'benoit@example.fr')
-        #self.borrow_allowed_user = User.objects.create_user('zigzag', 'zigzag@example.fr')
-        #self.borrow_allowed_user.user_permissions.add(Permission.objects.get(codename='add_borrowevent'))
-        #self.borrow_allowed_user.user_permissions.add(Permission.objects.get(codename='add_potentialborrowevent'))
         self.location = models.Location.objects.create(name = "Location 1")
         self.machine = models.elements.Machine.objects.create(name = "Machine",description="A machine")
         self.machine2 = models.elements.Machine.objects.create(name = "Machine 2",description="Another machine")
         self.machine3 = models.elements.Machine.objects.create(name = "Machine 3",description="Another machine, again")
 
     def create_potential_borrow(self,object,beg,end,expected_result=True):
-        pborrow = PotentialBorrowEvent()
+        pborrow = BorrowEvent()
         pborrow.element = object
         pborrow.scheduled_borrow_date = date.today() +  datetime.timedelta(days=beg)
         pborrow.scheduled_return_date = date.today() +  datetime.timedelta(days=end)

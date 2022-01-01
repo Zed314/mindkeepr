@@ -301,14 +301,14 @@ function load_reserve_table(id,is_unique,permission_useevent,permission_unuseeve
 }
 
 
-function load_borrow_table(id,is_unique,permission_borrow,permission_return)
+function load_borrow_table(id,is_unique,permission_borrow)
 {
     $(".element-borrow-table[data-element-id="+id+"]").DataTable({
         "dom": '<"top">rt<"bottom"lip><"clear">',
         'serverSide': true,
         "responsive": true,
         'ajax': '/api/v1/borrowings?element='+id+'&format=datatables',
-        "order": [[ 6, "desc"],[ 2, "desc" ]],
+       //"order": [[ 6, "desc"],[ 2, "desc" ]],
         "columnDefs": [
           {
               "targets": '_all',
@@ -356,7 +356,7 @@ function load_borrow_table(id,is_unique,permission_borrow,permission_return)
               return row.location_source.name;
             },visible: !is_unique},
             //{ data: "comment", title: "Comment"},
-            { data: "return_event.recording_date", title: "Returned on",
+         /*   { data: "return_event.recording_date", title: "Returned on",
             render: function (data, type, row, meta) {
                 if (type === 'display') {
 
@@ -378,10 +378,6 @@ function load_borrow_table(id,is_unique,permission_borrow,permission_return)
                     disabled = false;
                     comment = ""
                     btn = ""
-                    if(!permission_return || row.return_event )
-                    {
-                        disabled = true;
-                    }
                     if(Date.now()>Date.parse(row.scheduled_return_date))
                     {
                         comment = "(Late !)";
@@ -392,7 +388,7 @@ function load_borrow_table(id,is_unique,permission_borrow,permission_return)
                         comment = "(On Time !)"
                         btn = "btn-success"
                     }
-                    button = '<button type="button" class="btn '+btn+' event" href="#" data-event-type="return" data-element-id=" '+id+'" data-form="/formreturneventmodal?&borrow='+row.id+'" title="Return '+comment+'" ' ;
+                    button = '<button type="button" class="btn '+btn+' event" href="#" data-event-type="return" data-element-id=" '+id+'" data-form="TODO&borrow='+row.id+'" title="Return '+comment+'" ' ;
                     if(disabled)
                     {
                         button+=" disabled";
@@ -434,7 +430,7 @@ function load_borrow_table(id,is_unique,permission_borrow,permission_return)
               return "";
 
             },visible: !is_unique},
-            { data: "return_event.comment", title: "Feedback"},
+            { data: "return_event.comment", title: "Feedback"},*/
         ]
 });
 
@@ -449,7 +445,7 @@ function load_potentialborrow_table(id)
         "dom": '<"top">rt<"bottom"lip><"clear">',
         'serverSide': true,
         "responsive": true,
-        'ajax': '/api/v1/potentialborrowings?element='+id+'&format=datatables',
+        'ajax': '/api/v1/borrowings?element='+id+'&format=datatables',
         //"order": [[ 6, "desc"],[ 2, "desc" ]],
         "columnDefs": [
           {

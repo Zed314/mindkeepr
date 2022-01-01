@@ -151,15 +151,22 @@ else:
 
 if not 'test' in sys.argv and not 'test_coverage' in sys.argv:
 
-    OIDC_RP_CLIENT_SECRET = "TBD"
-    OIDC_RP_IDP_SIGN_KEY = "TBD"
     OIDC_RP_CLIENT_ID = "mindkeepr"
-    OIDC_OP_AUTHORIZATION_ENDPOINT = "TBD"
-    OIDC_OP_TOKEN_ENDPOINT = "TBD/auth/realms/master/protocol/openid-connect/token"
-    OIDC_OP_USER_ENDPOINT =  "TBD/auth/realms/master/protocol/openid-connect/userinfo"
+    OIDC_RP_CLIENT_SECRET = "e79576f3-57c7-46ea-99d1-cbd80ce4fde0"
     OIDC_RP_SIGN_ALGO="RS256"
-    OIDC_OP_JWKS_ENDPOINT = "TBD/auth/realms/master/protocol/openid-connect/certs"
-
+    OIDC_OP_JWKS_ENDPOINT = "https://login.kekfactory.fr/auth/realms/cse/protocol/openid-connect/certs"
+    OIDC_RP_IDP_SIGN_KEY = "-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAq24IKjxPMquI8Mg1Xh03oiDReSgi5Kox/+D5GPI1P7raqZ7MJzA/7eQNvrKNNzOIdoPCo7SEvEN3JG/YP673TPG/4KmZ5crZhA5hRYHm89msDBhxOJ7+xhxMk3Ca8fTBjdKiYyvdUanH7BIhUWdbMuYfIzACut0SbGBSNXyH4w4BupzBeoaMYqNc7FFgp7/rEhoHDm1Oq88+fGkM7EB0sbN7Vesp3XfNQBoQtNdcyjGfubUw7ufqUqj+VMzQPtIYvRgO8nhIX2tmCu72tJPc/Kr5Qm6v4YNVdkbrk9ylDnuDQh8iSI8qGuQ/9nJxj5uXSJ4wl/WUHj1GB+zkN7It2wIDAQAB\n-----END PUBLIC KEY-----"
+    OIDC_OP_AUTHORIZATION_ENDPOINT = "https://login.kekfactory.fr/auth/realms/cse/protocol/openid-connect/auth"
+    OIDC_OP_TOKEN_ENDPOINT = "https://login.kekfactory.fr/auth/realms/cse/protocol/openid-connect/token"
+    OIDC_OP_USER_ENDPOINT =  "https://login.kekfactory.fr/auth/realms/cse/protocol/openid-connect/userinfo"
+    #OIDC_RP_CLIENT_ID = os.environ.get("OIDC_RP_CLIENT_ID")
+    #OIDC_RP_CLIENT_SECRET = os.environ.get("OIDC_RP_CLIENT_SECRET")
+    #OIDC_RP_SIGN_ALGO = os.environ.get("OIDC_RP_SIGN_ALGO")
+    #OIDC_OP_JWKS_ENDPOINT = os.environ.get("OIDC_OP_JWKS_ENDPOINT")
+    #OIDC_RP_IDP_SIGN_KEY = os.environ.get("OIDC_RP_IDP_SIGN_KEY")
+    #OIDC_OP_AUTHORIZATION_ENDPOINT = os.environ.get("OIDC_OP_AUTHORIZATION_ENDPOINT")
+    #OIDC_OP_TOKEN_ENDPOINT = os.environ.get("OIDC_OP_TOKEN_ENDPOINT")
+    #OIDC_OP_USER_ENDPOINT = os.environ.get("OIDC_OP_USER_ENDPOINT")
 
 
 
@@ -183,24 +190,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-"""
-TODO : add default and enable cache
-# Cache-cache
-CACHES = {
-
-    "select2": {
-        "BACKEND": "django_redis.cache.RedisCache",
-        "LOCATION": "redis://redis:6379/2",
-        "OPTIONS": {
-            "CLIENT_CLASS": "django_redis.client.DefaultClient",
-        }
-    }
-}
-
-# Tell select2 which cache configuration to use:
-SELECT2_CACHE_BACKEND = "select2"
-"""
-
 # Internationalization
 # https://docs.djangoproject.com/en/2.1/topics/i18n/
 
@@ -223,8 +212,8 @@ STATIC_ROOT = os.path.join(BASE_DIR, "static")
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 MEDIA_URL = '/media/'
 
-LOGIN_REDIRECT_URL="/"
-LOGOUT_REDIRECT_URL="/"
+LOGIN_REDIRECT_URL="https://mindkeepr.kekfactory.fr"
+LOGOUT_REDIRECT_URL="https://mindkeepr.kekfactory.fr"
 
 if os.environ.get("DEV"):
     from MindkeeprMain.dev import *
