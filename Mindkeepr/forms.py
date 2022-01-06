@@ -5,6 +5,8 @@ Forms used by Django
 from Mindkeepr.models.elements.element import Element
 from django.forms import ModelForm, fields
 from django import forms
+
+from Mindkeepr.models.events import borrow_event
 from . import models
 from Mindkeepr.models.elements.attachment import Attachment
 
@@ -290,12 +292,11 @@ class BorrowEventForm(DisableFieldsMixin, PresetLocationSourceAndQuantityMixin, 
                                 {
                                     'class':'datepicker'
                                 }))
-    active = forms.BooleanField()
 
     class Meta:
         model = models.events.BorrowEvent
         fields = ['element', 'location_source', "beneficiary",
-                  'quantity', "scheduled_borrow_date", 'scheduled_return_date', 'comment', "active"]
+                  'quantity', "scheduled_borrow_date", 'scheduled_return_date', 'comment']
 
 
     def __init__(self, *args, **kwargs):
@@ -306,20 +307,31 @@ class BorrowEventForm(DisableFieldsMixin, PresetLocationSourceAndQuantityMixin, 
         # and not the user filled form  for check purposes.
         #print(self.initial,flush=True)
 
-class BorrowEventUpdateForm(ModelForm):
+class StartBorrowEventForm(forms.Form):
+    borrow_event = forms.ModelChoiceField(queryset=borrow_event.BorrowEvent.objects.all())
 
-    disabled_fields = ['element', 'scheduled_return_date',
-                       'quantity', 'location_source']
+class ProlongateBorrowEventForm(forms.Form):
+    borrow_event = forms.ModelChoiceField(queryset=borrow_event.BorrowEvent.objects.all())
+    scheduled_return_date = forms.DateField(widget=forms.DateInput(attrs=
+                                {
+                                    'class':'datepicker'
+                                }))
 
-    class Meta:
-        model = models.events.BorrowEvent
-        fields = ['element', 'location_source',
-                  'quantity', 'scheduled_return_date', "beneficiary",'comment']
+class ChangeDateUnstartedBorrowEventForm(forms.Form):
+    borrow_event = forms.ModelChoiceField(queryset=borrow_event.BorrowEvent.objects.all())
+    scheduled_return_date = forms.DateField(widget=forms.DateInput(attrs=
+                                {
+                                    'class':'datepicker'
+                                }))
+    scheduled_borrow_date = forms.DateField(widget=forms.DateInput(attrs=
+                                {
+                                    'class':'datepicker'
+                                }))
+class ReturnBorrowEventForm(forms.Form):
+    borrow_event = forms.ModelChoiceField(queryset=borrow_event.BorrowEvent.objects.all())
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        for field in BorrowEventUpdateForm.disabled_fields:
-            self.fields[field].disabled = True
+class CancelBorrowEventForm(forms.Form):
+    borrow_event = forms.ModelChoiceField(queryset=borrow_event.BorrowEvent.objects.all())
 
 
 class AttributeForm(ModelForm):
