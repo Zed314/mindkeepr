@@ -73,6 +73,89 @@ $(document).on("click",".event", function(ev) { // for each edit contact url
     return false; // prevent the click propagation
 });
 
+// using jQuery
+function getCookie(name) {
+    var cookieValue = null;
+    if (document.cookie && document.cookie != '') {
+        var cookies = document.cookie.split(';');
+        for (var i = 0; i < cookies.length; i++) {
+            var cookie = jQuery.trim(cookies[i]);
+            // Does this cookie string begin with the name we want?
+            if (cookie.substring(0, name.length + 1) == (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+var csrftoken = getCookie('csrftoken');
+
+//[data-borrow-action=start]
+$(document).on("click",".borroweventaction", function(ev) { // for each edit contact url
+    ev.preventDefault(); // prevent navigation
+    //var url = ("form"); // get form from url
+    console.log($(this).data("borrow-id"))
+    $.ajax({
+        type: "POST",
+        url: "/api/v1/borrowevent/"+$(this).data("borrow-id")+"/"+$(this).data("borrow-action"),
+        headers: {'X-CSRFToken': csrftoken},
+        data: {},
+        success: function(data, status) {
+            console.log(data);
+            console.log(status);
+
+        },
+        fail: function(data,status){
+          console.log(status);
+        },
+        statusCode: {
+          500: function() {
+            alert("ERROR 500");
+          }
+        }
+        });
+
+    return;
+
+
+    return;
+    $("#eventModal").load(url, function() { // load the url into the modal
+        $(this).modal('show'); // display the modal on url load
+    });
+    var evttype=$(this).data("event-type");
+
+    if(evttype === undefined)
+    {
+        evttype="";
+    }
+    var idelement=$(this).data("element-id");
+
+    if(idelement === undefined)
+    {
+        idelement="";
+    }
+
+    var idlocation=$(this).data("location-id");
+    if(idlocation === undefined)
+    {
+        idlocation ="";
+    }
+    var idproject=$(this).data("project-id");
+    if(idproject === undefined)
+    {
+        idproject ="";
+    }
+    // To know which event modal got closed, to refresh the right data
+    $("#eventModal").attr("data-event-type",evttype);
+    $("#eventModal").attr("data-element-id",idelement);
+    $("#eventModal").attr("data-location-id",idlocation);
+    $("#eventModal").attr("data-project-id",idproject);
+    return false; // prevent the click propagation
+});
+
+
 function load_buy_table(id,is_unique,permission_buy)
 {
     $(".element-buy-table[data-element-id="+id+"]").DataTable({
@@ -333,7 +416,49 @@ function load_borrow_table(id,is_unique,permission_borrow)
                     }
                 }},
                 { data: "quantity", title: "Quantity", visible: !is_unique },
-                { data: "scheduled_return_date", title: "Return before",
+                { data: "scheduled_borrow_date", title: "From",
+                render: function (data, type, row, meta) {
+                    if (type === 'display') {
+                        if(data){
+                            return convertISO8601ToHumanDay(data);
+                        }
+                        else
+                        {
+                            return "Undefined";
+                        }
+                    } else {
+                        return data;
+                    }
+                }},
+                { data: "scheduled_return_date", title: "To",
+            render: function (data, type, row, meta) {
+                    if (type === 'display') {
+                        if(data){
+                            return convertISO8601ToHumanDay(data);
+                        }
+                        else
+                        {
+                            return "Undefined";
+                        }
+                    } else {
+                        return data;
+                    }
+                }},
+                { data: "effective_borrow_date", title: "From (real)",
+                render: function (data, type, row, meta) {
+                    if (type === 'display') {
+                        if(data){
+                            return convertISO8601ToHumanDay(data);
+                        }
+                        else
+                        {
+                            return "Undefined";
+                        }
+                    } else {
+                        return data;
+                    }
+                }},
+                { data: "effective_return_date", title: "To (real)",
             render: function (data, type, row, meta) {
                     if (type === 'display') {
                         if(data){
@@ -355,6 +480,68 @@ function load_borrow_table(id,is_unique,permission_borrow)
               }
               return row.location_source.name;
             },visible: !is_unique},
+            { data : "id", title: "Start",
+            render:function(data,type,row,meta){
+            if(type==="display")
+            {
+                disabled =false;
+                button = '<button type="button" class="btn btn-primary borroweventaction" href="#" data-borrow-action="start" data-borrow-id="'+row.id+'" title="Start" ' ;
+                //<button type="button" class="btn btn-primary event" href="#" data-stock="'+data+'" data-event-type="borrow" data-'+src+'-id="'+id+'" data-form="/formborroweventmodal?stock='+data+'&project='+project+'" title="Borrow" ' ;
+                if(disabled)
+                {
+                    button+=" disabled";
+                }
+                button+= ">Start</button>";
+                return button;
+            }
+            return "e"
+        }},
+        { data : "id", title: "Return",
+        render:function(data,type,row,meta){
+        if(type==="display")
+        {
+            disabled =false;
+            button = '<button type="button" class="btn btn-primary borroweventaction" href="#" data-borrow-action="return" data-borrow-id="'+row.id+'" title="Return" ' ;
+            if(disabled)
+            {
+                button+=" disabled";
+            }
+            button+= ">Return</button>";
+            return button;
+        }
+        return "e"
+    }},
+            { data : "id", title: "Extend",
+            render:function(data,type,row,meta){
+            if(type==="display")
+            {
+                disabled =false;
+                button = '<button type="button" class="btn btn-primary borroweventaction" href="#" data-borrow-action="extend" data-borrow-id="'+row.id+'" title="Extend" ' ;
+                if(disabled)
+                {
+                    button+=" disabled";
+                }
+                button+= ">Extend</button>";
+                return button;
+            }
+            return "e"
+        }},
+        { data : "id", title: "Cancel",
+            render:function(data,type,row,meta){
+            if(type==="display")
+            {
+                disabled =false;
+                button = '<button type="button" class="btn btn-primary borroweventaction" href="#" data-borrow-action="cancel" data-borrow-id="'+row.id+'" title="Cancel" ' ;
+                if(disabled)
+                {
+                    button+=" disabled";
+                }
+                button+= ">Cancel</button>";
+                return button;
+            }
+            return "e"
+        }},
+        { data : "state", title: "State"},
             //{ data: "comment", title: "Comment"},
          /*   { data: "return_event.recording_date", title: "Returned on",
             render: function (data, type, row, meta) {
@@ -769,27 +956,27 @@ function load_location_stock_table(id,
 
                         return "";
                     }},
-              { data: 'id', title: "Reserve",
+              { data: 'id', title: "Allocate",
                 render: function(data, type, row, meta){
                         if(type === 'display'){
                             button = "";
                             if(row.project)//if not reserved
                             {
-                                button = '<button type="button" class="btn btn-primary event" href="#" data-'+src+'-id="'+id+'" data-event-type="unreserve" data-stock="'+data+'"  data-form="/formunuseeventmodal?stock='+data+'" title="Unreserve"'
+                                button = '<button type="button" class="btn btn-primary event" href="#" data-'+src+'-id="'+id+'" data-event-type="unreserve" data-stock="'+data+'"  data-form="/formunuseeventmodal?stock='+data+'" title="Unallocate"'
                                 if(!permission_unuse)
                                 {
                                     button +=  "disabled";
                                 }
-                                button += '>Unreserve</button>';
+                                button += '>Unallocate</button>';
                             }
                             else
                             {
-                                button = '<button type="button" class="btn btn-primary event" href="#" data-stock="'+data+'" data-'+src+'-id="'+id+'" data-event-type="reserve" data-form="/formuseeventmodal?stock='+data+'" title="Reserve"'
+                                button = '<button type="button" class="btn btn-primary event" href="#" data-stock="'+data+'" data-'+src+'-id="'+id+'" data-event-type="reserve" data-form="/formuseeventmodal?stock='+data+'" title="Allocate"'
                                 if(!permission_use)
                                 {
                                     button +=  "disabled";
                                 }
-                                button += '>Reserve</button>';
+                                button += '>Allocate</button>';
                             }
                             return button;
                         }

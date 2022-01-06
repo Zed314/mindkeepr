@@ -13,7 +13,7 @@
   <a class="nav-item nav-link" href="#elt-{{form.instance.id}}-buy" data-toggle="tab">Buy History</a>
   <a class="nav-item nav-link" href="#elt-{{form.instance.id}}-sell" data-toggle="tab">Sell History</a>
   <a class="nav-item nav-link" href="#elt-{{form.instance.id}}-borrow" data-toggle="tab">Borrow History</a>
-  <a class="nav-item nav-link" href="#elt-{{form.instance.id}}-reservation" data-toggle="tab">Reservation History</a>
+  <a class="nav-item nav-link" href="#elt-{{form.instance.id}}-reservation" data-toggle="tab">Allocation History</a>
   {% if form.instance.is_consummable %}
   <a class="nav-item nav-link" href="#elt-{{form.instance.id}}-consume" data-toggle="tab">Consume History</a>
   {% endif %}
@@ -22,8 +22,8 @@
 </nav>
 <div class="tab-content">
     <div class="tab-pane active" id="elt-{{form.instance.id}}-main">
-        <a href="/element/barcode/{{ form.instance.id }}">Barcode</a>
-         <a class="btn btn-primary" href="/element/print/add/{{ form.instance.id }}/1" role="button">Add one to print list !</a>
+                <!--<a href="/element/barcode/{{ form.instance.id }}">Barcode</a>
+         <a class="btn btn-primary" href="/element/print/add/{{ form.instance.id }}/1" role="button">Add one to print list !</a> -->
          {% if form.instance.image %}
          <a href="{{form.instance.image.url}}"><img width=100px src="{{ form.instance.image.url }}"/></a>
          {% endif %}

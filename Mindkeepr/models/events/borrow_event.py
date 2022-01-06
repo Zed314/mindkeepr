@@ -4,7 +4,7 @@ from django.contrib.auth.models import User
 from datetime import date
 from django.db import models
 from django.contrib.auth.models import User
-
+import datetime
 from .event import Event
 
 class BorrowEvent(Event):
@@ -75,15 +75,15 @@ class BorrowEvent(Event):
             return False
         is_time_interval_free = False
         if self.id :
-            future_borrows    = not BorrowEvent.objects.filter(element=self.element).filter(state="NOT_STARTED").filter(scheduled_return_date__gt=begin_date, scheduled_borrow_date__lt=end_date).exclude(id =self.id).exists()
-            active_borrows    = not BorrowEvent.objects.filter(element=self.element).filter(state="IN_PROGRESS").filter(scheduled_return_date__gt=begin_date, effective_borrow_date__lt=end_date).exclude(id =self.id).exists()
-            completed_borrows = not BorrowEvent.objects.filter(element=self.element).filter(state="DONE").filter(effective_return_date__gt=begin_date, effective_borrow_date__lt=end_date).exclude(id =self.id).exists()
-            is_time_interval_free = not future_borrows and not active_borrows and not completed_borrows
+            future_borrows    = BorrowEvent.objects.filter(element=self.element).filter(state="NOT_STARTED").filter(scheduled_return_date__gt=begin_date, scheduled_borrow_date__lt=end_date).exclude(id =self.id).exists()
+            active_borrows    = BorrowEvent.objects.filter(element=self.element).filter(state="IN_PROGRESS").filter(scheduled_return_date__gt=begin_date, effective_borrow_date__lt=end_date).exclude(id =self.id).exists()
+            #completed_borrows = not BorrowEvent.objects.filter(element=self.element).filter(state="DONE").filter(effective_return_date__gt=begin_date, effective_borrow_date__lt=end_date).exclude(id =self.id).exists()
+            is_time_interval_free = not future_borrows and not active_borrows #and not completed_borrows
         else:
-            future_borrows    = not BorrowEvent.objects.filter(element=self.element).filter(state="NOT_STARTED").filter(scheduled_return_date__gt=begin_date, scheduled_borrow_date__lt=end_date).exists()
-            active_borrows    = not BorrowEvent.objects.filter(element=self.element).filter(state="IN_PROGRESS").filter(scheduled_return_date__gt=begin_date, effective_borrow_date__lt=end_date).exists()
-            completed_borrows = not BorrowEvent.objects.filter(element=self.element).filter(state="DONE").filter(effective_return_date__gt=begin_date, effective_borrow_date__lt=end_date).exists()
-            is_time_interval_free = not future_borrows and not active_borrows and not completed_borrows
+            future_borrows    = BorrowEvent.objects.filter(element=self.element).filter(state="NOT_STARTED").filter(scheduled_return_date__gt=begin_date, scheduled_borrow_date__lt=end_date).exists()
+            active_borrows    = BorrowEvent.objects.filter(element=self.element).filter(state="IN_PROGRESS").filter(scheduled_return_date__gt=begin_date, effective_borrow_date__lt=end_date).exists()
+            #completed_borrows = not BorrowEvent.objects.filter(element=self.element).filter(state="DONE").filter(effective_return_date__gt=begin_date, effective_borrow_date__lt=end_date).exists()
+            is_time_interval_free = not future_borrows and not active_borrows #and not completed_borrows
 
         return is_time_interval_free
 
@@ -128,12 +128,26 @@ class BorrowEvent(Event):
                 return True
             return False
 
+    def prolongate_borrow_nb_days(self, nb_days):
+        if not self.element.is_unique:
+            return False
+        new_end_date = self.scheduled_return_date + datetime.timedelta(days=10)
+        if self.state == "IN_PROGRESS":
+            if new_end_date <= self.scheduled_return_date:
+                self.scheduled_return_date = new_end_date
+                return True
+            elif self.is_time_free("IN_PROGRESS", None, new_end_date):
+                self.scheduled_return_date = new_end_date
+                return True
+            return False
+
+
     def return_borrow(self):
         if not self.element.is_unique:
             return False
         if self.state == "IN_PROGRESS":
-            if self.element.is_move_element_possible(self.borrow_associated.quantity, "", "FREE", None, self.location_source, None, None,already_owned=True):
-                self.element.move_element(self.borrow_associated.quantity, "", "FREE", None, self.location_source, None, None,already_owned=True)
+            if self.element.is_move_element_possible(self.quantity, "", "FREE", None, self.location_source, None, None,already_owned=True):
+                self.element.move_element(self.quantity, "", "FREE", None, self.location_source, None, None,already_owned=True)
                 self.effective_return_date = date.today()
                 self.state = "DONE"
                 return True
@@ -144,10 +158,10 @@ class BorrowEvent(Event):
             return False
         if self.state == "NOT_STARTED":
             if self.is_time_free("IN_PROGRESS"):
-                if self.element.is_move_element_possible(self.borrow_associated.quantity, "", "FREE", None, self.location_source, None, None,already_owned=True):
-                    self.element.move_element(self.borrow_associated.quantity, "", "FREE", None, self.location_source, None, None,already_owned=True)
+                if self.element.is_move_element_possible(1, "FREE","", self.location_source,None, None, None,already_owned=True):
+                    self.element.move_element(1, "FREE","", self.location_source,None, None, None,already_owned=True)
                     self.effective_borrow_date = date.today()
-                    self.state = "DONE"
+                    self.state = "IN_PROGRESS"
                     return True
         return False
 
