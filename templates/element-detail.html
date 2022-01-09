@@ -86,6 +86,11 @@
     <div class="tab-pane" id="elt-{{form.instance.id}}-location">
         <button type="button" class="btn btn-primary event" href="#" data-event-type="buy" data-element-id="{{form.instance.id}}" data-form="/formbuyeventmodal?element={{form.instance.id}}" title="Buy"
         {% if not perms.Mindkeepr.add_buyevent or form.instance.is_unique_and_there %}disabled{% endif %}>Buy</button>
+        <button type="button" class="btn btn-primary event" href="#" data-stock="'+data+'" data-event-type="borrow" data-src-id="{{form.instance.id}}" data-form="/formborroweventreservemodal?element={{form.instance.id}}&state=NOT_THERE" title="Reserve"
+        {% if not perms.Mindkeepr.add_borrow %}disabled{% endif %}>Reserve</button>
+        <button type="button" class="btn btn-primary event" href="#" data-stock="'+data+'" data-event-type="borrow" data-src-id="{{form.instance.id}}" data-form="/formborroweventimmediatemodal?element={{form.instance.id}}&state=NOT_STARTED" title="Borrow"
+        {% if not perms.Mindkeepr.add_borrow %}disabled{% endif %}>Borrow</button>
+
         <table
         data-element-id="{{form.instance.id}}"
         class="table compact table-striped table-bordered element-stock-table"

@@ -6,7 +6,7 @@ from Mindkeepr.models.elements.component import Component
 from Mindkeepr.models.elements import  MovieCase, Movie
 from Mindkeepr.models.elements.element import Element
 from Mindkeepr.models.location import Location
-from Mindkeepr.models.events import use_event,buy_event, consume_event, event
+from Mindkeepr.models.events import use_event,buy_event, consume_event, event, borrow_event
 from Mindkeepr.models.models import UserProfile
 from Mindkeepr.models.category import Category
 from Mindkeepr.models.elements.attachment import Attachment
@@ -40,6 +40,10 @@ class MovieAdmin(admin.ModelAdmin):
 
 @admin.register(event.Event)
 class EventAdmin(admin.ModelAdmin):
+    pass
+
+@admin.register(borrow_event.BorrowEvent)
+class BorrowEventAdmin(admin.ModelAdmin):
     pass
 
 @admin.register(Element)

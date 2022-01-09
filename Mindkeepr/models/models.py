@@ -34,12 +34,6 @@ class Attribute(models.Model):
     element_attached = models.ForeignKey(
         "Element", on_delete=models.CASCADE, related_name="attributes")
 
-    #class Meta:
-    #    constraints = [
-    #        models.UniqueConstraint(fields=[
-    #                                'element_attached', 'name'], name='Unique set of element and name'),
-    #    ]
-
 class PrintElement(models.Model):
     quantity = models.IntegerField("Quantity", null=False, blank=False)
     element = models.ForeignKey('Element',

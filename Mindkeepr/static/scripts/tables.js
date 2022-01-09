@@ -118,41 +118,6 @@ $(document).on("click",".borroweventaction", function(ev) { // for each edit con
         });
 
     return;
-
-
-    return;
-    $("#eventModal").load(url, function() { // load the url into the modal
-        $(this).modal('show'); // display the modal on url load
-    });
-    var evttype=$(this).data("event-type");
-
-    if(evttype === undefined)
-    {
-        evttype="";
-    }
-    var idelement=$(this).data("element-id");
-
-    if(idelement === undefined)
-    {
-        idelement="";
-    }
-
-    var idlocation=$(this).data("location-id");
-    if(idlocation === undefined)
-    {
-        idlocation ="";
-    }
-    var idproject=$(this).data("project-id");
-    if(idproject === undefined)
-    {
-        idproject ="";
-    }
-    // To know which event modal got closed, to refresh the right data
-    $("#eventModal").attr("data-event-type",evttype);
-    $("#eventModal").attr("data-element-id",idelement);
-    $("#eventModal").attr("data-location-id",idlocation);
-    $("#eventModal").attr("data-project-id",idproject);
-    return false; // prevent the click propagation
 });
 
 
@@ -400,8 +365,8 @@ function load_borrow_table(id,is_unique,permission_borrow)
         ],
         columns: [
             { data: "id", title: "ID", visible:false},
-            { data: "beneficiary.get_full_name", title: "For"},
-            { data: "recording_date", title: "Date",
+            { data: "beneficiary.get_full_name", visible:false, title: "For"},
+            { data: "recording_date", visible:false, title: "Date",
             render: function (data, type, row, meta) {
                     if (type === 'display') {
                         if(data){
@@ -472,21 +437,21 @@ function load_borrow_table(id,is_unique,permission_borrow)
                         return data;
                     }
                 }},
-            { data: "location_source.id", title: "Source",
+           /* { data: "location_source.id", title: "Source",
               render: function(data,type,row,meta){
+
               if(type === "display"){
                   link = "<a href=\"/location/"+row.location_source.id+"\">"+row.location_source.name+"</a>";
                   return link;
               }
               return row.location_source.name;
-            },visible: !is_unique},
+            },visible: !is_unique},*/
             { data : "id", title: "Start",
             render:function(data,type,row,meta){
             if(type==="display")
             {
                 disabled =false;
                 button = '<button type="button" class="btn btn-primary borroweventaction" href="#" data-borrow-action="start" data-borrow-id="'+row.id+'" title="Start" ' ;
-                //<button type="button" class="btn btn-primary event" href="#" data-stock="'+data+'" data-event-type="borrow" data-'+src+'-id="'+id+'" data-form="/formborroweventmodal?stock='+data+'&project='+project+'" title="Borrow" ' ;
                 if(disabled)
                 {
                     button+=" disabled";

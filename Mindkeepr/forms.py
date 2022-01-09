@@ -281,8 +281,9 @@ class BorrowEventForm(DisableFieldsMixin, PresetLocationSourceAndQuantityMixin, 
     """ Form for BorrowEvent """
     location_source = forms.ModelChoiceField(
         queryset=models.Location.objects.all())
-    element = forms.ModelChoiceField(queryset=models.Element.objects.filter(
-        stock_repartitions__in=models.StockRepartition.objects.filter(status="FREE")).distinct())
+    #element = forms.ModelChoiceField(queryset=models.Element.objects.filter(
+    #    stock_repartitions__in=models.StockRepartition.objects.filter(status="FREE")).distinct())
+    element = forms.ModelChoiceField(queryset=models.Element.objects.all())
     quantity = forms.IntegerField(min_value=1)
     scheduled_return_date = forms.DateField(widget=forms.DateInput(attrs=
                                 {
@@ -296,42 +297,101 @@ class BorrowEventForm(DisableFieldsMixin, PresetLocationSourceAndQuantityMixin, 
     class Meta:
         model = models.events.BorrowEvent
         fields = ['element', 'location_source', "beneficiary",
-                  'quantity', "scheduled_borrow_date", 'scheduled_return_date', 'comment']
+                  'quantity', "scheduled_borrow_date", 'scheduled_return_date',"state", 'comment']
 
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.preset_location_quantity()
+    #def __init__(self, *args, **kwargs):
+    #    super().__init__(*args, **kwargs)
+        #self.preset_location_quantity()
         # TODO : init max qty using initial value
         # ex : like it’s done for other init functions, but this time for the new prefill form,
         # and not the user filled form  for check purposes.
         #print(self.initial,flush=True)
+    def save(self, commit=True):
+        #TODO : issues with edits i guess
+        instance = super(BorrowEventForm, self).save(commit=False)
+        print(self.cleaned_data["state"],flush=True)
+        if self.cleaned_data["state"] == "NOT_THERE" and not instance.create_reservation_possible():
+            raise ValueError("Reservation impossible")
+        elif self.cleaned_data["state"] == "NOT_THERE":
+            instance.state = "NOT_STARTED"
+        elif self.cleaned_data["state"] == "NOT_STARTED" and not instance.activate_borrow_possible():
+            raise ValueError("Activation impossible ")
+        elif self.cleaned_data["state"] == "NOT_STARTED":
+            if not instance.borrow():
+                raise ValueError("Element not available")
+        if commit:
+            instance.save()
+        return instance
 
-class StartBorrowEventForm(forms.Form):
-    borrow_event = forms.ModelChoiceField(queryset=borrow_event.BorrowEvent.objects.all())
-
-class ProlongateBorrowEventForm(forms.Form):
-    borrow_event = forms.ModelChoiceField(queryset=borrow_event.BorrowEvent.objects.all())
+class BorrowEventImmediateForm(DisableFieldsMixin, PresetLocationSourceAndQuantityMixin, ModelForm):
+    """ Form for BorrowEvent """
+    #Only for unique
+    #location_source = forms.ModelChoiceField(
+    #    queryset=models.Location.objects.all())
+    #element = forms.ModelChoiceField(queryset=models.Element.objects.filter(
+    #    stock_repartitions__in=models.StockRepartition.objects.filter(status="FREE")).distinct())
+    element = forms.ModelChoiceField(queryset=models.Element.objects.all())
+    #quantity = forms.IntegerField(min_value=1)
     scheduled_return_date = forms.DateField(widget=forms.DateInput(attrs=
                                 {
                                     'class':'datepicker'
                                 }))
+    class Meta:
+        model = models.events.BorrowEvent
+        fields = ['element', "beneficiary", 'scheduled_return_date', 'comment']
 
-class ChangeDateUnstartedBorrowEventForm(forms.Form):
-    borrow_event = forms.ModelChoiceField(queryset=borrow_event.BorrowEvent.objects.all())
-    scheduled_return_date = forms.DateField(widget=forms.DateInput(attrs=
-                                {
-                                    'class':'datepicker'
-                                }))
+
+    def save(self, commit=True):
+        print("Entering save",flush=True)
+        instance = super(BorrowEventImmediateForm, self).save(commit=False)
+        if not instance.pk: # Otherwise, it is saved twice, which is bad
+            instance.state = "NOT_STARTED"
+            instance.quantity = 1
+            print(str(instance.pk),flush=True)
+            if not instance.borrow():
+                raise ValueError("Element not available")
+
+            if commit:
+                instance.save()
+        return instance
+
+class BorrowEventReserveForm(DisableFieldsMixin, PresetLocationSourceAndQuantityMixin, ModelForm):
+    """ Form for BorrowEvent """
+    #location_source = forms.ModelChoiceField(
+    #    queryset=models.Location.objects.all())
+    #element = forms.ModelChoiceField(queryset=models.Element.objects.filter(
+    #    stock_repartitions__in=models.StockRepartition.objects.filter(status="FREE")).distinct())
+    element = forms.ModelChoiceField(queryset=models.Element.objects.all())
+    #quantity = forms.IntegerField(min_value=1)
     scheduled_borrow_date = forms.DateField(widget=forms.DateInput(attrs=
                                 {
                                     'class':'datepicker'
                                 }))
-class ReturnBorrowEventForm(forms.Form):
-    borrow_event = forms.ModelChoiceField(queryset=borrow_event.BorrowEvent.objects.all())
+    scheduled_return_date = forms.DateField(widget=forms.DateInput(attrs=
+                                {
+                                    'class':'datepicker'
+                                }))
 
-class CancelBorrowEventForm(forms.Form):
-    borrow_event = forms.ModelChoiceField(queryset=borrow_event.BorrowEvent.objects.all())
+
+    class Meta:
+        model = models.events.BorrowEvent
+        fields = ['element', "beneficiary", "scheduled_borrow_date", 'scheduled_return_date', 'comment']
+
+    def save(self, commit=True):
+        print("Entering save",flush=True)
+        instance = super(BorrowEventReserveForm, self).save(commit=False)
+
+        if not instance.pk: # Otherwise, it is saved twice, which is bad
+            instance.state = "NOT_THERE"
+            instance.quantity = 1
+            print(str(instance.pk),flush=True)
+            if not instance.reserve():
+                raise ValueError("Impossible to reserve. Time interval taken")
+            if commit:
+                instance.save()
+        return instance
+
 
 
 class AttributeForm(ModelForm):
