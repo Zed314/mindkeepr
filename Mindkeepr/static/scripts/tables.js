@@ -8,7 +8,7 @@ $(document).on('hide.bs.modal',"#eventModal", function (evt) {
         $(".element-stock-table[data-element-id="+$(evt.target).data("element-id")+"]").DataTable().rows().invalidate().draw();
     }
 });
-
+/*
 $(document).on('hide.bs.modal',"#eventModal[data-event-type=return]", function (evt) {
     // Assuming that an update just got completed
     if($(evt.target).data("element-id"))
@@ -17,7 +17,7 @@ $(document).on('hide.bs.modal',"#eventModal[data-event-type=return]", function (
         $(".element-stock-table[data-element-id="+$(evt.target).data("element-id")+"]").DataTable().rows().invalidate().draw();
     }
 });
-
+*/
 //
 $(document).on('hide.bs.modal',"#eventModal", function (evt) {
     // Assuming that an update just got completed
@@ -96,7 +96,10 @@ var csrftoken = getCookie('csrftoken');
 $(document).on("click",".borroweventaction", function(ev) { // for each edit contact url
     ev.preventDefault(); // prevent navigation
     //var url = ("form"); // get form from url
-    console.log($(this).data("borrow-id"))
+    console.log($(this).data("borrow-id"));
+    $("#active-borrowings-table").DataTable().rows().invalidate().draw();
+
+    $("#reserve-borrowings-table").DataTable().rows().invalidate().draw();
     $.ajax({
         type: "POST",
         url: "/api/v1/borrowevent/"+$(this).data("borrow-id")+"/"+$(this).data("borrow-action"),
@@ -105,6 +108,12 @@ $(document).on("click",".borroweventaction", function(ev) { // for each edit con
         success: function(data, status) {
             console.log(data);
             console.log(status);
+            console.log($("#row-borrow-evt-"+$(ev.target).data("borrow-id")))
+            $(".element-borrow-table[data-element-id="+$(ev.target).data("element-id")+"]").DataTable().rows($("#row-borrow-evt-"+$(ev.target).data("borrow-id"))).invalidate().draw();
+            $(".element-stock-table[data-element-id="+$(ev.target).data("element-id")+"]").DataTable().rows().invalidate().draw();
+            $("#active-borrowings-table").DataTable().rows().invalidate().draw();
+
+            $("#reserve-borrowings-table").DataTable().rows().invalidate().draw();
 
         },
         fail: function(data,status){
@@ -356,6 +365,10 @@ function load_borrow_table(id,is_unique,permission_borrow)
         'serverSide': true,
         "responsive": true,
         'ajax': '/api/v1/borrowings?element='+id+'&format=datatables',
+        "fnCreatedRow": function( nRow, aData, iDataIndex ) {
+            $(nRow).attr('id', "row-borrow-evt-"+aData.id);
+            //$(nRow).attr("id","ee")
+        },
        //"order": [[ 6, "desc"],[ 2, "desc" ]],
         "columnDefs": [
           {
@@ -365,6 +378,7 @@ function load_borrow_table(id,is_unique,permission_borrow)
         ],
         columns: [
             { data: "id", title: "ID", visible:false},
+            { data: "element.id", title: "element-id", visible:false},
             { data: "beneficiary.get_full_name", visible:false, title: "For"},
             { data: "recording_date", visible:false, title: "Date",
             render: function (data, type, row, meta) {
@@ -451,7 +465,7 @@ function load_borrow_table(id,is_unique,permission_borrow)
             if(type==="display")
             {
                 disabled =false;
-                button = '<button type="button" class="btn btn-primary borroweventaction" href="#" data-borrow-action="start" data-borrow-id="'+row.id+'" title="Start" ' ;
+                button = '<button type="button" class="btn btn-primary borroweventaction" href="#" data-borrow-action="start" data-borrow-id="'+row.id+'" data-element-id="'+row.element.id+'" title="Start" ' ;
                 if(disabled)
                 {
                     button+=" disabled";
@@ -466,7 +480,7 @@ function load_borrow_table(id,is_unique,permission_borrow)
         if(type==="display")
         {
             disabled =false;
-            button = '<button type="button" class="btn btn-primary borroweventaction" href="#" data-borrow-action="return" data-borrow-id="'+row.id+'" title="Return" ' ;
+            button = '<button type="button" class="btn btn-primary borroweventaction" href="#" data-borrow-action="return" data-borrow-id="'+row.id+'" data-element-id="'+row.element.id+'" title="Return" ' ;
             if(disabled)
             {
                 button+=" disabled";
@@ -481,7 +495,7 @@ function load_borrow_table(id,is_unique,permission_borrow)
             if(type==="display")
             {
                 disabled =false;
-                button = '<button type="button" class="btn btn-primary borroweventaction" href="#" data-borrow-action="extend" data-borrow-id="'+row.id+'" title="Extend" ' ;
+                button = '<button type="button" class="btn btn-primary borroweventaction" href="#" data-borrow-action="extend" data-borrow-id="'+row.id+'" data-element-id="'+row.element.id+'" title="Extend" ' ;
                 if(disabled)
                 {
                     button+=" disabled";
@@ -589,90 +603,6 @@ function load_borrow_table(id,is_unique,permission_borrow)
 }
 
 
-function load_potentialborrow_table(id)
-{
-
-
-    $(".element-potentialborrow-table[data-element-id="+id+"]").DataTable({
-        "dom": '<"top">rt<"bottom"lip><"clear">',
-        'serverSide': true,
-        "responsive": true,
-        'ajax': '/api/v1/borrowings?element='+id+'&format=datatables',
-        //"order": [[ 6, "desc"],[ 2, "desc" ]],
-        "columnDefs": [
-          {
-              "targets": '_all',
-              "defaultContent": ""
-          }
-        ],
-        columns: [
-            { data: "id", title: "ID", visible:false},
-            { data: "beneficiary.get_full_name", title: "For"},
-            { data: "recording_date", title: "Date",
-            render: function (data, type, row, meta) {
-                    if (type === 'display') {
-                        if(data){
-                            return convertISO8601ToHumanDay(data);
-                        }
-                        else
-                        {
-                            return "Undefined";
-                        }
-                    } else {
-                        return data;
-                    }
-                }},
-                { data: "scheduled_borrow_date", title: "From",
-            render: function (data, type, row, meta) {
-                    if (type === 'display') {
-                        if(data){
-                            return convertISO8601ToHumanDay(data);
-                        }
-                        else
-                        {
-                            return "Undefined";
-                        }
-                    } else {
-                        return data;
-                    }
-                }},
-                { data: "scheduled_return_date", title: "To",
-            render: function (data, type, row, meta) {
-                    if (type === 'display') {
-                        if(data){
-                            return convertISO8601ToHumanDay(data);
-                        }
-                        else
-                        {
-                            return "Undefined";
-                        }
-                    } else {
-                        return data;
-                    }
-                }},
-                { data: 'id', title: "Borrow",
-                render: function(data, type, row, meta){
-                    project = "";
-                            if(row.project)
-                            {
-                                project = row.project.id;
-                            }
-                        if(type === 'display'){
-
-                            button = '<button type="button" class="btn btn-primary event" href="#"  data-event-type="borrow" data-form="/formborroweventmodal?project='+project+'&potentialborrow='+data+'&beneficiary='+row.beneficiary.id+'" title="Borrow" ' ;
-                            // TODO : check if free
-
-                            button+= ">Borrow</button>";
-                            return button;
-                        }
-
-                        return "";
-                    }},
-
-        ]
-});
-
-}
 
 function load_incident_table(id,permission)
 {
@@ -901,7 +831,7 @@ function load_location_stock_table(id,
                     }
                 }},
                 {data:"element.type",title:"Type"},
-                { data: 'id', title: "Borrow",
+                /*{ data: 'id', title: "Borrow",
                 render: function(data, type, row, meta){
                     project = "";
                             if(row.project)
@@ -920,7 +850,7 @@ function load_location_stock_table(id,
                         }
 
                         return "";
-                    }},
+                    }},*/
               { data: 'id', title: "Allocate",
                 render: function(data, type, row, meta){
                         if(type === 'display'){

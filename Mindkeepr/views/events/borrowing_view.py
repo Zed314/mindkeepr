@@ -26,11 +26,14 @@ class BorrowingsView(LoginAndPermissionRequiredMixin,viewsets.ModelViewSet):
     def get_queryset(self):
         queryset = BorrowEvent.objects.all()
         user = self.request.query_params.get('user', None)
+        state = self.request.query_params.get('state', None)
         if user is not None:
             queryset = queryset.filter(creator_id=user)
         element = self.request.query_params.get('element', None)
         if element is not None:
             queryset = queryset.filter(element_id=element)
+        if state is not None:
+            queryset = queryset.filter(state=state)
 
         return queryset
 
@@ -75,7 +78,7 @@ def borrow_start(request,pk):
     evt = get_object_or_404(BorrowEvent, pk=pk)
     evt.borrow()
     evt.save()
-    return JsonResponse({"status":evt.state,"source":evt.location_source.name})
+    return JsonResponse({"status":evt.state})
 
 @login_required(login_url='/accounts/login')
 def borrow_return(request,pk):

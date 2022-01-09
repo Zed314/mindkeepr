@@ -17,6 +17,13 @@ class BorrowEvent(Event):
         "Effective borrow date", null=True, blank=False)
     effective_return_date = models.DateField(
         "Effective return date", null=True, blank=False)
+
+    # Either value of scheduled or effective
+    borrow_date_display = models.DateField(
+        "Displayable borrow date", null=True, blank=False)
+    return_date_display =   models.DateField(
+        "Displayable return date", null=True, blank=False)
+
     location_source = models.ForeignKey(
         'location', on_delete=models.SET_NULL, null=True)
 
@@ -58,6 +65,7 @@ class BorrowEvent(Event):
         end_date = 0
         if not self.element.is_unique:
             return False
+
         if next_state == "NOT_STARTED":
             if new_begin_date:
                 begin_date = new_begin_date
@@ -116,9 +124,15 @@ class BorrowEvent(Event):
     def reserve(self):
         if not self.element.is_unique:
             return False
+        if self.scheduled_borrow_date>self.scheduled_return_date:
+            return False
+        if self.scheduled_borrow_date<date.today():
+            return False
         if self.is_time_free("NOT_STARTED"):
             #unique for now
             self.state = "NOT_STARTED"
+            self.borrow_date_display = self.scheduled_borrow_date
+            self.return_date_display = self.scheduled_return_date
             return True
         else:
             return False
@@ -140,9 +154,11 @@ class BorrowEvent(Event):
         if self.state == "IN_PROGRESS":
             if new_end_date <= self.scheduled_return_date:
                 self.scheduled_return_date = new_end_date
+                self.return_date_display = self.scheduled_return_date
                 return True
             elif self.is_time_free("IN_PROGRESS", None, new_end_date):
                 self.scheduled_return_date = new_end_date
+                self.return_date_display = self.scheduled_return_date
                 return True
             return False
 
@@ -153,9 +169,11 @@ class BorrowEvent(Event):
         if self.state == "IN_PROGRESS":
             if new_end_date <= self.scheduled_return_date:
                 self.scheduled_return_date = new_end_date
+                self.return_date_display = self.scheduled_return_date
                 return True
             elif self.is_time_free("IN_PROGRESS", None, new_end_date):
                 self.scheduled_return_date = new_end_date
+                self.return_date_display = self.scheduled_return_date
                 return True
             return False
 
@@ -167,6 +185,7 @@ class BorrowEvent(Event):
             if self.element.is_move_element_possible(self.quantity, "", "FREE", None, self.location_source, None, None,already_owned=True):
                 self.element.move_element(self.quantity, "", "FREE", None, self.location_source, None, None,already_owned=True)
                 self.effective_return_date = date.today()
+                self.return_date_display = self.effective_return_date
                 self.state = "DONE"
                 return True
         return False
@@ -175,6 +194,8 @@ class BorrowEvent(Event):
         if not self.element.is_unique:
             return False
         self.quantity = 1
+        if self.scheduled_borrow_date<date.today():
+            return False
         if self.state == "NOT_STARTED":
             if self.is_time_free("IN_PROGRESS"):
                 if not self.location_source:
@@ -182,6 +203,8 @@ class BorrowEvent(Event):
                 if self.element.is_move_element_possible(1, "FREE","", self.location_source, None, None, None,already_owned=True):
                     self.element.move_element(1, "FREE","", self.location_source,None, None, None,already_owned=True)
                     self.effective_borrow_date = date.today()
+                    self.borrow_date_display = self.effective_borrow_date
+                    self.return_date_display = self.scheduled_return_date
                     self.state = "IN_PROGRESS"
                     return True
         return False

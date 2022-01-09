@@ -32,7 +32,7 @@
                 }
 
             },
-            {
+          /*  {
                 data: 'location_source',
                 title: 'From',
                 render: function (data, type, row, meta) {
@@ -46,7 +46,7 @@
 
 
                 }
-            },
+            },*/
             {data: 'recording_date', title: "Date", render: function (data, type, row, meta) {
                     if (type === 'display') {
                         if(data){
@@ -61,6 +61,7 @@
                     }
                 }
             },
+            {data: 'scheduled_borrow_date', title: "Scheduled borrow date"},
             {data: 'scheduled_return_date', title: "Scheduled return date"},
             {data: 'comment', title: "Comment"},
 
