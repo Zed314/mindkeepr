@@ -202,3 +202,6 @@ class Element(PolymorphicModel):
                 stock_rep_dest.save()
 
         return True
+
+    def custom_id_display(self):
+        return "{}".format(self.id)

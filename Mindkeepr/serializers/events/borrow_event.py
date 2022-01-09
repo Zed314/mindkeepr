@@ -20,7 +20,7 @@ class BorrowEventSerializer(EventFieldMixin, serializers.HyperlinkedModelSeriali
     class Meta:
         model = BorrowEvent
         fields = EventSerializer.Meta.fields + ("element", "quantity", "beneficiary", "is_returned",
-                  "scheduled_borrow_date","scheduled_return_date","effective_borrow_date","effective_return_date", "location_source", "state")
+                  "scheduled_borrow_date","scheduled_return_date","effective_borrow_date","effective_return_date", "borrow_date_display","return_date_display","location_source", "state")
         depth = 2
         ordering = EventSerializer.Meta.ordering
 
