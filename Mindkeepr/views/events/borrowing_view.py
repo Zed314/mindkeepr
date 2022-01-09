@@ -5,9 +5,11 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from Mindkeepr.serializers.events.borrow_event import BorrowEventSerializer
 
 from Mindkeepr.models.events import BorrowEvent
+from Mindkeepr.models.elements import Element
 from . import EventViewModal
-from Mindkeepr.forms import BorrowEventForm
-from Mindkeepr.forms import StartBorrowEventForm, CancelBorrowEventForm, ReturnBorrowEventForm, ProlongateBorrowEventForm, ChangeDateUnstartedBorrowEventForm
+from django.contrib.auth.models import User
+from Mindkeepr.forms import BorrowEventForm, BorrowEventImmediateForm, BorrowEventReserveForm
+
 
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
@@ -42,42 +44,25 @@ class BorrowEventViewModal(EventViewModal):
         response =  super(BorrowEventViewModal, self).form_valid(form)
         return response
 
-#StartBorrowEventForm, CancelBorrowEventForm, ReturnBorrowEventForm, ProlongateBorrowEventForm, ChangeDateUnstartedBorrowEventForm
-
-class StartBorrowEventFormViewModal(LoginRequiredMixin,LoginAndPermissionRequiredMixin, FormView):
-    template_name = 'events/borrow-event-detail-modal.html'
+class BorrowEventImmediateViewModal(EventViewModal):
+    template_name = 'events/borrow-event-immediate-detail-modal.html'
     permission_required = "Mindkeepr.add_borrowevent"
-    form_class = StartBorrowEventForm
-    success_url = '/thanks/'
+    form_class = BorrowEventImmediateForm
+    success_url = '/formborroweventimmediatemodal'
 
     def form_valid(self, form):
-        # This method is called when valid form data has been POSTed.
-        # It should return an HttpResponse.
-        form.instance.borrow()
-        return super().form_valid(form)
+        response =  super(BorrowEventImmediateViewModal, self).form_valid(form)
+        return response
 
-
-class CancelBorrowEventFormViewModal(LoginRequiredMixin,LoginAndPermissionRequiredMixin, FormView):
-    template_name = 'events/borrow-event-detail-modal.html'
+class BorrowEventReserveViewModal(EventViewModal):
+    template_name = 'events/borrow-event-reserve-detail-modal.html'
     permission_required = "Mindkeepr.add_borrowevent"
-    form_class = CancelBorrowEventForm
-    success_url = '/thanks/'
+    form_class = BorrowEventReserveForm
+    success_url = '/formborroweventreservemodal'
 
     def form_valid(self, form):
-        # This method is called when valid form data has been POSTed.
-        # It should return an HttpResponse.
-        return super().form_valid(form)
-
-class ReturnBorrowEventFormViewModal(LoginRequiredMixin,LoginAndPermissionRequiredMixin, FormView):
-    template_name = 'events/borrow-event-detail-modal.html'
-    permission_required = "Mindkeepr.add_borrowevent"
-    form_class = ReturnBorrowEventForm
-    success_url = '/thanks/'
-
-    def form_valid(self, form):
-        # This method is called when valid form data has been POSTed.
-        # It should return an HttpResponse.
-        return super().form_valid(form)
+        response =  super(BorrowEventReserveViewModal, self).form_valid(form)
+        return response
 
 
 @login_required(login_url='/accounts/login')
@@ -114,3 +99,41 @@ def borrow_cancel(request,pk):
     evt.cancel_borrow()
     evt.save()
     return JsonResponse({"status":evt.state})
+
+
+@login_required(login_url='/accounts/login')
+def borrow_create_immediate(request):
+    #for now, no date parameters
+    #evt = BorrowEvent()
+    #evt.save()
+    #return JsonResponse({"status":evt.state})
+    return JsonResponse({})
+import datetime
+@login_required(login_url='/accounts/login')
+def borrow_create_reservation(request):
+    if request.method == 'POST':
+            data = {}
+            scheduled_borrow_date = datetime.strptime(request.POST['scheduled_borrow_date'], "%Y-%m-%d").date()
+            scheduled_return_date = datetime.strptime(request.POST['scheduled_return_date'], "%Y-%m-%d").date()
+            beneficiary_id = request.POST['beneficiary']
+            element_id = request.POST["element"]
+            quantity = 1
+            element = get_object_or_404(Element, pk=element_id)
+            beneficiary =  get_object_or_404(User, pk=beneficiary_id)
+            evt = BorrowEvent(element=element,beneficiary=beneficiary,scheduled_borrow_date= scheduled_borrow_date,
+            scheduled_return_date=scheduled_return_date, quantity = quantity)
+            if(BorrowEvent.create_reservation_possible()):
+                evt.save()
+                data["res"] = "yes"
+            else:
+                data["res"]="no"
+            #data['error'] = "There was an error logging you in. Please Try again"
+            return JsonResponse(data)
+    return JsonResponse({})
+    #for now, no date parameters
+    #evt = BorrowEvent()
+    #evt.save()
+    #return JsonResponse({"status":evt.state})
+
+
+# TODO  : ChangeDateUnstartedBorrowEvent

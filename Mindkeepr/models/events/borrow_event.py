@@ -24,13 +24,13 @@ class BorrowEvent(Event):
                                 on_delete=models.CASCADE,
                                 related_name='borrow_history',
                                 null=True)
-    active = models.BooleanField(default="False", null=False)
+    #active = models.BooleanField(default="False", null=False)
     beneficiary = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
 
 
     STATES_BORROW = [
-       ('NOT_THERE', "Non existant"),
-       ('NOT_STARTED', "Not started"),
+       ('NOT_THERE', "Non existant"),#not even reserved
+       ('NOT_STARTED', "Not started"),#reservation
        ('IN_PROGRESS', "In progress"),
        ('DONE', "Completed"),
        ('CANCELLED', "Cancelled"),
@@ -38,7 +38,7 @@ class BorrowEvent(Event):
     state = models.CharField(
         max_length=11,
         choices=STATES_BORROW,
-        default="NOT_STARTED",
+        default="NOT_THERE",
     )
 
     @property
@@ -59,8 +59,15 @@ class BorrowEvent(Event):
         if not self.element.is_unique:
             return False
         if next_state == "NOT_STARTED":
-            begin_date = new_begin_date #self.scheduled_borrow_date
-            end_date = new_end_date #self.scheduled_return_date
+            if new_begin_date:
+                begin_date = new_begin_date
+            else :
+                begin_date = self.scheduled_borrow_date
+            if new_end_date:
+                end_date = new_end_date
+            else:
+                end_date = self.scheduled_return_date
+
         elif next_state == "IN_PROGRESS" and not self.state == "IN_PROGRESS":
             begin_date =  date.today()
             end_date = self.scheduled_return_date
@@ -93,7 +100,7 @@ class BorrowEvent(Event):
         if self.state == "NOT_STARTED":
             #unique for now
             return self.element.is_move_element_possible(1, "FREE", "", self.location_source, None, None, None) \
-                    and not self.is_time_free("IN_PROGRESS")
+                    and self.is_time_free("IN_PROGRESS")
         else:
             return False
 
@@ -102,9 +109,20 @@ class BorrowEvent(Event):
             return False
         if self.state == "NOT_THERE":
             #unique for now
-            return not self.is_time_free("NOT_STARTED")
+            return self.is_time_free("NOT_STARTED")
         else:
             return False
+
+    def reserve(self):
+        if not self.element.is_unique:
+            return False
+        if self.is_time_free("NOT_STARTED"):
+            #unique for now
+            self.state = "NOT_STARTED"
+            return True
+        else:
+            return False
+
 
 
     def cancel_borrow(self):
@@ -156,9 +174,12 @@ class BorrowEvent(Event):
     def borrow(self):
         if not self.element.is_unique:
             return False
+        self.quantity = 1
         if self.state == "NOT_STARTED":
             if self.is_time_free("IN_PROGRESS"):
-                if self.element.is_move_element_possible(1, "FREE","", self.location_source,None, None, None,already_owned=True):
+                if not self.location_source:
+                    self.location_source = self.element.stock_repartitions.first().location
+                if self.element.is_move_element_possible(1, "FREE","", self.location_source, None, None, None,already_owned=True):
                     self.element.move_element(1, "FREE","", self.location_source,None, None, None,already_owned=True)
                     self.effective_borrow_date = date.today()
                     self.state = "IN_PROGRESS"
@@ -171,7 +192,14 @@ class BorrowEvent(Event):
 
     def _add_to_element(self):
         return True
-
+    #bad idea to overwrite this.
+    #def save(self, *args, **kwargs):
+    #    if not self.id:
+    #        if self.state == "NOT_THERE" and not self.create_reservation_possible():
+    #            raise ValueError("Reservation impossible")
+    #        elif self.state == "NOT_STARTED" and not self.activate_borrow_possible():
+    #            raise ValueError("Activation impossible")
+    #    super().save(*args, **kwargs)
 
     @property
     def is_begin_date_overdue(self):

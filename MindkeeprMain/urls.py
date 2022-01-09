@@ -89,7 +89,8 @@ urlpatterns = [
     path("element/print/all",views.print_print_list),
     path("printlist",views.print_list_disp),
     path('formborroweventmodal', borrowing_view.BorrowEventViewModal.as_view()),
-    path('formstartborroweventmodal', borrowing_view.StartBorrowEventFormViewModal.as_view()),
+    path('formborroweventimmediatemodal', borrowing_view.BorrowEventImmediateViewModal.as_view()),
+    path('formborroweventreservemodal', borrowing_view.BorrowEventReserveViewModal.as_view()),
     path('formbuyeventmodal', buy_view.BuyEventViewModal.as_view()),
     path('formselleventmodal', sell_view.SellEventViewModal.as_view()),
     path('formuseeventmodal', reserve_view.UseEventViewModal.as_view()),
@@ -112,6 +113,8 @@ urlpatterns = [
     path("api/v1/borrowevent/<int:pk>/return", borrowing_view.borrow_return),
     path("api/v1/borrowevent/<int:pk>/extend", borrowing_view.borrow_extend),
     path("api/v1/borrowevent/<int:pk>/cancel", borrowing_view.borrow_cancel),
+    path("api/v1/borrowevent/create/reserve", borrowing_view.borrow_create_reservation),
+    path("api/v1/borrowevent/create/immediate", borrowing_view.borrow_create_immediate),
     path('api/v1/', include(router.urls)),
     path('oidc/', include('mozilla_django_oidc.urls')),
     path("select2/", include("django_select2.urls"))
