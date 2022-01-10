@@ -8,21 +8,36 @@
 <div class="modal hide" id="showEventModal">
 </div>
 <div class="container">
-    <div class="row">
-        <div class="col-md-12">
-            <table id="active-borrowings-table" class="table compact table-striped table-bordered" style="width:100%">
-                <table id="reserve-borrowings-table" class="table compact table-striped table-bordered"
-                    style="width:100%"></table>
-                <thead>
-                    <tr>
-                        <div id="jstree_category"></div>
+    <nav class="nav nav-tabs">
+        <a class="nav-item nav-link active" href="#main" data-toggle="tab">Borrows</a>
+        <a class="nav-item nav-link" href="#reservations" data-toggle="tab">Reservations</a>
 
-                    </tr>
-                </thead>
-            </table>
+      </nav>
+      <div class="tab-content">
+          <div class="tab-pane active" id="main">
+            <div class="row">
+                <div class="col-md-12">
+                    <table id="active-borrowings-table" class="table compact table-striped table-bordered" style="width:100%">
+
+                    </table>
+                </div>
+            </div>
         </div>
-    </div>
+        <div class="tab-pane" id="reservations">
+            <div class="row">
+                <div class="col-md-12">
+
+                        <table id="reserve-borrowings-table" class="table compact table-striped table-bordered"
+                            style="width:100%"></table>
+
+                    </table>
+                </div>
+            </div>
+        </div>
+      </div>
+
 </div>
+
 
 
 
