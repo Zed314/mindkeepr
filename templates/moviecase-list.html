@@ -66,6 +66,31 @@ title="Add movie">Add movie</a>
 
                     },
                     {% endif %}
+              {
+                      data: 'id',
+                      title: 'Reserve',
+                      render: function(data, type, row, meta){
+                      if(type === 'display'){
+                          data = '<button type="button" class="btn btn-primary event" href="#" data-element-id="'+data+'" data-event-type="borrow" data-form="/formborroweventreservemodal?element='+data+'&state=NOT_THERE" title="Reserve"{% if not perms.Mindkeepr.add_borrow %}disabled{% endif %}>Reserve</button>';
+                      }
+                      return data;
+                    },
+                    orderable: false,
+
+              },
+              {
+                data: 'id',
+                title: 'Borrow',
+                render: function(data, type, row, meta){
+                if(type === 'display'){
+                    data = '<button type="button" class="btn btn-primary event" href="#" data-element-id="'+data+'" data-event-type="borrow"  data-form="/formborroweventimmediatemodal?element='+data+'&state=NOT_STARTED" title="Borrow"{% if not perms.Mindkeepr.add_borrow %}disabled{% endif %}>Borrow</button>';
+                }
+                return data;
+              },
+              orderable: false,
+
+        },
+
               ],
               "drawCallback": function(settings, json) {
                 {% if perms.Mindkeepr.delete_element %}
