@@ -104,39 +104,4 @@ def borrow_cancel(request,pk):
     return JsonResponse({"status":evt.state})
 
 
-@login_required(login_url='/accounts/login')
-def borrow_create_immediate(request):
-    #for now, no date parameters
-    #evt = BorrowEvent()
-    #evt.save()
-    #return JsonResponse({"status":evt.state})
-    return JsonResponse({})
-import datetime
-@login_required(login_url='/accounts/login')
-def borrow_create_reservation(request):
-    if request.method == 'POST':
-            data = {}
-            scheduled_borrow_date = datetime.strptime(request.POST['scheduled_borrow_date'], "%Y-%m-%d").date()
-            scheduled_return_date = datetime.strptime(request.POST['scheduled_return_date'], "%Y-%m-%d").date()
-            beneficiary_id = request.POST['beneficiary']
-            element_id = request.POST["element"]
-            quantity = 1
-            element = get_object_or_404(Element, pk=element_id)
-            beneficiary =  get_object_or_404(User, pk=beneficiary_id)
-            evt = BorrowEvent(element=element,beneficiary=beneficiary,scheduled_borrow_date= scheduled_borrow_date,
-            scheduled_return_date=scheduled_return_date, quantity = quantity)
-            if(BorrowEvent.create_reservation_possible()):
-                evt.save()
-                data["res"] = "yes"
-            else:
-                data["res"]="no"
-            #data['error'] = "There was an error logging you in. Please Try again"
-            return JsonResponse(data)
-    return JsonResponse({})
-    #for now, no date parameters
-    #evt = BorrowEvent()
-    #evt.save()
-    #return JsonResponse({"status":evt.state})
-
-
 # TODO  : ChangeDateUnstartedBorrowEvent
