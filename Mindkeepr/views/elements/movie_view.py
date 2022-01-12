@@ -132,16 +132,16 @@ from itertools import count, filterfalse
 def get_movie_custom_id(moviecase):
 
     if not moviecase.custom_id:
-        listid = list(MovieCase.objects.filter(format_disk="BLU").values_list('custom_id', flat=True))
+        listid = list(MovieCase.objects.filter(format_disk=moviecase.format_disk).values_list('custom_id', flat=True))
         print(listid)
         newid = next(filterfalse(set(listid).__contains__, count(1)))
         moviecase.custom_id = newid
 
 def get_movie_format(moviecase):
     if moviecase.subformat_disk[0] =="B":
-        moviecase.format = "BLU"
+        moviecase.format_disk = "BLU"
     elif moviecase.subformat_disk[0] =="D":
-        moviecase.format = "DVD"
+        moviecase.format_disk = "DVD"
 
 
 from django.http import HttpResponse
@@ -165,8 +165,9 @@ class MovieCaseViewModal(LoginRequiredMixin, PermissionRequiredMixin, PresetName
         #TODO : change...
         location_destination = Location.objects.get(id=2)
         form.instance.creator = self.request.user
-        get_movie_custom_id(form.instance)
         get_movie_format(form.instance)
+        get_movie_custom_id(form.instance)
+
         form.instance.save()
         #save_m2m ?
         BuyEvent.objects.create(creator=self.request.user,price=form.cleaned_data["price"],quantity=1,element=form.instance,location_destination=location_destination)
@@ -175,7 +176,7 @@ class MovieCaseViewModal(LoginRequiredMixin, PermissionRequiredMixin, PresetName
         response =  super(MovieCaseViewModal, self).form_valid(form)
         if form.instance.id  and not prev_id:
             #created ?
-            return JsonResponse({"custom_id":"{}{:03d}".format(form.instance.format[0],form.instance.custom_id),
+            return JsonResponse({"custom_id":"{}{:03d}".format(form.instance.format_disk[0],form.instance.custom_id),
                                  "local_title":form.instance.name})
 
         print(response)

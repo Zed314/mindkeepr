@@ -6,8 +6,7 @@
 {% block body_content %}
 
 
-<div class="modal hide" id="deleteModal">
-</div>
+<div class="modal hide" id="deleteModal"></div>
 <div class="container-fluid">
 <!--
   <a class=" btn btn-primary  {% if not perms.Mindkeepr.add_component %}disabled{% endif%}" href="/component"
@@ -56,20 +55,17 @@
               },
               "columnDefs": [
                 {
-                    "targets": [ 3 ],
-                    "visible": false,
-                    "searchable": true
-                },
-                {
                     "targets": '_all',
                     "defaultContent": ""
                 }
               ],
               'columns': [
                   { data: 'id', title: "ID" },
+                  { data: "custom_id", title: "Id", visible:false},
+                  { data: "custom_id_display", title: "Id", orderable: false, visible:true},
                   { data: 'name', title: "Name" },
-                  { data: 'category.name', title: "Category"},
-                  { data: 'category.id', title: "Category ID"},
+                  { data: 'category.name', title: "Category", visible:false},
+                  { data: 'category.id', title: "Category ID", visible: false, searchable: true},
                   { data: 'description', title: "Description" },
                   {% block extracolumns %}
                   {
@@ -80,7 +76,7 @@
                   },
                   {% endblock %}
                   {% block qtycolumn %}
-                  { data: "quantity_owned", title: "Quantity", orderable: false,bSearchable:false},
+                  { data: "quantity_owned", title: "Quantity", orderable: false,bSearchable:false, visible:false},
                   {% endblock %}
                   /*{
                             data: 'id',
@@ -126,7 +122,31 @@
                           orderable: false,
 
                     },
-                    {% if perms.Mindkeepr.delete_element %}
+                    {
+                      data: 'id',
+                      title: 'Reserve',
+                      render: function(data, type, row, meta){
+                      if(type === 'display'){
+                          data = '<button type="button" class="btn btn-primary event" href="#" data-element-id="'+data+'" data-event-type="borrow" data-form="/formborroweventreservemodal?element='+data+'&state=NOT_THERE" title="Reserve"{% if not perms.Mindkeepr.add_borrow %}disabled{% endif %}>Reserve</button>';
+                      }
+                      return data;
+                    },
+                    orderable: false,
+
+                    },
+                    {
+                            data: 'id',
+                            title: 'Borrow',
+                            render: function(data, type, row, meta){
+                            if(type === 'display'){
+                                data = '<button type="button" class="btn btn-primary event" href="#" data-element-id="'+data+'" data-event-type="borrow"  data-form="/formborroweventimmediatemodal?element='+data+'&state=NOT_STARTED" title="Borrow"{% if not perms.Mindkeepr.add_borrow %}disabled{% endif %}>Borrow</button>';
+                            }
+                            return data;
+                          },
+                          orderable: false,
+
+                    },
+                 /*   {% if perms.Mindkeepr.delete_element %}
                     {
                             data: 'id',
                             title: 'Delete',
@@ -141,7 +161,7 @@
                           orderable: false,
 
                     },
-                    {% endif %}
+                    {% endif %}*/
                     {
                       "className":      'details-control',
                       "title": "More",
