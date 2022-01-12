@@ -12,7 +12,7 @@ from Mindkeepr.models.events import BuyEvent
 from Mindkeepr.models.location import Location
 from Mindkeepr.serializers.elements.movie import MovieSerializer, MovieGenreSerializer, MovieCaseSerializer
 
-from Mindkeepr.forms import MovieCaseInteractiveForm, MovieForm, DisableFieldsMixin
+from Mindkeepr.forms import MovieCaseInteractiveForm, MovieForm
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
 from django.contrib.auth.mixins import PermissionRequiredMixin
@@ -143,8 +143,6 @@ def get_movie_format(moviecase):
     elif moviecase.subformat_disk[0] =="D":
         moviecase.format_disk = "DVD"
 
-
-from django.http import HttpResponse
 #only for creation for now
 class MovieCaseViewModal(LoginRequiredMixin, PermissionRequiredMixin, PresetNameMixin, CreateView):
     template_name = 'moviecase-detail-modal.html'
@@ -203,16 +201,10 @@ def get_image_url(image_url):
         # If no more file then stop
         if not block:
             break
-
         # Write image block to temporary file
         lf.write(block)
     return file_name, files.File(lf)
-    # Create the model you want to save the image to
-    #image = Image()
-#
-    ## Save the temporary image to the model#
-    ## This saves the model so be sure that it is valid
-    #image.image.save(file_name, files.File(lf))
+
 
 def create_movie_from_tmdb(tmdb_movie):
 
