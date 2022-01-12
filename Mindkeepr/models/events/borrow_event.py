@@ -194,8 +194,6 @@ class BorrowEvent(Event):
         if not self.element.is_unique:
             return False
         self.quantity = 1
-        if self.scheduled_borrow_date<date.today():
-            return False
         if self.state == "NOT_STARTED":
             if self.is_time_free("IN_PROGRESS"):
                 if not self.location_source:
