@@ -98,6 +98,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+#                "MindkeeprMain.context_processors.logout_oath_url",
             ],
         },
     },
@@ -213,7 +214,7 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 MEDIA_URL = '/media/'
 
 LOGIN_REDIRECT_URL="https://mindkeepr.kekfactory.fr"
-LOGOUT_REDIRECT_URL="https://mindkeepr.kekfactory.fr"
+LOGOUT_REDIRECT_URL= "https://login.kekfactory.fr/auth/realms/cse/protocol/openid-connect/logout?redirect_uri=http://mindkeepr.kekfactory.fr/"
 
 if os.environ.get("DEV"):
     from MindkeeprMain.dev import *
