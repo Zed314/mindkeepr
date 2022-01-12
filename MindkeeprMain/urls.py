@@ -113,8 +113,6 @@ urlpatterns = [
     path("api/v1/borrowevent/<int:pk>/return", borrowing_view.borrow_return),
     path("api/v1/borrowevent/<int:pk>/extend", borrowing_view.borrow_extend),
     path("api/v1/borrowevent/<int:pk>/cancel", borrowing_view.borrow_cancel),
-    path("api/v1/borrowevent/create/reserve", borrowing_view.borrow_create_reservation),
-    path("api/v1/borrowevent/create/immediate", borrowing_view.borrow_create_immediate),
     path('api/v1/', include(router.urls)),
     path('oidc/', include('mozilla_django_oidc.urls')),
     path("select2/", include("django_select2.urls"))
