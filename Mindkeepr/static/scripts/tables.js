@@ -367,9 +367,7 @@ function load_borrow_table(id,is_unique,permission_borrow)
         'ajax': '/api/v1/borrowings?element='+id+'&format=datatables',
         "fnCreatedRow": function( nRow, aData, iDataIndex ) {
             $(nRow).attr('id', "row-borrow-evt-"+aData.id);
-            //$(nRow).attr("id","ee")
         },
-       //"order": [[ 6, "desc"],[ 2, "desc" ]],
         "columnDefs": [
           {
               "targets": '_all',
@@ -377,226 +375,144 @@ function load_borrow_table(id,is_unique,permission_borrow)
           }
         ],
         columns: [
-            { data: "id", title: "ID", visible:false},
-            { data: "element.id", title: "element-id", visible:false},
-            { data: "beneficiary.get_full_name", visible:false, title: "For"},
-            { data: "recording_date", visible:false, title: "Date",
-            render: function (data, type, row, meta) {
-                    if (type === 'display') {
-                        if(data){
-                            return convertISO8601ToHumanDay(data);
-                        }
-                        else
-                        {
-                            return "Undefined";
-                        }
-                    } else {
-                        return data;
-                    }
-                }},
-                { data: "quantity", title: "Quantity", visible: !is_unique },
-                { data: "scheduled_borrow_date", title: "From",
+            { data: "id", title: "ID", visible: false },
+            { data: "element.id", title: "element-id", visible: false },
+            { data: "beneficiary.get_full_name", visible: true, title: "For" },
+            {
+                data: "recording_date", visible: false, title: "Date",
                 render: function (data, type, row, meta) {
                     if (type === 'display') {
-                        if(data){
+                        if (data) {
                             return convertISO8601ToHumanDay(data);
                         }
-                        else
-                        {
+                        else {
                             return "Undefined";
                         }
                     } else {
                         return data;
                     }
-                }},
-                { data: "scheduled_return_date", title: "To",
-            render: function (data, type, row, meta) {
-                    if (type === 'display') {
-                        if(data){
-                            return convertISO8601ToHumanDay(data);
-                        }
-                        else
-                        {
-                            return "Undefined";
-                        }
-                    } else {
-                        return data;
-                    }
-                }},
-                { data: "effective_borrow_date", title: "From (real)",
+                }
+            },
+            { data: "quantity", title: "Quantity", visible: !is_unique },
+            {
+                data: "scheduled_borrow_date", visible: false, title: "From",
                 render: function (data, type, row, meta) {
                     if (type === 'display') {
-                        if(data){
+                        if (data) {
                             return convertISO8601ToHumanDay(data);
                         }
-                        else
-                        {
+                        else {
                             return "Undefined";
                         }
                     } else {
                         return data;
                     }
-                }},
-                { data: "effective_return_date", title: "To (real)",
-            render: function (data, type, row, meta) {
+                }
+            },
+            {
+                data: "effective_return_date", visible: false, title: "To",
+                render: function (data, type, row, meta) {
                     if (type === 'display') {
-                        if(data){
+                        if (data) {
                             return convertISO8601ToHumanDay(data);
                         }
-                        else
-                        {
+                        else {
                             return "Undefined";
                         }
                     } else {
                         return data;
                     }
-                }},
-           /* { data: "location_source.id", title: "Source",
-              render: function(data,type,row,meta){
-
-              if(type === "display"){
-                  link = "<a href=\"/location/"+row.location_source.id+"\">"+row.location_source.name+"</a>";
-                  return link;
-              }
-              return row.location_source.name;
-            },visible: !is_unique},*/
+                }
+            },
+            {
+                data: "borrow_date_display", title: "From",
+                render: function (data, type, row, meta) {
+                        if (type === 'display') {
+                            if(data){
+                                return convertISO8601ToHumanDay(data);
+                            }
+                            else
+                            {
+                                return "Undefined";
+                            }
+                        } else {
+                            return data;
+                        }
+                    }},
+                    { data: "return_date_display", title: "To",
+                    render: function (data, type, row, meta) {
+                        if (type === 'display') {
+                            if(data){
+                                return convertISO8601ToHumanDay(data);
+                            }
+                            else
+                            {
+                                return "Undefined";
+                            }
+                        } else {
+                            return data;
+                        }
+                    }},
             { data : "id", title: "Start",
             render:function(data,type,row,meta){
-            if(type==="display")
-            {
-                disabled =false;
-                button = '<button type="button" class="btn btn-primary borroweventaction" href="#" data-borrow-action="start" data-borrow-id="'+row.id+'" data-element-id="'+row.element.id+'" title="Start" ' ;
-                if(disabled)
-                {
-                    button+=" disabled";
-                }
-                button+= ">Start</button>";
-                return button;
-            }
-            return "e"
-        }},
-        { data : "id", title: "Return",
-        render:function(data,type,row,meta){
-        if(type==="display")
-        {
-            disabled =false;
-            button = '<button type="button" class="btn btn-primary borroweventaction" href="#" data-borrow-action="return" data-borrow-id="'+row.id+'" data-element-id="'+row.element.id+'" title="Return" ' ;
-            if(disabled)
-            {
-                button+=" disabled";
-            }
-            button+= ">Return</button>";
-            return button;
-        }
-        return "e"
-    }},
-            { data : "id", title: "Extend",
-            render:function(data,type,row,meta){
-            if(type==="display")
-            {
-                disabled =false;
-                button = '<button type="button" class="btn btn-primary borroweventaction" href="#" data-borrow-action="extend" data-borrow-id="'+row.id+'" data-element-id="'+row.element.id+'" title="Extend" ' ;
-                if(disabled)
-                {
-                    button+=" disabled";
-                }
-                button+= ">Extend</button>";
-                return button;
-            }
-            return "e"
-        }},
-        { data : "id", title: "Cancel",
-            render:function(data,type,row,meta){
-            if(type==="display")
-            {
-                disabled =false;
-                button = '<button type="button" class="btn btn-primary borroweventaction" href="#" data-borrow-action="cancel" data-borrow-id="'+row.id+'" title="Cancel" ' ;
-                if(disabled)
-                {
-                    button+=" disabled";
-                }
-                button+= ">Cancel</button>";
-                return button;
-            }
-            return "e"
-        }},
-        { data : "state", title: "State"},
-            //{ data: "comment", title: "Comment"},
-         /*   { data: "return_event.recording_date", title: "Returned on",
-            render: function (data, type, row, meta) {
-                if (type === 'display') {
-
-                if(data){
-                    ret = convertISO8601ToHumanDay(data);
-                    ret +=" ";
-                    if(Date.parse(data)>Date.parse(row.scheduled_return_date))
-                    {
-                        ret+= "(LATE)";
+                    if (type === "display") {
+                        disabled = false;
+                        button = '<button type="button" class="btn btn-primary borroweventaction" href="#" data-borrow-action="start" data-borrow-id="' + row.id + '" data-element-id="' + row.element.id + '" title="Start" ';
+                        if (disabled) {
+                            button += " disabled";
+                        }
+                        button += ">Start</button>";
+                        return button;
                     }
-                    else
-                    {
-                        ret+= "(ON TIME)"
-                    }
-                    return ret;
+                    return "e"
                 }
-                else
-                {
-                    disabled = false;
-                    comment = ""
-                    btn = ""
-                    if(Date.now()>Date.parse(row.scheduled_return_date))
-                    {
-                        comment = "(Late !)";
-                        btn = "btn-danger"
-                    }
-                    else
-                    {
-                        comment = "(On Time !)"
-                        btn = "btn-success"
-                    }
-                    button = '<button type="button" class="btn '+btn+' event" href="#" data-event-type="return" data-element-id=" '+id+'" data-form="TODO&borrow='+row.id+'" title="Return '+comment+'" ' ;
-                    if(disabled)
-                    {
-                        button+=" disabled";
-                    }
-                    button+= ">Return "+comment+"</button>";
-                    return button;
-                }
-
-            }
-            else
+            },
             {
-                return data;
-            }
-                ret = ""
-                if (type === 'display') {
-
-                    return ret;
-                } else {
-                    return data;
+                data: "id", title: "Return",
+                render: function (data, type, row, meta) {
+                    if (type === "display") {
+                        disabled = false;
+                        button = '<button type="button" class="btn btn-primary borroweventaction" href="#" data-borrow-action="return" data-borrow-id="' + row.id + '" data-element-id="' + row.element.id + '" title="Return" ';
+                        if (disabled) {
+                            button += " disabled";
+                        }
+                        button += ">Return</button>";
+                        return button;
+                    }
+                    return "e"
                 }
-
-                }},
-
-            { data: "return_event.location_destination.id", title: "Destination",
-              render: function(data,type,row,meta){
-              if(type === "display"){
-                  if(row.return_event)
-                  {
-                      link = "<a href=\"/location/"+data+"\">"+row.return_event.location_destination.name+"</a>";
-                      return link;
-                  }
-                  return "-";
-
-              }
-              if(row.return_event)
-              {
-                  return row.return_event.location_destination.name;
-              }
-              return "";
-
-            },visible: !is_unique},
-            { data: "return_event.comment", title: "Feedback"},*/
+            },
+            {
+                data: "id", title: "Extend",
+                render: function (data, type, row, meta) {
+                    if (type === "display") {
+                        disabled = false;
+                        button = '<button type="button" class="btn btn-primary borroweventaction" href="#" data-borrow-action="extend" data-borrow-id="' + row.id + '" data-element-id="' + row.element.id + '" title="Extend" ';
+                        if (disabled) {
+                            button += " disabled";
+                        }
+                        button += ">Extend</button>";
+                        return button;
+                    }
+                    return "e"
+                }
+            },
+            {
+                data: "id", title: "Cancel",
+                render: function (data, type, row, meta) {
+                    if (type === "display") {
+                        disabled = false;
+                        button = '<button type="button" class="btn btn-primary borroweventaction" href="#" data-borrow-action="cancel" data-borrow-id="' + row.id + '" title="Cancel" ';
+                        if (disabled) {
+                            button += " disabled";
+                        }
+                        button += ">Cancel</button>";
+                        return button;
+                    }
+                    return "e"
+                }
+            },
+            { data: "state", title: "State" },
         ]
 });
 
