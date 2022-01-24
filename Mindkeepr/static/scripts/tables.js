@@ -8,16 +8,13 @@ $(document).on('hide.bs.modal',"#eventModal", function (evt) {
         $(".element-stock-table[data-element-id="+$(evt.target).data("element-id")+"]").DataTable().rows().invalidate().draw();
     }
 });
-/*
-$(document).on('hide.bs.modal',"#eventModal[data-event-type=return]", function (evt) {
+
+$(document).on('hide.bs.modal',"#eventModal[data-event-type=borrow]", function (evt) {
     // Assuming that an update just got completed
-    if($(evt.target).data("element-id"))
-    {
-        $(".element-borrow-table[data-element-id="+$(evt.target).data("element-id")+"]").DataTable().rows().invalidate().draw();
-        $(".element-stock-table[data-element-id="+$(evt.target).data("element-id")+"]").DataTable().rows().invalidate().draw();
-    }
+    $(".element-borrowreserve-table").DataTable().rows().invalidate().draw();
+    //$(".element-borrow-table").DataTable().rows().invalidate().draw();
 });
-*/
+
 //
 $(document).on('hide.bs.modal',"#eventModal", function (evt) {
     // Assuming that an update just got completed
@@ -93,7 +90,7 @@ function getCookie(name) {
 var csrftoken = getCookie('csrftoken');
 
 //[data-borrow-action=start]
-$(document).on("click",".borroweventaction", function(ev) { // for each edit contact url
+$(document).on("click",".borroweventaction", function(ev) {
     ev.preventDefault(); // prevent navigation
     //var url = ("form"); // get form from url
     console.log($(this).data("borrow-id"));
@@ -106,13 +103,13 @@ $(document).on("click",".borroweventaction", function(ev) { // for each edit con
         headers: {'X-CSRFToken': csrftoken},
         data: {},
         success: function(data, status) {
-            console.log(data);
-            console.log(status);
-            console.log($("#row-borrow-evt-"+$(ev.target).data("borrow-id")))
-            $(".element-borrow-table[data-element-id="+$(ev.target).data("element-id")+"]").DataTable().rows($("#row-borrow-evt-"+$(ev.target).data("borrow-id"))).invalidate().draw();
-            $(".element-stock-table[data-element-id="+$(ev.target).data("element-id")+"]").DataTable().rows().invalidate().draw();
-            $("#active-borrowings-table").DataTable().rows().invalidate().draw();
+            /*console.log(data);
+            console.log(status);*/
 
+            $(".element-borrow-table").DataTable().rows($("#row-borrow-evt-"+$(ev.target).data("borrow-id"))).invalidate().draw();
+            $(".element-borrowreserve-table").DataTable().rows().invalidate().draw();
+            $(".element-stock-table").DataTable().rows().invalidate().draw();
+            $("#active-borrowings-table").DataTable().rows().invalidate().draw();
             $("#reserve-borrowings-table").DataTable().rows().invalidate().draw();
 
         },
@@ -364,7 +361,7 @@ function load_borrow_table(id,is_unique,permission_borrow)
         "dom": '<"top">rt<"bottom"lip><"clear">',
         'serverSide': true,
         "responsive": true,
-        'ajax': '/api/v1/borrowings?element='+id+'&format=datatables',
+        'ajax': '/api/v1/borrowings?state=IN_PROGRESS&element='+id+'&format=datatables',
         "fnCreatedRow": function( nRow, aData, iDataIndex ) {
             $(nRow).attr('id', "row-borrow-evt-"+aData.id);
         },
@@ -453,20 +450,21 @@ function load_borrow_table(id,is_unique,permission_borrow)
                             return data;
                         }
                     }},
-            { data : "id", title: "Start",
-            render:function(data,type,row,meta){
-                    if (type === "display") {
-                        disabled = false;
-                        button = '<button type="button" class="btn btn-primary borroweventaction" href="#" data-borrow-action="start" data-borrow-id="' + row.id + '" data-element-id="' + row.element.id + '" title="Start" ';
-                        if (disabled) {
-                            button += " disabled";
+                    {
+                        data: "id", title: "Extend",
+                        render: function (data, type, row, meta) {
+                            if (type === "display") {
+                                disabled = false;
+                                button = '<button type="button" class="btn btn-primary borroweventaction" href="#" data-borrow-action="extend" data-borrow-id="' + row.id + '" data-element-id="' + row.element.id + '" title="Extend" ';
+                                if (disabled) {
+                                    button += " disabled";
+                                }
+                                button += ">Extend</button>";
+                                return button;
+                            }
+                            return "e"
                         }
-                        button += ">Start</button>";
-                        return button;
-                    }
-                    return "e"
-                }
-            },
+                    },
             {
                 data: "id", title: "Return",
                 render: function (data, type, row, meta) {
@@ -482,16 +480,89 @@ function load_borrow_table(id,is_unique,permission_borrow)
                     return "e"
                 }
             },
+
+     //       { data: "state", title: "State" },
+        ]
+});
+
+}
+
+
+
+function load_borrowreserve_table(id,is_unique,permission_reserve)
+{
+    $(".element-borrowreserve-table[data-element-id="+id+"]").DataTable({
+        "dom": '<"top">rt<"bottom"lip><"clear">',
+        'serverSide': true,
+        "responsive": true,
+        'ajax': '/api/v1/borrowings?state=NOT_STARTED&element='+id+'&format=datatables',
+        "fnCreatedRow": function( nRow, aData, iDataIndex ) {
+            $(nRow).attr('id', "row-borrowreserve-evt-"+aData.id);
+        },
+        "columnDefs": [
+          {
+              "targets": '_all',
+              "defaultContent": ""
+          }
+        ],
+        columns: [
+            { data: "id", title: "ID", visible: false },
+            { data: "element.id", title: "element-id", visible: false },
+            { data: "beneficiary.get_full_name", visible: true, title: "For" },
             {
-                data: "id", title: "Extend",
+                data: "recording_date", visible: false, title: "Date",
                 render: function (data, type, row, meta) {
+                    if (type === 'display') {
+                        if (data) {
+                            return convertISO8601ToHumanDay(data);
+                        }
+                        else {
+                            return "Undefined";
+                        }
+                    } else {
+                        return data;
+                    }
+                }
+            },
+            { data: "quantity", title: "Quantity", visible: !is_unique },
+            {
+                data: "borrow_date_display", title: "From",
+                render: function (data, type, row, meta) {
+                        if (type === 'display') {
+                            if(data){
+                                return convertISO8601ToHumanDay(data);
+                            }
+                            else
+                            {
+                                return "Undefined";
+                            }
+                        } else {
+                            return data;
+                        }
+                    }},
+                    { data: "return_date_display", title: "To",
+                    render: function (data, type, row, meta) {
+                        if (type === 'display') {
+                            if(data){
+                                return convertISO8601ToHumanDay(data);
+                            }
+                            else
+                            {
+                                return "Undefined";
+                            }
+                        } else {
+                            return data;
+                        }
+                    }},
+            { data : "id", title: "Start",
+            render:function(data,type,row,meta){
                     if (type === "display") {
                         disabled = false;
-                        button = '<button type="button" class="btn btn-primary borroweventaction" href="#" data-borrow-action="extend" data-borrow-id="' + row.id + '" data-element-id="' + row.element.id + '" title="Extend" ';
+                        button = '<button type="button" class="btn btn-primary borroweventaction" href="#" data-borrow-action="start" data-borrow-id="' + row.id + '" data-element-id="' + row.element.id + '" title="Start" ';
                         if (disabled) {
                             button += " disabled";
                         }
-                        button += ">Extend</button>";
+                        button += ">Start</button>";
                         return button;
                     }
                     return "e"
@@ -512,12 +583,10 @@ function load_borrow_table(id,is_unique,permission_borrow)
                     return "e"
                 }
             },
-            { data: "state", title: "State" },
         ]
 });
 
 }
-
 
 
 function load_incident_table(id,permission)

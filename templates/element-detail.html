@@ -24,11 +24,15 @@
 <nav class="nav nav-tabs">
   <a class="nav-item nav-link active" href="#elt-{{form.instance.id}}-main" data-toggle="tab">Element</a>
   {% if form.instance.id %}
-  <a class="nav-item nav-link" href="#elt-{{form.instance.id}}-location" data-toggle="tab">Locations</a>
+  <a class="nav-item nav-link" href="#elt-{{form.instance.id}}-borrowreserve" data-toggle="tab">Reservations</a>
+  <a class="nav-item nav-link" href="#elt-{{form.instance.id}}-borrow" data-toggle="tab">Borrows</a>
+  {% if not  form.instance.is_unique %}
+
+  {% endif %}
   <a class="nav-item nav-link" href="#elt-{{form.instance.id}}-buy" data-toggle="tab">Buy History</a>
   <a class="nav-item nav-link" href="#elt-{{form.instance.id}}-sell" data-toggle="tab">Sell History</a>
-  <a class="nav-item nav-link" href="#elt-{{form.instance.id}}-borrow" data-toggle="tab">Borrow History</a>
   <a class="nav-item nav-link" href="#elt-{{form.instance.id}}-reservation" data-toggle="tab">Allocation History</a>
+  <a class="nav-item nav-link" href="#elt-{{form.instance.id}}-location" data-toggle="tab">Locations</a>
   {% if form.instance.is_consummable %}
   <a class="nav-item nav-link" href="#elt-{{form.instance.id}}-consume" data-toggle="tab">Consume History</a>
   {% endif %}
@@ -37,6 +41,12 @@
 </nav>
 <div class="tab-content">
     <div class="tab-pane active" id="elt-{{form.instance.id}}-main">
+        <button type="button" class="btn btn-primary event" href="#" data-event-type="buy" data-element-id="{{form.instance.id}}" data-form="/formbuyeventmodal?element={{form.instance.id}}" title="Buy"
+        {% if not perms.Mindkeepr.add_buyevent or form.instance.is_unique_and_there %}disabled{% endif %}>Buy</button>
+        <button type="button" class="btn btn-primary event" href="#" data-element-id="{{form.instance.id}}" data-event-type="borrow" data-src-id="{{form.instance.id}}" data-form="/formborroweventreservemodal?element={{form.instance.id}}&state=NOT_THERE" title="Reserve"
+        {% if not perms.Mindkeepr.add_borrow %}disabled{% endif %}>Reserve</button>
+        <button type="button" class="btn btn-primary event" href="#" data-element-id="{{form.instance.id}}" data-event-type="borrow" data-src-id="{{form.instance.id}}" data-form="/formborroweventimmediatemodal?element={{form.instance.id}}&state=NOT_STARTED" title="Borrow"
+        {% if not perms.Mindkeepr.add_borrow %}disabled{% endif %}>Borrow</button>
         <!--<a href="/element/barcode/{{ form.instance.id }}">Barcode</a>
          <a class="btn btn-primary" href="/element/print/add/{{ form.instance.id }}/1" role="button">Add one to print list !</a> -->
          {% if form.instance.image %}
@@ -86,9 +96,9 @@
     <div class="tab-pane" id="elt-{{form.instance.id}}-location">
         <button type="button" class="btn btn-primary event" href="#" data-event-type="buy" data-element-id="{{form.instance.id}}" data-form="/formbuyeventmodal?element={{form.instance.id}}" title="Buy"
         {% if not perms.Mindkeepr.add_buyevent or form.instance.is_unique_and_there %}disabled{% endif %}>Buy</button>
-        <button type="button" class="btn btn-primary event" href="#" data-stock="'+data+'" data-element-id="{{form.instance.id}}" data-event-type="borrow" data-src-id="{{form.instance.id}}" data-form="/formborroweventreservemodal?element={{form.instance.id}}&state=NOT_THERE" title="Reserve"
+        <button type="button" class="btn btn-primary event" href="#" data-element-id="{{form.instance.id}}" data-event-type="borrow" data-src-id="{{form.instance.id}}" data-form="/formborroweventreservemodal?element={{form.instance.id}}&state=NOT_THERE" title="Reserve"
         {% if not perms.Mindkeepr.add_borrow %}disabled{% endif %}>Reserve</button>
-        <button type="button" class="btn btn-primary event" href="#" data-stock="'+data+'" data-element-id="{{form.instance.id}}" data-event-type="borrow" data-src-id="{{form.instance.id}}" data-form="/formborroweventimmediatemodal?element={{form.instance.id}}&state=NOT_STARTED" title="Borrow"
+        <button type="button" class="btn btn-primary event" href="#" data-element-id="{{form.instance.id}}" data-event-type="borrow" data-src-id="{{form.instance.id}}" data-form="/formborroweventimmediatemodal?element={{form.instance.id}}&state=NOT_STARTED" title="Borrow"
         {% if not perms.Mindkeepr.add_borrow %}disabled{% endif %}>Borrow</button>
 
         <table
@@ -115,6 +125,12 @@
     <table
     data-element-id="{{form.instance.id}}"
     class="table compact table-striped table-bordered element-borrow-table"
+    style="width:100%"></table>
+  </div>
+  <div class="tab-pane" id="elt-{{form.instance.id}}-borrowreserve">
+    <table
+    data-element-id="{{form.instance.id}}"
+    class="table compact table-striped table-bordered element-borrowreserve-table"
     style="width:100%"></table>
   </div>
   <div class="tab-pane" id="elt-{{form.instance.id}}-reservation">
@@ -172,6 +188,10 @@ load_sell_table({{form.instance.id}},
             {% if perms.Mindkeepr.add_sellevent  %} true {% else %} false {% endif %});
 
 load_borrow_table({{form.instance.id}},
+                {% if form.instance.is_unique %} true {% else %} false {% endif %},
+                {% if perms.Mindkeepr.add_borrowevent  %} true {% else %} false {% endif %});
+
+load_borrowreserve_table({{form.instance.id}},
                 {% if form.instance.is_unique %} true {% else %} false {% endif %},
                 {% if perms.Mindkeepr.add_borrowevent  %} true {% else %} false {% endif %});
 
