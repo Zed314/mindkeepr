@@ -9,7 +9,7 @@ coverage==5.1
 django-crispy-forms==1.9.0
 Pillow==9.0.0
 django-cleanup==4.0.0
-reportlab==3.5.47
+reportlab==3.5.55
 djangorestframework-datatables==0.5.2
 mozilla_django_oidc==1.2.4
 gunicorn==20.0.4
