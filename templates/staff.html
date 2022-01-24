@@ -9,16 +9,22 @@
 </div>
 <div class="container">
     <nav class="nav nav-tabs">
-        <a class="nav-item nav-link active" href="#main" data-toggle="tab">Borrows</a>
+        <a class="nav-item nav-link active" href="#barcode" data-toggle="tab">Barcode search</a>
+        <a class="nav-item nav-link" href="#borrows" data-toggle="tab">Borrows</a>
         <a class="nav-item nav-link" href="#reservations" data-toggle="tab">Reservations</a>
 
-      </nav>
-      <div class="tab-content">
-          <div class="tab-pane active" id="main">
+    </nav>
+    <div class="tab-content">
+        <div class="tab-pane active" id="barcode">
+
+                    TBD
+
+        </div>
+        <div class="tab-pane" id="borrows">
             <div class="row">
                 <div class="col-md-12">
-                    <table id="active-borrowings-table" class="table compact table-striped table-bordered" style="width:100%">
-
+                    <table id="active-borrowings-table" class="table compact table-striped table-bordered"
+                        style="width:100%">
                     </table>
                 </div>
             </div>
@@ -26,15 +32,14 @@
         <div class="tab-pane" id="reservations">
             <div class="row">
                 <div class="col-md-12">
-
-                        <table id="reserve-borrowings-table" class="table compact table-striped table-bordered"
-                            style="width:100%"></table>
-
+                    <table id="reserve-borrowings-table" class="table compact table-striped table-bordered"
+                        style="width:100%">
                     </table>
                 </div>
             </div>
         </div>
-      </div>
+
+    </div>
 
 </div>
 
@@ -143,33 +148,9 @@
                     return false;
                 }
             },
-           /* {
-                data: 'id',
-                title: 'View',
-                render: function (data, type, row, meta) {
-                    if (type === 'display') {
-                        url = "/event/" + data
-                        data = '<button type="button" class="btn btn-primary showevent" href="#" data-form="' + url + '" title="View" >View</button>'
-                    }
-
-                    return data;
-                },
-                orderable: false,
-
-            },*/
 
         ],
-      /*  "drawCallback": function (settings, json) {
-            $(".showevent").click(function (ev) { // for each edit contact url
-                ev.preventDefault(); // prevent navigation
-                var url = $(this).data("form"); // get the contact form url
-                $("#showEventModal").load(url, function () { // load the url into the modal
-                    $(this).modal('show'); // display the modal on url load
-                });
-                return false; // prevent the click propagation
-            });
 
-        }*/
 
     });
 
@@ -262,9 +243,7 @@
         ],
 
     });
-/*
 
-    */
 </script>
 
 
