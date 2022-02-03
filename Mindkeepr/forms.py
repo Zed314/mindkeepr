@@ -409,7 +409,8 @@ class AttachmentForm(ModelForm):
 class ElementForm(ModelForm):
     #category = forms.ModelChoiceField(queryset=models.Category.objects.all())
     image = forms.ImageField(required=False)
-    fields = ['name', 'description',"comment", 'category',"image"]
+    ean = forms.CharField(max_length=13,min_length=13,required=False)
+    fields = ['name', 'description',"comment", 'category',"image", "ean"]
     widgets = {
             "category": CategoryWidget
     }
@@ -434,6 +435,7 @@ class ToolForm(ElementForm):
         widgets = ElementForm.widgets
 
 class BookForm(ElementForm):
+    ean = forms.CharField(max_length=13,min_length=13,required=True)
     class Meta:
         model = models.elements.Book
         fields = ElementForm.fields
@@ -445,7 +447,7 @@ class MovieForm(ModelForm):
         fields = ("original_language","original_title","local_title","release_date","poster","budget","remote_api_id","trailer_video_url")
 
 class MovieCaseForm(ElementForm):
-
+    ean = forms.CharField(max_length=13,min_length=13,required=True)
     class Meta:
         model = models.elements.MovieCase
         fields = ['name', "category", "custom_id", "externalapiid", "ean", "nb_disk",

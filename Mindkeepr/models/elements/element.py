@@ -24,9 +24,22 @@ class Element(PolymorphicModel):
     image = models.ImageField(upload_to='element_images', blank=True, null=True)
     creator = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
     default_location = models.ForeignKey(Location, on_delete=models.SET_NULL, null = True)
+    id_barcode = models.CharField(max_length=13,unique=True, null=True)
+    # duplicate books, movies, etc are possible, therefore unique is False
+    ean = models.CharField(max_length=13,unique=False, null=True)
 
     def __str__(self):
         return self.name
+
+    def generate_id_barcode(self):
+        sub_barcode = "99{:010d}".format(self.id)
+        sum = 0
+        for n,digit in enumerate(sub_barcode):
+            if n % 2 == 0:
+                sum+=int(digit)
+            else:
+                sum+=3*int(digit)
+        return "99{:010d}{}".format(self.id,sum%10)
 
     @property
     def is_unique(self):
@@ -205,3 +218,12 @@ class Element(PolymorphicModel):
 
     def custom_id_display(self):
         return "{}".format(self.id)
+
+    def save(self, *args, **kwargs):
+        if not self.id:
+            super().save(*args, **kwargs)
+            self.id_barcode = self.generate_id_barcode()
+            print(self.id_barcode)
+            self.save()
+        else:
+            super().save(*args, **kwargs)

@@ -1,11 +1,9 @@
 <div class="container">
     <div class="row">
         <div class="col-sm-12">
-            <table id="borrowing-table" class="table compact table-striped table-bordered" style="width:100%">
+            <table id="borrowing-table" class="table compact table-striped table-bordered element-borrow-table" style="width:100%">
                 <thead>
                 <tr>
-
-
                 </tr>
                 </thead>
             </table>
@@ -16,7 +14,7 @@
 
     $('#borrowing-table').DataTable({
         'serverSide': true,
-        'ajax': '/api/v1/borrowings?user={{ object.id }}&format=datatables',
+        'ajax': '/api/v1/borrowings?user={{ object.id }}&state=IN_PROGRESS&format=datatables',
         'columns': [
             {
                 data: 'element',
@@ -32,38 +30,38 @@
                 }
 
             },
-          /*  {
-                data: 'location_source',
-                title: 'From',
+            {data: 'borrow_date_display', title: "From"},
+            {data: 'return_date_display', title: "To"},
+            {
+                        data: "id", title: "Extend",
+                        render: function (data, type, row, meta) {
+                            if (type === "display") {
+                                disabled = false;
+                                button = '<button type="button" class="btn btn-primary borroweventaction" href="#" data-borrow-action="extend" data-borrow-id="' + row.id + '" data-element-id="' + row.element.id + '" title="Extend" ';
+                                if (disabled) {
+                                    button += " disabled";
+                                }
+                                button += ">Extend</button>";
+                                return button;
+                            }
+                            return "e"
+                        }
+                    },
+            {
+                data: "id", title: "Return",
                 render: function (data, type, row, meta) {
-                    if (type === 'display') {
-                        url = "/location/" + data.id
-                        data = '<a href="' + url + '">' + data.name + '</a>';
-                        return data;
-                    } else {
-                        return data.name;
-                    }
-
-
-                }
-            },*/
-            {data: 'recording_date', title: "Date", render: function (data, type, row, meta) {
-                    if (type === 'display') {
-                        if(data){
-                            return convertISO8601ToHuman(data);
+                    if (type === "display") {
+                        disabled = false;
+                        button = '<button type="button" class="btn btn-primary borroweventaction" href="#" data-borrow-action="return" data-borrow-id="' + row.id + '" data-element-id="' + row.element.id + '" title="Return" ';
+                        if (disabled) {
+                            button += " disabled";
                         }
-                        else
-                        {
-                            return "Undefined";
-                        }
-                    } else {
-                        return data;
+                        button += ">Return</button>";
+                        return button;
                     }
+                    return "e"
                 }
             },
-            {data: 'scheduled_borrow_date', title: "Scheduled borrow date"},
-            {data: 'scheduled_return_date', title: "Scheduled return date"},
-            {data: 'comment', title: "Comment"},
 
 
         ],
