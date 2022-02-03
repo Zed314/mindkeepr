@@ -30,11 +30,12 @@ title="Add movie">Add movie</a>
                 }
               ],
               'columns': [
-                  { data: "custom_id", title: "Id"},
-                  { data: "custom_id_display", title: "Id", orderable: false},
+                  { data: "custom_id", title: "Id",  searchable:false},
+                  { data: "custom_id_display", title: "Id",  searchable:false, orderable: false},
                   { data: 'name', title: "Name" },
                   { data: "nb_disk", title: "Nb disk"},
-                  { data: "category_box_display", title: "Cat.", orderable: false},
+                  { data: "ean", title: "EAN", visible:false},
+                  { data: "category_box_display", title: "Cat.", orderable: false,  searchable:false},
                     {
                       data:"id",
                       title:"Direct link",

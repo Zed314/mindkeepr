@@ -73,7 +73,8 @@ class MovieCase(Element):
                                 related_name='cases',
                                 null=True)
     custom_id = models.IntegerField("Custom id", unique=False, null=False, blank=False)
-    ean = models.CharField(max_length=13,unique=True)
+   # ean = models.CharField(max_length=13,unique=True, null=True)
+
     nb_disk = models.IntegerField("Number of disks", null=False, blank=False)
     format_disk = models.CharField(
         max_length=3,

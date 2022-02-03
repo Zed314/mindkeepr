@@ -61,9 +61,11 @@
               ],
               'columns': [
                   { data: 'id', title: "ID" },
-                  { data: "custom_id", title: "Id", visible:false},
-                  { data: "custom_id_display", title: "Id", orderable: false, visible:true},
+                  { data: "custom_id", title: "Id", visible:false, searchable:false},
+                  { data: "custom_id_display", title: "Id", orderable: false, visible:true, searchable:false},
                   { data: 'name', title: "Name" },
+                  { data: "id_barcode", title: "Barcode ID", visible:false},
+                  { data: "ean", title: "EAN", visible:false},
                   { data: 'category.name', title: "Category", visible:false},
                   { data: 'category.id', title: "Category ID", visible: false, searchable: true},
                   /*{ data: 'description', title: "Description" },*/
@@ -192,7 +194,17 @@
           });
  {% endblock %}
           $( "#formsearch" ).submit(function( event ) {
-            elt_table.search($('#searchinput').val()).draw();
+            str_search = $('#searchinput').val()
+            if(str_search.length()==13 && Number.isInteger(Number(str_search)))
+            {
+              elt_table.search("^"+str_search+"$").draw() ;
+            }
+            else
+            {
+              elt_table.search($(str_search)).draw();
+            }
+
+
             event.preventDefault();
           });
 
