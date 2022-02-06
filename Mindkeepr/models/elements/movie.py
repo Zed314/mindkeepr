@@ -63,7 +63,7 @@ class MovieCase(Element):
     CATEGORY = [
        ('CHI', "Children"),
        ('HOR', "Horror"),
-       ('NEW', "New"),
+       ('NEW', "New"), # Todo : remove
        ('COM', "Comedy"),
        ('DRA', "Drama"),
        ("ACT", "Action")
@@ -73,6 +73,7 @@ class MovieCase(Element):
                                 related_name='cases',
                                 null=True)
     custom_id = models.IntegerField("Custom id", unique=False, null=False, blank=False)
+    is_new = models.BooleanField("Is new",null=True,blank=True)
    # ean = models.CharField(max_length=13,unique=True, null=True)
 
     nb_disk = models.IntegerField("Number of disks", null=False, blank=False)

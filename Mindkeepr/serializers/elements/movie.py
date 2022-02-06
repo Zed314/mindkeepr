@@ -11,7 +11,7 @@ class MovieCaseSerializer(ElementFieldMixin, serializers.HyperlinkedModelSeriali
     custom_id_display = serializers.SerializerMethodField(read_only=True, source='get_custom_id_display')
     class Meta:
         model = MovieCase
-        fields = ["id","custom_id_display","name","id_barcode","format_disk","subformat_disk","nb_disk","custom_id","ean","category_box","category_box_display","borrow_history","quantity_owned","type"] #ElementSerializer.Meta.fields
+        fields = ["id","custom_id_display","name","id_barcode","format_disk","subformat_disk","nb_disk","custom_id","ean","category_box","category_box_display","borrow_history","quantity_owned","quantity_available","type"] #ElementSerializer.Meta.fields
         depth = 1
     def get_category_box_display(self,obj):
             return obj.get_category_box_display()

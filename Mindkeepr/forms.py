@@ -438,7 +438,7 @@ class BookForm(ElementForm):
     ean = forms.CharField(max_length=13,min_length=13,required=True)
     class Meta:
         model = models.elements.Book
-        fields = ElementForm.fields
+        fields = ElementForm.fields + [ "custom_id"]
         widgets = ElementForm.widgets
 
 class MovieForm(ModelForm):
