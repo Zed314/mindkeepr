@@ -129,7 +129,10 @@ class Element(PolymorphicModel):
 
     @property
     def quantity_available(self):
-        return self.stock_repartitions.filter(status="FREE").aggregate(quantity_available=Sum('quantity')).get("quantity_available", 0)
+        ret = self.stock_repartitions.filter(status="FREE").aggregate(quantity_available=Sum('quantity')).get("quantity_available", 0)
+        if not ret:
+            return 0
+        return ret
 
     def _get_stock_rep(self, status, location, quantity_min=0, project=None):
         if not location:

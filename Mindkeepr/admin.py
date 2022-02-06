@@ -3,13 +3,14 @@ from Mindkeepr.models import events
 
 
 from Mindkeepr.models.elements.component import Component
-from Mindkeepr.models.elements import  MovieCase, Movie
+from Mindkeepr.models.elements import  MovieCase, Movie, Book
 from Mindkeepr.models.elements.element import Element
 from Mindkeepr.models.location import Location
 from Mindkeepr.models.events import use_event,buy_event, consume_event, event, borrow_event
 from Mindkeepr.models.models import UserProfile
 from Mindkeepr.models.category import Category
 from Mindkeepr.models.elements.attachment import Attachment
+from Mindkeepr.models.staff_settings import StaffSettings, Days
 
 class ProfiletInline(admin.TabularInline):
     model = UserProfile
@@ -51,6 +52,12 @@ class ElementAdmin(admin.ModelAdmin):
     inlines = (BuyEventInline,UseEventInline, ConsumeEventInline, AttachmentInline)
     pass
 
+
+@admin.register(Book)
+class BookAdmin(admin.ModelAdmin):
+    inlines = (BuyEventInline,UseEventInline, ConsumeEventInline, AttachmentInline)
+    pass
+
 @admin.register(Component)
 class ComponentAdmin(admin.ModelAdmin):
     pass
@@ -65,4 +72,12 @@ class LocationAdmin(admin.ModelAdmin):
 
 @admin.register(UserProfile)
 class UserProfileAdmin(admin.ModelAdmin):
+    pass
+
+@admin.register(StaffSettings)
+class StaffSettingsAdmin(admin.ModelAdmin):
+    pass
+
+@admin.register(Days)
+class StaffSettingsDaysAdmin(admin.ModelAdmin):
     pass

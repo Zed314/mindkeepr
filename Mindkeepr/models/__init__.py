@@ -5,3 +5,4 @@ from .project import Project
 from .stock_repartition import StockRepartition
 from .elements.element import Element
 from .events import Event
+from .staff_settings import StaffSettings

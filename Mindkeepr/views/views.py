@@ -29,8 +29,6 @@ class UserView(LoginRequiredMixin, viewsets.ModelViewSet):
     serializer_class = UserDetailedSerializer
 
 def is_staff(user):
-    # print(user.groups)
-    # print(user.groups.filter(name='bureau').count())
     return user.groups.filter(name='staff').exists()
 
 

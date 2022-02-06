@@ -80,6 +80,7 @@
                   {% block qtycolumn %}
                   { data: "quantity_owned", title: "Quantity", orderable: false,bSearchable:false, visible:false},
                   {% endblock %}
+                  { data: "quantity_available", title: "Quantity", orderable: false,bSearchable:false, visible:false},
                   /*{
                             data: 'id',
                             title: 'View',
@@ -129,7 +130,9 @@
                       title: 'Reserve',
                       render: function(data, type, row, meta){
                       if(type === 'display'){
+                        console.log(row);
                           data = '<button type="button" class="btn btn-primary event" href="#" data-element-id="'+data+'" data-event-type="borrow" data-form="/formborroweventreservemodal?element='+data+'&state=NOT_THERE" title="Reserve"{% if not perms.Mindkeepr.add_borrow %}disabled{% endif %}>Reserve</button>';
+
                       }
                       return data;
                     },
@@ -141,7 +144,14 @@
                             title: 'Borrow',
                             render: function(data, type, row, meta){
                             if(type === 'display'){
-                                data = '<button type="button" class="btn btn-primary event" href="#" data-element-id="'+data+'" data-event-type="borrow"  data-form="/formborroweventimmediatemodal?element='+data+'&state=NOT_STARTED" title="Borrow"{% if not perms.Mindkeepr.add_borrow %}disabled{% endif %}>Borrow</button>';
+                              if(row.quantity_available ==0)
+                              {
+                                data = "Unavailable";
+                              }
+                              else
+                              {
+                                      data = '<button type="button" class="btn btn-primary event" href="#" data-element-id="'+data+'" data-event-type="borrow"  data-form="/formborroweventimmediatemodal?element='+data+'&state=NOT_STARTED" title="Borrow"{% if not perms.Mindkeepr.add_borrow %}disabled{% endif %}>Borrow</button>';
+                              }
                             }
                             return data;
                           },
