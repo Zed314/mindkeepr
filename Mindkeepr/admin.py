@@ -10,7 +10,8 @@ from Mindkeepr.models.events import use_event,buy_event, consume_event, event, b
 from Mindkeepr.models.models import UserProfile
 from Mindkeepr.models.category import Category
 from Mindkeepr.models.elements.attachment import Attachment
-from Mindkeepr.models.staff_settings import StaffSettings, Days
+from Mindkeepr.models.staff_settings import StaffSettings, Days, DayException
+
 
 class ProfiletInline(admin.TabularInline):
     model = UserProfile
@@ -80,4 +81,8 @@ class StaffSettingsAdmin(admin.ModelAdmin):
 
 @admin.register(Days)
 class StaffSettingsDaysAdmin(admin.ModelAdmin):
+    pass
+
+@admin.register(DayException)
+class StaffSettingsDaysExceptionAdmin(admin.ModelAdmin):
     pass

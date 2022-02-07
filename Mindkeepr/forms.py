@@ -356,6 +356,22 @@ class BorrowEventImmediateForm(DisableFieldsMixin, PresetLocationSourceAndQuanti
                 instance.save()
         return instance
 
+import datetime
+
+def retrict_on_open_days(value):
+    print("Lejour :")
+    print(value.weekday(),flush=True)
+    print(models.StaffSettings.objects.all()[0])
+    print(models.StaffSettings.objects.all()[0].open_day_borrow.all())
+    if models.StaffSettings.objects.all()[0].open_day_borrow.filter(day=value.weekday()).exists():
+        return value
+    else:
+        raise forms.ValidationError("Sorry, out of opened days for borrow !")
+        #TODO : also check for exceptional openings…
+    #if value < datetime.date.today():
+    #    raise forms.ValidationError("The date cannot be in the past !")
+    return value
+
 class BorrowEventReserveForm(DisableFieldsMixin, PresetLocationSourceAndQuantityMixin, ModelForm):
     """ Form for BorrowEvent """
     #location_source = forms.ModelChoiceField(
@@ -364,19 +380,32 @@ class BorrowEventReserveForm(DisableFieldsMixin, PresetLocationSourceAndQuantity
     #    stock_repartitions__in=models.StockRepartition.objects.filter(status="FREE")).distinct())
     element = forms.ModelChoiceField(queryset=models.Element.objects.all())
     #quantity = forms.IntegerField(min_value=1)
-    scheduled_borrow_date = forms.DateField(widget=forms.DateInput(attrs=
-                                {
-                                    'class':'datepicker'
-                                }))
-    scheduled_return_date = forms.DateField(widget=forms.DateInput(attrs=
-                                {
-                                    'class':'datepicker'
-                                }))
+    scheduled_return_date = forms.DateField(validators=[retrict_on_open_days], widget=forms.Select(choices=[]))
+    scheduled_borrow_date = forms.DateField(validators=[retrict_on_open_days], widget=forms.Select(choices=[]))
+    #forms.DateField(widget=forms.DateInput(attrs=
+                            #    {
+                            #        'class':'datepicker'
+                            #    }),validators=[retrict_on_open_days])
+                            #    #
+    #scheduled_return_date = forms.DateField(widget=forms.DateInput(attrs=
+    #                            {
+    #                                'class':'datepicker'
+    #                            }),validators=[retrict_on_open_days])
 
 
     class Meta:
         model = models.events.BorrowEvent
-        fields = ['element', "beneficiary", "scheduled_borrow_date", 'scheduled_return_date', 'comment']
+        fields = ['element',
+        "beneficiary", "scheduled_borrow_date", 'scheduled_return_date', 'comment']
+
+   #def __init__(self, *args, **kwargs):
+   #    super(BorrowEventReserveForm, self).__init__(*args, **kwargs)
+   #    d = datetime.datetime.now().year
+   #    today = datetime.date.today()
+   #    next_monday = today + datetime.timedelta(days=-today.weekday(), weeks=1)
+   #    print(next_monday)
+   #    #ch = [(X,X) for X in range(2005, d)]
+   #    self.fields['scheduled_borrow_date'].choices = [next_monday]
 
     def save(self, commit=True):
         print("Entering save",flush=True)

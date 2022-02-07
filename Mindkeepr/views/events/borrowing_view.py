@@ -102,6 +102,23 @@ def borrow_cancel(request,pk):
     evt.cancel_borrow()
     evt.save()
     return JsonResponse({"status":evt.state})
+import datetime
 
+@login_required(login_url='/accounts/login')
+def get_availabilities_for_borrow(request,elt):
+    element = get_object_or_404(Element, pk=elt)
+    begin_date = datetime.date.today()
+    end_date = datetime.date.today() + datetime.timedelta(days=100)
+    return JsonResponse({"data":element.free_start_intervals(begin_date,end_date)})
+
+
+@login_required(login_url='/accounts/login')
+def get_availabilities_for_return(request,elt,year,month,day):
+    element = get_object_or_404(Element, pk=elt)
+    begin_date = datetime.datetime(year,month,day).date()
+    print(begin_date)
+    end_date = datetime.date.today() + datetime.timedelta(days=100)
+    print(end_date)
+    return JsonResponse({"data":element.free_end_intervals(begin_date,end_date)})
 
 # TODO  : ChangeDateUnstartedBorrowEvent
