@@ -4,11 +4,11 @@ from django.contrib.auth.models import User
 from django.db.models import Sum
 from datetime import date
 from django.db.models import Q
-
+import datetime
 from ..category import Category
 from ..location import Location
 from ..stock_repartition import StockRepartition
-
+from ..staff_settings import StaffSettings
 
 
 class Element(PolymorphicModel):
@@ -57,6 +57,11 @@ class Element(PolymorphicModel):
     def type(self):
         return self.__class__.__name__
 
+
+    @property
+    def borrow_interval_session(self):
+        return 1
+
     @type.setter
     def type(self, type):
         pass
@@ -80,14 +85,76 @@ class Element(PolymorphicModel):
             list_borrow_days.append((borrow.scheduled_borrow_date,borrow.scheduled_return_date))
         return list_borrow_days
 
-    def borrow_intervals(self):
+    def borrow_intervals(self,begin,end):
+        if not self.is_unique:
+            return
+        list_borrow_days ={}
+        applicable_borrows = self.borrow_history.filter(Q(state="IN_PROGRESS")|Q(state="NOT_STARTED")).filter(Q(borrow_date_display__gte=begin)|Q(return_date_display__gte=begin)).order_by('borrow_date_display')
+        for borrow in applicable_borrows:
+            list_borrow_days[borrow.id] = (str(borrow.borrow_date_display),str(borrow.return_date_display))
+        print(list_borrow_days)
+        return list_borrow_days
+
+    def free_start_intervals(self,begin,end):
+        #list of time when it is possible to start a borrow
         if not self.is_unique:
             return
         list_borrow_days =[]
-        applicable_borrows = self.borrow_history.filter(Q(recording_date__gte=date.today())|Q(scheduled_return_date__gte=date.today())).order_by('recording_date')
-        for borrow in applicable_borrows:
-            list_borrow_days.append((borrow.recording_date,borrow.scheduled_return_date))
-        return list_borrow_days
+
+        borrows = self.borrow_history.filter(Q(state="DONE")|Q(state="IN_PROGRESS")|Q(state="NOT_STARTED")).filter(Q(borrow_date_display__gte=begin)|Q(return_date_display__gte=begin)).order_by('borrow_date_display')
+        for borrow in borrows:
+            list_borrow_days.append((borrow.borrow_date_display,borrow.return_date_display))
+
+        print(list_borrow_days)
+        list_free_days = []
+
+        list_open_for_borrow = StaffSettings.get_list_open_day_borrow(begin,end)
+        for day_open_borrow in list_open_for_borrow:
+            invalid = False
+            #only_for_borrow = False
+            for start, stop in list_borrow_days:
+                if start <= day_open_borrow < stop:
+                    invalid = True
+                    break
+               #if stop == day_open_borrow:
+               #    only_for_borrow = True
+            if not invalid : #or only_for_borrow :
+                list_free_days.append(day_open_borrow)
+        print("list_free_days_to_start_borrow")
+        print(list_free_days,flush=True)
+        return list_free_days # days to start a borrow
+
+    def free_end_intervals(self,begin,end):
+        # if a borrow starts at begin day, when could it be returned ? (excluding begin)
+        # end : the end of search
+        if not self.is_unique:
+            return
+        list_borrow_days =[]
+
+        borrows = self.borrow_history.filter(Q(state="DONE")|Q(state="IN_PROGRESS")|Q(state="NOT_STARTED")).filter(Q(borrow_date_display__gte=begin)|Q(return_date_display__gte=begin)).order_by('borrow_date_display')
+        for borrow in borrows:
+            list_borrow_days.append((borrow.borrow_date_display,borrow.return_date_display))
+
+        print(list_borrow_days)
+        begin = begin + datetime.timedelta(days=1)
+        list_free_days = []
+        list_open_for_return = StaffSettings.get_list_open_day_borrow(begin,end)
+        for day_open_return in list_open_for_return:
+            invalid = False
+            #only_for_borrow = False
+            for start, stop in list_borrow_days:
+                if start < day_open_return <= stop:
+                    invalid = True
+                    break
+               #if stop == day_open_borrow:
+               #    only_for_borrow = True
+            if not invalid : #or only_for_borrow :
+                list_free_days.append(day_open_return)
+            else:
+                break
+        print("list_free_days_to_return_borrow")
+        print(list_free_days,flush=True)
+        return list_free_days
 
     #def all_borrow_intervals(self):
     #    if not self.is_unique:
