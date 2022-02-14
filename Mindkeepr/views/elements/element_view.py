@@ -18,10 +18,11 @@ from django.core.exceptions import PermissionDenied
 
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
-
+#from rest_framework import filters
+#https://betterprogramming.pub/how-to-make-search-fields-dynamic-in-django-rest-framework-72922bfa1543
 class ElementsView(LoginRequiredMixin, viewsets.ModelViewSet):
     serializer_class = ElementSerializer
-
+    #filter_backends = (filters.SearchFilter,)
     def get_queryset(self):
         queryset = Element.objects.all()
         category = self.request.query_params.get('category', None)
@@ -155,3 +156,20 @@ class ElementUpdateEmbedded(ElementUpdate):
         Book: "element-detail-embedded.html",
         MovieCase : "element-detail-embedded.html"
     }
+
+from django.db.models import Q
+from django.http.response import JsonResponse
+
+@login_required(login_url='/accounts/login')
+def element_search(request):
+
+    try:
+        barcode = request.GET['barcode']
+        elements = Element.objects.filter(barcode_effective=barcode)
+        return_list = []
+        for element in elements:
+            return_list.append({"id":element.id,"name":element.name})
+        return JsonResponse({"data":return_list})
+    except KeyError:
+        pass
+    return JsonResponse({"data":None})

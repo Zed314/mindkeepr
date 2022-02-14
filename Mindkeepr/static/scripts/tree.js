@@ -59,8 +59,7 @@ $(document).ready(function() {
                 });
             search_string+=")$"
 
-
-            $('#element-table').DataTable().column( 3 ).search(
+            $('#element-table').DataTable().column( 7 ).search(
                 search_string , true,
                    false
                ).draw();

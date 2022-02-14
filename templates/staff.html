@@ -3,25 +3,58 @@
 {% block extra_headers %}
 {% endblock %}
 {% block body_content %}
+<script>
+    $(document).ready(function(){
+        // this is the id of the form
+        $("#formbarcode").submit(function(e) {
 
+        e.preventDefault(); // avoid to execute the actual submit of the form.
+        console.log($("#barcodeinput").val());
+       var form = $(this);
+
+
+        $.ajax({
+            type: "GET",
+            url: "api/v1/elements/search?barcode="+$("#barcodeinput").val(),
+            success: function(data)
+            {
+            console.log(data);
+            }
+        });
+
+
+
+        $('#active-borrowings-table').DataTable().ajax.url(
+            "/api/v1/borrowings/?barcode_extended="+$("#barcodeinput").val()+"&format=datatables"
+        ).load();
+
+/*
+
+        table
+        .columns( 3 )
+        .search( this.value )
+        .draw();*/
+
+        });
+    });
+</script>
 <h1>Staff</h1>
 <div class="modal hide" id="showEventModal">
 </div>
 <div class="container">
     <nav class="nav nav-tabs">
-        <a class="nav-item nav-link active" href="#barcode" data-toggle="tab">Barcode search</a>
-        <a class="nav-item nav-link" href="#borrows" data-toggle="tab">Borrows</a>
+        <a class="nav-item nav-link active" href="#borrows" data-toggle="tab">Borrows</a>
         <a class="nav-item nav-link" href="#reservations" data-toggle="tab">Reservations</a>
         <a class="nav-item nav-link" href="#parameters" data-toggle="tab">Parameters</a>
     </nav>
     <div class="tab-content">
-        <div class="tab-pane active" id="barcode">
-
-                    TBD
-
-        </div>
-        <div class="tab-pane" id="borrows">
+        <div class="tab-pane active" id="borrows">
             <div class="row">
+                <form id="formbarcode" class="form-inline my-2 my-lg-0" action="javascript:void(0);">
+                    <input id="barcodeinput" class="form-control mr-sm-2" name="search" type="search" placeholder="Barcode" aria-label="Search">
+                </form>
+                <button type="button" class="btn btn-primary event" href="#" data-event-type="borrow"  data-form="/formborroweventimmediatemodal?beneficiary=3" title="Borrow"{% if not perms.Mindkeepr.add_borrow %}disabled{% endif %}>New borrow</button>
+                <button type="button" class="btn btn-primary event" href="#" data-event-type="borrow"  data-form="/formborroweventreservemodal?beneficiary=3" title="Reserve"{% if not perms.Mindkeepr.add_borrow %}disabled{% endif %}>New reservation</button>
                 <div class="col-md-12">
                     <table id="active-borrowings-table" class="table compact table-striped table-bordered"
                         style="width:100%">
@@ -67,7 +100,7 @@
         button += ">" + display + "</button>";
         return button;
     }
-    //$(".element-borrow-table[data-element-id="+$(evt.target).data("element-id")+"]").DataTable().rows().invalidate().draw();
+
     $('#reserve-borrowings-table').DataTable({
         'serverSide': true,
         'ajax': '/api/v1/borrowings/?state=NOT_STARTED&format=datatables',
@@ -101,6 +134,12 @@
                 title: "Beneficiary",
                 orderable: false,
                 searchable: false
+            },
+            {
+                data: "element.barcode_effective",
+                title: "Name",
+                visible:false,
+                orderable: false,
             },
             {
                 data: "comment",
@@ -179,6 +218,18 @@
                 orderable: false,
             },
             {
+                data: "element.ean",
+                title: "Name",
+                visible:false,
+                orderable: false,
+            },
+            {
+                data: "element.barcode_effective",
+                title: "Name",
+                visible:false,
+                orderable: false,
+            },
+            {
                 data: "beneficiary.first_name",
                 title: "Beneficiary",
                 visible: false
@@ -246,9 +297,7 @@
                 }
                 return false;
             }},
-
         ],
-
     });
 
 </script>

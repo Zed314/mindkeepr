@@ -2,4 +2,35 @@
 
 {% block name_event %}Borrow{% endblock %}
 {% block formaction %}/formborroweventimmediatemodal{% endblock %}
-{% block form_js %}{% endblock %}
+{% block form_js %}
+<script>
+    function refresh_scheduled_return_date()
+    {
+        if($("#id_element").val())
+            {
+            var date = new Date();
+
+            $.ajax({
+                type: "GET",
+                url: '/api/v1/borrowevent/return_availability/' + $("#id_element").val() + "/" + date.getFullYear() + "/" + (parseInt(date.getMonth())+1) + "/" +  date.getDate(),
+                success: function (data, status) {
+                    var options = { timezone: "Europe/Paris", weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+
+                    $("#id_scheduled_return_date option").remove();
+                    data["data"].forEach(element => {
+                        dateStr = new Date(element).toLocaleDateString('fr-fr', options)
+                        date = new Date(element)
+                        $("#id_scheduled_return_date").append('<option value=' + date.getDate() + "/" + (date.getMonth() + 1) + "/" + date.getFullYear() + '>' + dateStr + '</option>');
+
+                    });
+                }
+            });
+        }
+    }
+
+    $(document).ready(function () {
+        refresh_scheduled_return_date();
+    });
+    $('#id_element').change(function () { refresh_scheduled_return_date(); });
+</script>
+{% endblock %}

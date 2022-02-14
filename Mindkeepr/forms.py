@@ -13,6 +13,19 @@ from Mindkeepr.models.elements.attachment import Attachment
 from django.forms.models import inlineformset_factory
 from django_select2 import forms as s2forms
 
+
+import datetime
+
+def retrict_on_open_days(value):
+
+    if models.StaffSettings.is_open_for_borrow(value):
+        if value < datetime.date.today():
+            raise forms.ValidationError("The date cannot be in the past !")
+        return value
+    else:
+        raise forms.ValidationError("Sorry, out of opened days for borrow !")
+        #TODO : also check for exceptional openings…
+
 class DisableFieldsMixin():
     """
     Mixin made to hide html inputs in forms
@@ -73,6 +86,15 @@ class UserWidget(s2forms.Select2Widget):
         "name__icontains",
         #"username__icontains",
         #"email__icontains"
+    ]
+
+class ElementWidget(s2forms.ModelSelect2Widget):
+    model=Element
+    search_fields=[
+        "name__icontains",
+        "barcode_effective__iexact",
+        "custom_id_display__icontains"#,
+        #"custom_id__iexact"
     ]
 
 class UserProfileForm(forms.ModelForm):
@@ -300,13 +322,6 @@ class BorrowEventForm(DisableFieldsMixin, PresetLocationSourceAndQuantityMixin, 
                   'quantity', "scheduled_borrow_date", 'scheduled_return_date',"state", 'comment']
 
 
-    #def __init__(self, *args, **kwargs):
-    #    super().__init__(*args, **kwargs)
-        #self.preset_location_quantity()
-        # TODO : init max qty using initial value
-        # ex : like it’s done for other init functions, but this time for the new prefill form,
-        # and not the user filled form  for check purposes.
-        #print(self.initial,flush=True)
     def save(self, commit=True):
         #TODO : issues with edits i guess
         instance = super(BorrowEventForm, self).save(commit=False)
@@ -331,16 +346,18 @@ class BorrowEventImmediateForm(DisableFieldsMixin, PresetLocationSourceAndQuanti
     #    queryset=models.Location.objects.all())
     #element = forms.ModelChoiceField(queryset=models.Element.objects.filter(
     #    stock_repartitions__in=models.StockRepartition.objects.filter(status="FREE")).distinct())
-    element = forms.ModelChoiceField(queryset=models.Element.objects.all())
+    #element = forms.ModelChoiceField(queryset=models.Element.objects.all())
     #quantity = forms.IntegerField(min_value=1)
-    scheduled_return_date = forms.DateField(widget=forms.DateInput(attrs=
-                                {
-                                    'class':'datepicker'
-                                }))
+    scheduled_return_date = forms.DateField(validators=[retrict_on_open_days],
+                                            widget=forms.Select(choices=[]))
+
     class Meta:
         model = models.events.BorrowEvent
         fields = ['element', "beneficiary", 'scheduled_return_date', 'comment']
-
+        widgets = {
+            "element":ElementWidget,
+            "beneficiary": UserWidget,
+        }
 
     def save(self, commit=True):
         print("Entering save",flush=True)
@@ -356,21 +373,7 @@ class BorrowEventImmediateForm(DisableFieldsMixin, PresetLocationSourceAndQuanti
                 instance.save()
         return instance
 
-import datetime
 
-def retrict_on_open_days(value):
-    print("Lejour :")
-    print(value.weekday(),flush=True)
-    print(models.StaffSettings.objects.all()[0])
-    print(models.StaffSettings.objects.all()[0].open_day_borrow.all())
-    if models.StaffSettings.objects.all()[0].open_day_borrow.filter(day=value.weekday()).exists():
-        return value
-    else:
-        raise forms.ValidationError("Sorry, out of opened days for borrow !")
-        #TODO : also check for exceptional openings…
-    #if value < datetime.date.today():
-    #    raise forms.ValidationError("The date cannot be in the past !")
-    return value
 
 class BorrowEventReserveForm(DisableFieldsMixin, PresetLocationSourceAndQuantityMixin, ModelForm):
     """ Form for BorrowEvent """
@@ -378,25 +381,21 @@ class BorrowEventReserveForm(DisableFieldsMixin, PresetLocationSourceAndQuantity
     #    queryset=models.Location.objects.all())
     #element = forms.ModelChoiceField(queryset=models.Element.objects.filter(
     #    stock_repartitions__in=models.StockRepartition.objects.filter(status="FREE")).distinct())
-    element = forms.ModelChoiceField(queryset=models.Element.objects.all())
+    #element = forms.ModelChoiceField(queryset=models.Element.objects.all())
     #quantity = forms.IntegerField(min_value=1)
     scheduled_return_date = forms.DateField(validators=[retrict_on_open_days], widget=forms.Select(choices=[]))
     scheduled_borrow_date = forms.DateField(validators=[retrict_on_open_days], widget=forms.Select(choices=[]))
-    #forms.DateField(widget=forms.DateInput(attrs=
-                            #    {
-                            #        'class':'datepicker'
-                            #    }),validators=[retrict_on_open_days])
-                            #    #
-    #scheduled_return_date = forms.DateField(widget=forms.DateInput(attrs=
-    #                            {
-    #                                'class':'datepicker'
-    #                            }),validators=[retrict_on_open_days])
 
 
     class Meta:
         model = models.events.BorrowEvent
         fields = ['element',
         "beneficiary", "scheduled_borrow_date", 'scheduled_return_date', 'comment']
+        widgets = {
+            "element":ElementWidget,
+            "beneficiary": UserWidget,
+
+        }
 
    #def __init__(self, *args, **kwargs):
    #    super(BorrowEventReserveForm, self).__init__(*args, **kwargs)
@@ -438,8 +437,8 @@ class AttachmentForm(ModelForm):
 class ElementForm(ModelForm):
     #category = forms.ModelChoiceField(queryset=models.Category.objects.all())
     image = forms.ImageField(required=False)
-    ean = forms.CharField(max_length=13,min_length=13,required=False)
-    fields = ['name', 'description',"comment", 'category',"image", "ean"]
+    #ean = forms.CharField(max_length=13,min_length=13,required=False)
+    fields = ['name', 'description',"comment", 'category',"image"]
     widgets = {
             "category": CategoryWidget
     }
@@ -467,7 +466,7 @@ class BookForm(ElementForm):
     ean = forms.CharField(max_length=13,min_length=13,required=True)
     class Meta:
         model = models.elements.Book
-        fields = ElementForm.fields + [ "custom_id"]
+        fields = ElementForm.fields + [ "custom_id_generic", "ean", "use_ean_as_effective_barcode"]
         widgets = ElementForm.widgets
 
 class MovieForm(ModelForm):
@@ -479,12 +478,8 @@ class MovieCaseForm(ElementForm):
     ean = forms.CharField(max_length=13,min_length=13,required=True)
     class Meta:
         model = models.elements.MovieCase
-        fields = ['name', "category", "custom_id", "externalapiid", "ean", "nb_disk",
-                                                                        "format_disk" ,
-                                                                        "subformat_disk",
-                                                                        "category_box",
-                                                                        "price"]
-        fields = ElementForm.fields + [ "custom_id", "ean", "nb_disk",
+
+        fields = ElementForm.fields + [ "is_new","custom_id_generic", "ean", "use_ean_as_effective_barcode", "nb_disk",
                                                           "format_disk" ,
                                                           "subformat_disk",
                                                           "category_box"]
@@ -498,12 +493,13 @@ class MovieCaseInteractiveForm(DisableFieldsMixin,ModelForm):
     price = forms.FloatField(required=False,initial=0.0)
     nb_disk = forms.IntegerField(label="How many disks ?", widget=forms.Select(choices=NB_DISK))
     category_box = forms.TypedChoiceField(choices=models.elements.MovieCase.CATEGORY, initial='NEW')
-    custom_id = forms.IntegerField(label="ID (leave blank to get one automatically)",required=False)
+    custom_id_generic = forms.IntegerField(label="ID (leave blank to get one automatically)",required=False)
     class Meta:
         model = models.elements.MovieCase
-        fields = ['name', "category", "externalapiid", "custom_id", "ean", "nb_disk",
+        fields = ['name', "category", "externalapiid", "custom_id_generic", "ean", "nb_disk",
                                                                         "subformat_disk",
                                                                         "category_box",
+                                                                        "is_new",
                                                                         "price"]
         widgets = {
             "category": CategoryWidget

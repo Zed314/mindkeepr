@@ -127,15 +127,6 @@ class PresetNameMixin():
             except KeyError:
                 pass
         return initial
-#only for interactive add !!
-from itertools import count, filterfalse
-def get_movie_custom_id(moviecase):
-
-    if not moviecase.custom_id:
-        listid = list(MovieCase.objects.filter(format_disk=moviecase.format_disk).values_list('custom_id', flat=True))
-        print(listid)
-        newid = next(filterfalse(set(listid).__contains__, count(1)))
-        moviecase.custom_id = newid
 
 def get_movie_format(moviecase):
     if moviecase.subformat_disk[0] =="B":
@@ -164,7 +155,7 @@ class MovieCaseViewModal(LoginRequiredMixin, PermissionRequiredMixin, PresetName
         location_destination = Location.objects.get(id=2)
         form.instance.creator = self.request.user
         get_movie_format(form.instance)
-        get_movie_custom_id(form.instance)
+        form.instance.set_custom_id()
 
         form.instance.save()
         #save_m2m ?
@@ -174,7 +165,7 @@ class MovieCaseViewModal(LoginRequiredMixin, PermissionRequiredMixin, PresetName
         response =  super(MovieCaseViewModal, self).form_valid(form)
         if form.instance.id  and not prev_id:
             #created ?
-            return JsonResponse({"custom_id":"{}{:03d}".format(form.instance.format_disk[0],form.instance.custom_id),
+            return JsonResponse({"custom_id_generic":"{}{:03d}".format(form.instance.format_disk[0],form.instance.custom_id_generic),
                                  "local_title":form.instance.name})
 
         print(response)
