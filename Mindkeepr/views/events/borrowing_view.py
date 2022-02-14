@@ -25,15 +25,34 @@ class BorrowingsView(LoginAndPermissionRequiredMixin,viewsets.ModelViewSet):
 
     def get_queryset(self):
         queryset = BorrowEvent.objects.all()
-        user = self.request.query_params.get('user', None)
+        beneficiary = self.request.query_params.get('user', None)
+
         state = self.request.query_params.get('state', None)
-        if user is not None:
-            queryset = queryset.filter(creator_id=user)
+        barcode_extended = self.request.query_params.get("barcode_extended", None)
         element = self.request.query_params.get('element', None)
-        if element is not None:
-            queryset = queryset.filter(element_id=element)
-        if state is not None:
-            queryset = queryset.filter(state=state)
+
+        if barcode_extended is not None:
+            #TODO change for applicable barcode
+
+            events = BorrowEvent.objects.filter(element__barcode_effective=barcode_extended).filter(state="IN_PROGRESS")
+            if events:
+                user_id = events[0].beneficiary.id
+                queryset = queryset.filter(beneficiary_id = user_id).filter(state="IN_PROGRESS")
+            else:
+                queryset = BorrowEvent.objects.none()
+
+        else:
+            if beneficiary is not None:
+                queryset = queryset.filter(beneficiary_id=beneficiary)
+            if element is not None:
+                queryset = queryset.filter(element_id=element)
+            if state is not None:
+                queryset = queryset.filter(state=state)
+
+        #elements = Element.objects.filter(Q(ean=barcode)|Q(id_barcode=barcode))
+        #return_list = []
+        #for element in elements:
+        #    return_list.append({"id":element.id,"name":element.name})
 
         return queryset
 
@@ -122,3 +141,21 @@ def get_availabilities_for_return(request,elt,year,month,day):
     return JsonResponse({"data":element.free_end_intervals(begin_date,end_date)})
 
 # TODO  : ChangeDateUnstartedBorrowEvent
+
+
+from django.db.models import Q
+from django.http.response import JsonResponse
+
+@login_required(login_url='/accounts/login')
+def element_search(request):
+
+    try:
+        barcode = request.GET['barcode']
+        elements = Element.objects.filter(Q(ean=barcode)|Q(id_barcode=barcode))
+        return_list = []
+        for element in elements:
+            return_list.append({"id":element.id,"name":element.name})
+        return JsonResponse({"data":return_list})
+    except KeyError:
+        pass
+    return JsonResponse({"data":None})

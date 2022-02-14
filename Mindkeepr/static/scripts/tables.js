@@ -12,6 +12,8 @@ $(document).on('hide.bs.modal',"#eventModal", function (evt) {
 $(document).on('hide.bs.modal',"#eventModal[data-event-type=borrow]", function (evt) {
     // Assuming that an update just got completed
     $(".element-borrowreserve-table").DataTable().rows().invalidate().draw();
+    $("#active-borrowings-table").DataTable().rows().invalidate().draw();
+    $("#reserve-borrowings-table").DataTable().rows().invalidate().draw();
     //$(".element-borrow-table").DataTable().rows().invalidate().draw();
 });
 
@@ -32,12 +34,12 @@ $(document).on('hide.bs.modal',"#eventModal", function (evt) {
     }
 });
 
-$(document).on("click",".event", function(ev) { // for each edit contact url
-    ev.preventDefault(); // prevent navigation
-    var url = $(this).data("form"); // get form from url
-
-    $("#eventModal").load(url, function() { // load the url into the modal
-        $(this).modal('show'); // display the modal on url load
+$(document).on("click",".event", function(ev) {
+    ev.preventDefault();
+    var url = $(this).data("form");
+    console.log(url)
+    $("#eventModal").load(url, function() {
+        $(this).modal('show');
     });
     var evttype=$(this).data("event-type");
 

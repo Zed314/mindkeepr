@@ -5,22 +5,38 @@ from itertools import count, filterfalse
 
 class Book(Element):
     """ Book """
-    custom_id = models.IntegerField("Custom id", unique=True, null=False, blank=False)
-    isbn = models.CharField(max_length=13,unique=True, null=True)
+    isbn = models.CharField(max_length=13,unique=False, null=True)
+    ean = models.CharField(max_length=13,unique=False, null=True)
+    use_ean_as_effective_barcode = models.BooleanField("Use ean as effective barcode",null=False,default=True,blank=False)
     def is_unique(self):
         return True
 
-    def custom_id_display(self):
-        return "{}{:03d}".format("L",self.custom_id)
+    #def custom_id_display(self):
+    #    if self.custom_id_generic:
+    #        return "{}{:03d}".format("L",self.custom_id_generic)
+    #    else:
+    #        return self.name
+
 
     def __str__(self):
-        return "{} ({}{:03d})".format(self.name,"L",self.custom_id)
+        if self.custom_id_generic:
+            return "{} ({}{:03d})".format(self.name,"L",self.custom_id_generic)
+        else:
+            return self.name
 
+    def refresh_barcode_effective(self):
+        if self.use_ean_as_effective_barcode:
+            self.barcode_effective = self.ean
+        else:
+            self.barcode_effective = self.id_barcode
 
-    def set_custom_id(book):
+    def refresh_custom_id_prefix_generic(self):
+        self.custom_id_prefix_generic="L"
 
-        if not book.custom_id:
-            listid = list(Book.objects.all().values_list('custom_id', flat=True))
+    def set_custom_id(self):
+
+        if not self.custom_id_generic:
+            listid = list(Book.objects.all().values_list('custom_id_generic', flat=True))
             print(listid)
             newid = next(filterfalse(set(listid).__contains__, count(1)))
-            book.custom_id = newid
+            self.custom_id_generic = newid

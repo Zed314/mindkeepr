@@ -7,7 +7,7 @@ from Mindkeepr.models.elements.element import Element
 from Mindkeepr.models.project import Project
 from Mindkeepr.models.location import Location
 from Mindkeepr.models.events.borrow_event import BorrowEvent
-
+from django.contrib.auth.models import User
 #"from .mixins import PermissionRequiredAtFormValidMixin
 
 class LoginRequiredMixin():
@@ -69,7 +69,11 @@ class PresetElementQuantitySourceMixin():
             self._disabled_fields.append('element')
         except KeyError:
             pass
-
+        try:
+            idbeneficiary = int(self.request.GET['beneficiary'])
+            initial['beneficiary'] = get_object_or_404(User, pk=idbeneficiary)
+        except KeyError:
+            pass
         try:
             idlocationsrc = int(self.request.GET['locationsrc'])
             initial['location_source'] = get_object_or_404(

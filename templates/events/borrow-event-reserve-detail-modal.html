@@ -6,15 +6,18 @@
 <script>
 
 
-    $(document).ready(function(){
-
-        $.ajax({
+    $(document).ready(function () {
+        function refresh_scheduled_borrow_date()
+    {
+        if($("#id_element").val())
+            {
+                $.ajax({
                     type: "GET",
-                    url: 'api/v1/borrowevent/availability/'+$("#id_element").val(),
-                    success: function(data, status) {
+                    url: '/api/v1/borrowevent/availability/' + $("#id_element").val(),
+                    success: function (data, status) {
                         console.log(data);
 
-                        var options = { timezone: "Europe/Paris", weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'};
+                        var options = { timezone: "Europe/Paris", weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
 
                         $("#id_scheduled_borrow_date option").remove();
                         for (var i = 0; i < data["data"].length; i++) {
@@ -22,43 +25,42 @@
                             dateStr = new Date(data["data"][i]).toLocaleDateString('fr-fr', options)
                             console.log(dateStr)
                             date = new Date(data["data"][i])
-                           $("#id_scheduled_borrow_date").append('<option value='+date.getDate() +"/"+ (date.getMonth()+1) +"/"+date.getFullYear()+'>'+  dateStr+'</option>');
-                       }
-                       callback_change_scheduled_borrow()
+                            $("#id_scheduled_borrow_date").append('<option value=' + date.getDate() + "/" + (date.getMonth() + 1) + "/" + date.getFullYear() + '>' + dateStr + '</option>');
+                        }
+                        callback_change_scheduled_borrow()
                     }
                 });
-function callback_change_scheduled_borrow()
-{
+            }
+    }
+        function callback_change_scheduled_borrow() {
+            if($("#id_scheduled_borrow_date").val())
+            {
+                var scheduled_borrow_date = $("#id_scheduled_borrow_date").val();
+                var split_date = scheduled_borrow_date.split("/")
+                var date = new Date(split_date[2], split_date[1] - 1, split_date[0]);
 
-                         console.log("TEST")
-                        var scheduled_borrow_date = $("#id_scheduled_borrow_date").val();
-                        var split_date = scheduled_borrow_date.split("/")
-                         var date = new Date( split_date[2], split_date[1] - 1, split_date[0]);
-
-                         $.ajax({
+                $.ajax({
                     type: "GET",
-                    url: 'api/v1/borrowevent/return_availability/'+$("#id_element").val()+"/"+split_date[2] +"/"+ split_date[1] +"/"+ split_date[0],
-                    success: function(data, status) {
-                        console.log(data);
-
-                        var options = { timezone: "Europe/Paris", weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'};
+                    url: '/api/v1/borrowevent/return_availability/' + $("#id_element").val() + "/" + split_date[2] + "/" + split_date[1] + "/" + split_date[0],
+                    success: function (data, status) {
+                        var options = { timezone: "Europe/Paris", weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
 
                         $("#id_scheduled_return_date option").remove();
-                        for (var i = 0; i < data["data"].length; i++) {
-                            //Sorry
-                            dateStr = new Date(data["data"][i]).toLocaleDateString('fr-fr', options)
-                            console.log(dateStr)
-                            date = new Date(data["data"][i])
-                           $("#id_scheduled_return_date").append('<option value='+date.getDate() +"/"+ (date.getMonth()+1) +"/"+date.getFullYear()+'>'+  dateStr+'</option>');
-                       };
+                        data["data"].forEach(element => {
+                            dateStr = new Date(element).toLocaleDateString('fr-fr', options)
+                            date = new Date(element)
+                            $("#id_scheduled_return_date").append('<option value=' + date.getDate() + "/" + (date.getMonth() + 1) + "/" + date.getFullYear() + '>' + dateStr + '</option>');
+
+                        });
                     }
                 });
+            }
+        }
+        $('#id_scheduled_borrow_date').change(function () { callback_change_scheduled_borrow(); });
+        $('#id_element').change(function () { refresh_scheduled_borrow_date(); });
+        refresh_scheduled_borrow_date();
+        callback_change_scheduled_borrow();
 
-
-
-}
-                     $('#id_scheduled_borrow_date').change(function (){callback_change_scheduled_borrow();} );
-
-                });
-    </script>
+    });
+</script>
 {% endblock %}

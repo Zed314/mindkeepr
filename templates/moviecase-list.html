@@ -30,11 +30,26 @@ title="Add movie">Add movie</a>
                 }
               ],
               'columns': [
-                  { data: "custom_id", title: "Id",  searchable:false},
-                  { data: "custom_id_display", title: "Id",  searchable:false, orderable: false},
+                  { data: "custom_id_generic", title: "Id",  searchable:false},
+                  { data: "custom_id_display", title: "Id",  searchable:false, orderable: false,
+                  render: function(data, type, row, meta){
+                    if(type === 'display'){
+                          if(row.is_new)
+                          {
+                            data = data + "*";
+                          }
+                      }
+
+                      return data;
+                    },
+
+
+                },
                   { data: 'name', title: "Name" },
                   { data: "nb_disk", title: "Nb disk"},
                   { data: "ean", title: "EAN", visible:false},
+                  { data: "barcode_effective", title: "Barcode", visible:false},
+                  { data: "is_new", title: "New", visible:false},
                   { data: "category_box_display", title: "Cat.", orderable: false,  searchable:false},
                     {
                       data:"id",

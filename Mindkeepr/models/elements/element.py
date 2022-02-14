@@ -23,10 +23,19 @@ class Element(PolymorphicModel):
         Category, on_delete=models.PROTECT, null=True)
     image = models.ImageField(upload_to='element_images', blank=True, null=True)
     creator = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
-    default_location = models.ForeignKey(Location, on_delete=models.SET_NULL, null = True)
+    #default_location = models.ForeignKey(Location, on_delete=models.SET_NULL, null = True)
     id_barcode = models.CharField(max_length=13,unique=True, null=True)
     # duplicate books, movies, etc are possible, therefore unique is False
-    ean = models.CharField(max_length=13,unique=False, null=True)
+    #ean = models.CharField(max_length=13,unique=False, null=True)
+    barcode_effective = models.CharField(max_length=13,unique=True, null=True)
+    # Ex : D>214<, B>503<
+    custom_id_generic = models.IntegerField("Custom id", unique=False, null=True, blank=True)
+    custom_id_prefix_generic = models.CharField(max_length=2,unique=False, null=True)
+    custom_id_display = models.CharField(max_length=6,unique=True, null=True)
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['custom_id_generic', 'custom_id_prefix_generic'], name='Unicity of custom id by prefix')
+    ]
 
     def __str__(self):
         return self.name
@@ -36,10 +45,13 @@ class Element(PolymorphicModel):
         sum = 0
         for n,digit in enumerate(sub_barcode):
             if n % 2 == 0:
-                sum+=int(digit)
-            else:
                 sum+=3*int(digit)
-        return "99{:010d}{}".format(self.id,sum%10)
+            else:
+                sum+=int(digit)
+        checksum_digit = 10 - (sum % 10)
+        if (checksum_digit == 10):
+            checksum_digit = 0
+        return "99{:010d}{}".format(self.id,checksum_digit)
 
     @property
     def is_unique(self):
@@ -286,14 +298,35 @@ class Element(PolymorphicModel):
 
         return True
 
-    def custom_id_display(self):
-        return "{}".format(self.id)
+    #def custom_id_display(self):
+    #    return "{}".format(self.id)
+
+    def refresh_barcode_effective(self):
+        pass
+
+    def refresh_custom_id_prefix_generic(self):
+        pass
+
+    def refresh_custom_id_display(self):
+        self.custom_id_display = "{}{:04d}".format(self.custom_id_prefix_generic,self.custom_id_generic)
+
+    def set_custom_id(self):
+        pass
 
     def save(self, *args, **kwargs):
         if not self.id:
             super().save(*args, **kwargs)
             self.id_barcode = self.generate_id_barcode()
             print(self.id_barcode)
+            self.refresh_barcode_effective()
+            self.refresh_custom_id_prefix_generic()
+            self.set_custom_id()
+            self.refresh_custom_id_display()
             self.save()
         else:
+            self.id_barcode = self.generate_id_barcode()
+            self.refresh_barcode_effective()
+            self.refresh_custom_id_prefix_generic()
+            self.set_custom_id()
+            self.refresh_custom_id_display()
             super().save(*args, **kwargs)

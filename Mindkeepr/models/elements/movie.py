@@ -1,6 +1,6 @@
 
 from django.db import models
-
+from itertools import count, filterfalse
 
 from .element import Element
 
@@ -63,7 +63,7 @@ class MovieCase(Element):
     CATEGORY = [
        ('CHI', "Children"),
        ('HOR', "Horror"),
-       ('NEW', "New"), # Todo : remove
+    #   ('NEW', "New"), # Todo : remove
        ('COM', "Comedy"),
        ('DRA', "Drama"),
        ("ACT", "Action")
@@ -72,9 +72,10 @@ class MovieCase(Element):
                                 on_delete=models.CASCADE,
                                 related_name='cases',
                                 null=True)
-    custom_id = models.IntegerField("Custom id", unique=False, null=False, blank=False)
-    is_new = models.BooleanField("Is new",null=True,blank=True)
-   # ean = models.CharField(max_length=13,unique=True, null=True)
+    is_new = models.BooleanField("Is new",null=False,blank=False,default=False)
+    ean = models.CharField(max_length=13,unique=False, null=True)
+
+    use_ean_as_effective_barcode = models.BooleanField("Use ean as effective barcode",null=False,default=True,blank=False)
 
     nb_disk = models.IntegerField("Number of disks", null=False, blank=False)
     format_disk = models.CharField(
@@ -93,18 +94,35 @@ class MovieCase(Element):
         default="UNK",
     )
 
-    class Meta:
-        constraints = [
-            models.UniqueConstraint(fields=['custom_id', 'format_disk'], name='Unicity of custom id by format (DVD/Bluray)')
-    ]
+
     #@property
-    def custom_id_display(self):
-        return "{}{:03d}".format(self.format_disk[0],self.custom_id)
+    #def custom_id_display(self):
+    #    if self.custom_id_generic:
+    #        return "{}{:03d}".format(self.format_disk[0],self.custom_id_generic)
+    #    else:
+    #        return self.name
 
     def __str__(self):
-        return "{} ({}{:03d})".format(self.name,self.format_disk[0],self.custom_id)
+        if self.custom_id_generic:
+            return "{} ({}{:03d})".format(self.name,self.format_disk[0],self.custom_id_generic)
+        else:
+            return self.name
 
+    def refresh_barcode_effective(self):
+        if self.use_ean_as_effective_barcode:
+            self.barcode_effective = self.ean
+        else:
+            self.barcode_effective = self.id_barcode
 
+    def set_custom_id(self):
+
+        if not self.custom_id_generic:
+            listid = list(MovieCase.objects.filter(format_disk=self.format_disk).values_list('custom_id_generic', flat=True))
+            newid = next(filterfalse(set(listid).__contains__, count(1)))
+            self.custom_id_generic = newid
+
+    def refresh_custom_id_prefix_generic(self):
+        self.custom_id_prefix_generic=self.format_disk[0]
     @property
     def is_unique(self):
         return True
