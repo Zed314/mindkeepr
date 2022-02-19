@@ -9,8 +9,9 @@ footprint/
 Temporary/
 .keep
 PartAttachment/
-settings-secrets.py
+settings_secrets.py
 .env.prod
 .env.prod.db
 data/
 /static/
+private/

@@ -13,6 +13,8 @@ https://docs.djangoproject.com/en/2.1/ref/settings/
 import os
 import sys
 
+from .settings_secrets import *
+
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -64,25 +66,15 @@ MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware'
 ]
 
-#TODO : for react, MUST BE CHANGED LATERRR
-ALLOWED_HOSTS=['*']
 
-CORS_ORIGIN_ALLOW_ALL = True
-
-
+ALLOWED_HOSTS=['mindkeepr.kekfactory.fr']
 #ALLOWED_HOSTS=['http://127.0.0.1:3001']
-#
-#CORS_ORIGIN_ALLOW_ALL = False
-#
-#
-#CORS_ORIGIN_WHITELIST = (
-#       'http://127.0.0.1:3001',
-#
-#)
+
+CORS_ORIGIN_ALLOW_ALL = False
 
 
-
-OIDC_RENEW_ID_TOKEN_EXPIRY_SECONDS = 180
+# Value now taken from Keycloak, I believe
+#OIDC_RENEW_ID_TOKEN_EXPIRY_SECONDS = 180
 
 ROOT_URLCONF = 'MindkeeprMain.urls'
 
@@ -151,23 +143,16 @@ else:
     )
 
 if not 'test' in sys.argv and not 'test_coverage' in sys.argv:
+    pass
 
-    OIDC_RP_CLIENT_ID = "mindkeepr"
-    OIDC_RP_CLIENT_SECRET = "e79576f3-57c7-46ea-99d1-cbd80ce4fde0"
-    OIDC_RP_SIGN_ALGO="RS256"
-    OIDC_OP_JWKS_ENDPOINT = "https://login.kekfactory.fr/auth/realms/cse/protocol/openid-connect/certs"
-    OIDC_RP_IDP_SIGN_KEY = "-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAq24IKjxPMquI8Mg1Xh03oiDReSgi5Kox/+D5GPI1P7raqZ7MJzA/7eQNvrKNNzOIdoPCo7SEvEN3JG/YP673TPG/4KmZ5crZhA5hRYHm89msDBhxOJ7+xhxMk3Ca8fTBjdKiYyvdUanH7BIhUWdbMuYfIzACut0SbGBSNXyH4w4BupzBeoaMYqNc7FFgp7/rEhoHDm1Oq88+fGkM7EB0sbN7Vesp3XfNQBoQtNdcyjGfubUw7ufqUqj+VMzQPtIYvRgO8nhIX2tmCu72tJPc/Kr5Qm6v4YNVdkbrk9ylDnuDQh8iSI8qGuQ/9nJxj5uXSJ4wl/WUHj1GB+zkN7It2wIDAQAB\n-----END PUBLIC KEY-----"
-    OIDC_OP_AUTHORIZATION_ENDPOINT = "https://login.kekfactory.fr/auth/realms/cse/protocol/openid-connect/auth"
-    OIDC_OP_TOKEN_ENDPOINT = "https://login.kekfactory.fr/auth/realms/cse/protocol/openid-connect/token"
-    OIDC_OP_USER_ENDPOINT =  "https://login.kekfactory.fr/auth/realms/cse/protocol/openid-connect/userinfo"
-    #OIDC_RP_CLIENT_ID = os.environ.get("OIDC_RP_CLIENT_ID")
-    #OIDC_RP_CLIENT_SECRET = os.environ.get("OIDC_RP_CLIENT_SECRET")
-    #OIDC_RP_SIGN_ALGO = os.environ.get("OIDC_RP_SIGN_ALGO")
-    #OIDC_OP_JWKS_ENDPOINT = os.environ.get("OIDC_OP_JWKS_ENDPOINT")
-    #OIDC_RP_IDP_SIGN_KEY = os.environ.get("OIDC_RP_IDP_SIGN_KEY")
-    #OIDC_OP_AUTHORIZATION_ENDPOINT = os.environ.get("OIDC_OP_AUTHORIZATION_ENDPOINT")
-    #OIDC_OP_TOKEN_ENDPOINT = os.environ.get("OIDC_OP_TOKEN_ENDPOINT")
-    #OIDC_OP_USER_ENDPOINT = os.environ.get("OIDC_OP_USER_ENDPOINT")
+    #OIDC_RP_CLIENT_ID = "tbd"
+    #OIDC_RP_CLIENT_SECRET = "tbd"
+    #OIDC_RP_SIGN_ALGO = "tbd"
+    #OIDC_OP_JWKS_ENDPOINT = "tbd"
+    #OIDC_RP_IDP_SIGN_KEY = "tbd"
+    #OIDC_OP_AUTHORIZATION_ENDPOINT = "tbd"
+    #OIDC_OP_TOKEN_ENDPOINT = "tbd"
+    #OIDC_OP_USER_ENDPOINT = "tbd"
 
 
 

@@ -30,8 +30,8 @@ ENV PYTHONUNBUFFERED 1
 RUN apt-get update
 RUN apt-get install -y netcat
 RUN pip install --upgrade pip && pip install -r requirements.txt
-RUN python manage.py loaddata fixtures/initdata.json
-RUN python manage.py loaddata fixtures/moviegenre.json
+#RUN python manage.py loaddata fixtures/initdata.json
+#RUN python manage.py loaddata fixtures/moviegenre.json
 EXPOSE 80
 
 ENTRYPOINT ["/code/entrypoint.sh"]
