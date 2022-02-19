@@ -142,7 +142,7 @@ def get_availabilities_for_return(request,elt,year,month,day):
 
 # TODO  : ChangeDateUnstartedBorrowEvent
 
-
+"""
 from django.db.models import Q
 from django.http.response import JsonResponse
 
@@ -159,3 +159,4 @@ def element_search(request):
     except KeyError:
         pass
     return JsonResponse({"data":None})
+"""
