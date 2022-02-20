@@ -48,7 +48,8 @@ INSTALLED_APPS = [
     'Mindkeepr',
     'django_cleanup',
     "django_select2",
-    "corsheaders"
+    "corsheaders",
+    "django.contrib.postgres" # for trigram search
 ]
 
 

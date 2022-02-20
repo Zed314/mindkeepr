@@ -24,7 +24,6 @@ def retrict_on_open_days(value):
         return value
     else:
         raise forms.ValidationError("Sorry, out of opened days for borrow !")
-        #TODO : also check for exceptional openings…
 
 class DisableFieldsMixin():
     """
@@ -81,9 +80,11 @@ class ProjectWidget(s2forms.Select2Widget):
         "name__icontains"
     ]
 
-class UserWidget(s2forms.Select2Widget):
+class UserWidget(s2forms.ModelSelect2Widget):
     search_fields=[
-        "name__icontains",
+        #"first_name__unaccent__lower__trigram_similar",
+        "first_name__unaccent__trigram_similar",
+        "last_name__unaccent__trigram_similar"
         #"username__icontains",
         #"email__icontains"
     ]
@@ -91,11 +92,19 @@ class UserWidget(s2forms.Select2Widget):
 class ElementWidget(s2forms.ModelSelect2Widget):
     model=Element
     search_fields=[
-        "name__icontains",
+        #"name__icontains",
+        "name__unaccent__icontains",
         "barcode_effective__iexact",
         "custom_id_display__icontains"#,
         #"custom_id__iexact"
     ]
+
+
+class ElementBorrowWidget(ElementWidget):
+    # TODO : filter is_unique ?
+    queryset=models.Element.objects.filter(stock_repartitions__in=models.StockRepartition.objects.filter(status="FREE")).distinct()
+
+
 
 class UserProfileForm(forms.ModelForm):
     """
@@ -355,7 +364,7 @@ class BorrowEventImmediateForm(DisableFieldsMixin, PresetLocationSourceAndQuanti
         model = models.events.BorrowEvent
         fields = ['element', "beneficiary", 'scheduled_return_date', 'comment']
         widgets = {
-            "element":ElementWidget,
+            "element":ElementBorrowWidget,
             "beneficiary": UserWidget,
         }
 
