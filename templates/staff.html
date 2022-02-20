@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% load static %}
+{% load crispy_forms_tags %}
 {% block extra_headers %}
 {% endblock %}
 {% block body_content %}
@@ -23,10 +24,10 @@
         });
 
 
-
         $('#active-borrowings-table').DataTable().ajax.url(
             "/api/v1/borrowings/?barcode_extended="+$("#barcodeinput").val()+"&format=datatables"
         ).load();
+
 
 /*
 
@@ -35,6 +36,19 @@
         .search( this.value )
         .draw();*/
 
+        });
+
+        $("#id_user").on('change', function (evt) {
+            console.log(this.value)
+            value = this.value
+            $("#newborrowimmediate").data("beneficiary-id",value);
+            console.log($("#newborrowimmediate").data("beneficiary-id"))
+            $('#active-borrowings-table').DataTable().ajax.url(
+            "/api/v1/borrowings/?user="+value+"&state=IN_PROGRESS&format=datatables"
+        ).load();
+        $('#reserve-borrowings-table').DataTable().ajax.url(
+            "/api/v1/borrowings/?user="+value+"&state=NOT_STARTED&format=datatables"
+        ).load();
         });
     });
 </script>
@@ -50,12 +64,18 @@
     <div class="tab-content">
         <div class="tab-pane active" id="borrows">
             <div class="row">
+
                 <form id="formbarcode" class="form-inline my-2 my-lg-0" action="javascript:void(0);">
+
                     <input id="barcodeinput" class="form-control mr-sm-2" name="search" type="search" placeholder="Barcode" aria-label="Search">
+
                 </form>
-                <button type="button" class="btn btn-primary event" href="#" data-event-type="borrow"  data-form="/formborroweventimmediatemodal?beneficiary=3" title="Borrow"{% if not perms.Mindkeepr.add_borrow %}disabled{% endif %}>New borrow</button>
-                <button type="button" class="btn btn-primary event" href="#" data-event-type="borrow"  data-form="/formborroweventreservemodal?beneficiary=3" title="Reserve"{% if not perms.Mindkeepr.add_borrow %}disabled{% endif %}>New reservation</button>
+
+                <button id="newborrowimmediate" type="button" class="btn btn-primary event" href="#" data-event-type="borrow" data-beneficiary-id="" data-form="/formborroweventimmediatemodal" title="Borrow"{% if not perms.Mindkeepr.add_borrow %}disabled{% endif %}>New borrow</button>
+                <button id="newborrowreserve" type="button" class="btn btn-primary event" href="#" data-event-type="borrow" data-beneficiary-id="" data-form="/formborroweventreservemodal" title="Reserve"{% if not perms.Mindkeepr.add_borrow %}disabled{% endif %}>New reservation</button>
                 <div class="col-md-12">
+                    {{ form|crispy }}
+                    {{ form.media.js }}
                     <table id="active-borrowings-table" class="table compact table-striped table-bordered"
                         style="width:100%">
                     </table>
@@ -72,6 +92,7 @@
             </div>
         </div>
         <div class="tab-pane" id="parameters">
+
             <div class="row">
                 <div class="col-md-12">
 
