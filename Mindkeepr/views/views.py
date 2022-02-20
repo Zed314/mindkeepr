@@ -5,7 +5,9 @@ from django.views.generic import DetailView
 from Mindkeepr.serializers.user import UserDetailedSerializer
 from django.db.models import Q
 from rest_framework import viewsets
-
+from django.views.generic.edit import FormView
+from Mindkeepr.forms import StaffUserDummyForm
+from django.contrib.auth.mixins import UserPassesTestMixin
 
 from .mixins import LoginRequiredMixin
 
@@ -31,22 +33,22 @@ class UserView(LoginRequiredMixin, viewsets.ModelViewSet):
 
     def get_queryset(self):
         queryset = User.objects.all()
-        #name__unaccent__lower__trigram_similar
-       # search = self.request.query_params.get('search', None)
-       # queryset.filter(Q(first_name__unaccent__icontains=search) | Q(last_name_unaccent__))
-       # if beneficiary is not None:
-       #     queryset = queryset.filter(beneficiary_id=beneficiary)
-       # if element is not None:
-       #     queryset = queryset.filter(element_id=element)
-       # if state is not None:
-       #     queryset = queryset.filter(state=state)
-
-        #elements = Element.objects.filter(Q(ean=barcode)|Q(id_barcode=barcode))
-        #return_list = []
-        #for element in elements:
-        #    return_list.append({"id":element.id,"name":element.name})
+        search = self.request.query_params.get('search', None)
+        print(search,flush=True)
+        if search is not None:
+            queryset = queryset.filter(Q(first_name__unaccent__trigram_similar=search) | Q(last_name__unaccent__trigram_similar = search))
 
         return queryset
+#from django_select2 import AutoResponseView
+#class UserSelect2View(LoginRequiredMixin,AutoResponseView):
+#    def get_queryset(self):
+#        queryset = User.objects.all()
+#        search = self.request.query_params.get('search', None)
+#        print(search,flush=True)
+#        if search is not None:
+#            queryset = queryset.filter(Q(first_name__unaccent__trigram_similar=search) | Q(last_name__unaccent__trigram_similar = search))
+
+#        return queryset
 
 
 
@@ -54,10 +56,20 @@ def is_staff(user):
     return user.groups.filter(name='staff').exists()
 
 
-#@login_required(login_url='/accounts/login')
-@user_passes_test(is_staff)
-def staff(request):
-    return render(request, "staff.html")
+
+#@user_passes_test(is_staff)
+#def staff(request):
+#    return render(request, "staff.html")
+
+
+class StaffView(LoginRequiredMixin,UserPassesTestMixin,FormView):
+    template_name = 'staff.html'
+    form_class = StaffUserDummyForm
+    success_url = ''
+    def test_func(self):
+        return is_staff(self.request.user)
+
+
 
 class ProfileView(LoginRequiredMixin, DetailView):
     model = User

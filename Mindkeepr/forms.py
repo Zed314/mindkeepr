@@ -151,6 +151,11 @@ class IncidentEventForm(DisableFieldsMixin, ModelForm):
         model = models.events.IncidentEvent
         fields = ['element', 'new_status', 'comment']
 
+from django.contrib.auth.models import User
+
+class StaffUserDummyForm(forms.Form):
+    user = forms.ModelChoiceField(label="Active User",queryset=User.objects.all(),widget=UserWidget,required=False)
+
 
 class ConsumeEventForm(DisableFieldsMixin, ModelForm):
     """ Form that handles creation of consume events """

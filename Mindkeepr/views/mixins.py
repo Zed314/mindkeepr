@@ -72,7 +72,8 @@ class PresetElementQuantitySourceMixin():
         try:
             idbeneficiary = int(self.request.GET['beneficiary'])
             initial['beneficiary'] = get_object_or_404(User, pk=idbeneficiary)
-        except KeyError:
+        except (KeyError,ValueError):
+            #TODO : Value error is just in case empty get parameter. Add for other parameters ?
             pass
         try:
             idlocationsrc = int(self.request.GET['locationsrc'])

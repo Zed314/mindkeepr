@@ -38,7 +38,31 @@ $(document).on("click",".event", function(ev) {
     ev.preventDefault();
     var url = $(this).data("form");
     console.log(url)
-    $("#eventModal").load(url, function() {
+    //ugly, I know.
+    // TODO : refactor to add other parameters that are currently passed in url into data attributes
+    base_url = url.slice(0, url.lastIndexOf('?') + 1)
+    param =""
+    if(! base_url.endsWith("?"))
+    {
+        base_url+="?";
+        param=""
+    }
+    else
+    {
+    param = url.slice(url.lastIndexOf('?') + 1)
+    }
+    let searchParams = new URLSearchParams(param);
+    var beneficiary_id=$(this).data("beneficiary-id");
+    if(beneficiary_id === undefined)
+    {
+        // Do nothing
+    }
+    else
+    {
+        searchParams.set('beneficiary', beneficiary_id);
+    }
+    console.log(base_url+searchParams)
+    $("#eventModal").load(url+"?"+searchParams, function() {
         $(this).modal('show');
     });
     var evttype=$(this).data("event-type");
@@ -72,7 +96,7 @@ $(document).on("click",".event", function(ev) {
     return false; // prevent the click propagation
 });
 
-// using jQuery
+
 function getCookie(name) {
     var cookieValue = null;
     if (document.cookie && document.cookie != '') {
