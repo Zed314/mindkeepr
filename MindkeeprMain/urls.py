@@ -19,7 +19,7 @@ from django.db.models import base
 from django.urls import path, include
 from rest_framework import routers
 from Mindkeepr import views
-from Mindkeepr.views.elements import movie_view
+from Mindkeepr.views.elements import movie_view, book_view
 from Mindkeepr.views.elements.movie_view import moviecases
 from Mindkeepr.views.events import *
 from Mindkeepr.views.elements import ComponentsView, ElementsView, ToolsView, BooksView, MachinesView, MovieCasesView, MoviesView, MovieGenresView
@@ -66,6 +66,7 @@ urlpatterns = [
     path('tool', views.ToolCreate.as_view()),
     path('book', views.BookCreate.as_view()),
     path("addMovie",views.addMovieInteractive),
+    path("addBook",views.addBookInteractive),
     path('movie', views.MovieCreate.as_view()),
     path('moviecase', views.MovieCaseCreate.as_view()),
     path('location', views.LocationCreate.as_view()),
@@ -102,6 +103,8 @@ urlpatterns = [
     path('formconsumeeventmodal', consume_view.ConsumeEventViewModal.as_view()),
     path("formmoviemodal",movie_view.MovieViewModal.as_view()),
     path("formmoviecasemodal",movie_view.MovieCaseViewModal.as_view()),
+    path("formbookmodal",book_view.BookViewModal.as_view()),
+    path("formbookabstractmodal", book_view.BookAbstractViewModal.as_view()),
     path('elements', views.elements,name="elements-list"),
     path("components", views.components,name="components-list"),
     path("machines",views.machines,name="machines-list"),

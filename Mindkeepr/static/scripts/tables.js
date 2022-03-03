@@ -40,16 +40,21 @@ $(document).on("click",".event", function(ev) {
     console.log(url)
     //ugly, I know.
     // TODO : refactor to add other parameters that are currently passed in url into data attributes
-    base_url = url.slice(0, url.lastIndexOf('?') + 1)
+    var n = url.indexOf('?');
+    base_url= url.substring(0, n != -1 ? n : url.length);
+    //base_url = url.slice(0, url.lastIndexOf('?') + 1)
+    console.log(base_url);
     param =""
-    if(! base_url.endsWith("?"))
+    if(n==-1)
     {
         base_url+="?";
         param=""
     }
     else
     {
-    param = url.slice(url.lastIndexOf('?') + 1)
+        param = url.slice(n+1);
+        base_url+="?";
+        console.log(param)
     }
     let searchParams = new URLSearchParams(param);
     var beneficiary_id=$(this).data("beneficiary-id");
@@ -61,9 +66,11 @@ $(document).on("click",".event", function(ev) {
     {
         searchParams.set('beneficiary', beneficiary_id);
     }
+    console.log("benoit");
     console.log(base_url+searchParams)
-    $("#eventModal").load(url+"?"+searchParams, function() {
+    $("#eventModal").load(base_url+searchParams, function() {
         $(this).modal('show');
+        console.log($(this));
     });
     var evttype=$(this).data("event-type");
 

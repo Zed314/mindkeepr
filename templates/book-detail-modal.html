@@ -7,10 +7,10 @@
   {% endblock %}
 
 <div class="modal-dialog modal-sm">
-<form class="well movie-form" method="post" action="/moviecase/{{form.instance.id}}">
+<form class="well book-form" method="post" action="/formbookmodal">
  <div class="modal-content">
   <div class="modal-header">
-    <h5 class="modal-title">Movie</h5>
+    <h5 class="modal-title">Book</h5>
     <button type="button" class="close" data-dismiss="modal">×</button>
   </div>
 
@@ -30,7 +30,7 @@
     {{ form.media.js }}
 </div>
 <script>
-            $('.movie-form').on('submit', function() {
+            $('.book-form').on('submit', function() {
             // TODO Add close of modal on valid submission
             $.ajax({
                 type: $(this).attr('method'),
@@ -42,12 +42,19 @@
                     $(data).find("select").hasClass("is-invalid"))
                     {
                       console.log("invalid feedback");
-                      $('#elementModal').html(data);
+                      $('#bookModal').html(data);
                     }
                     else
                     {
                       console.log("Ok");
-                      $('#elementModal').modal('toggle');
+                      console.log(data);
+
+                      $('#bookModal').modal('toggle');
+
+                      $("#modal-success-book").text(data["local_title"]+"("+data["custom_id_generic"]+")")
+
+                      $("#bookSuccess").modal("toggle");
+
                     }
 
 

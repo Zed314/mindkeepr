@@ -108,16 +108,16 @@ class PresetNameMixin():
             self._disabled_fields.append("name")
         except KeyError:
             pass
-        try:
-            movieid = self.request.GET['movie']
-            movie = Movie.objects.get(id=movieid)
-
-            initial['movie'] = movie
-            self._disabled_fields.append("movie")
-            initial['externalapiid'] = movie.remote_api_id
-            self._disabled_fields.append("externalapiid")
-        except KeyError:
-            pass
+        #try:
+        #    movieid = self.request.GET['movie']
+        #    movie = Movie.objects.get(id=movieid)
+#
+        #    initial['movie'] = movie
+        #    self._disabled_fields.append("movie")
+        #    initial['externalapiid'] = movie.remote_api_id
+        #    self._disabled_fields.append("externalapiid")
+        #except KeyError:
+        #    pass
         if not "externalapiid" in initial:
             try:
                 externalapiid = self.request.GET['movieapiid']

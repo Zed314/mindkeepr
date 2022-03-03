@@ -78,3 +78,8 @@ class ProfileView(LoginRequiredMixin, DetailView):
 @login_required(login_url='/accounts/login')
 def addMovieInteractive(request):
     return render(request, "add-movie-interactive.html")
+
+
+@login_required(login_url='/accounts/login')
+def addBookInteractive(request):
+    return render(request, "add-book-interactive.html")
