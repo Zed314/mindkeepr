@@ -42,14 +42,14 @@
                     $(data).find("select").hasClass("is-invalid"))
                     {
                       console.log("invalid feedback");
-                      $('#movieCaseModal').html(data);
+                      $('#elementModal').html(data);
                     }
                     else
                     {
                       console.log("Ok");
                       console.log(data);
 
-                      $('#movieCaseModal').modal('toggle');
+                      $('#elementModal').modal('toggle');
 
                       $("#modal-success-movie").text(data["local_title"]+"("+data["custom_id_generic"]+")")
 

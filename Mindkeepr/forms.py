@@ -478,9 +478,10 @@ class ToolForm(ElementForm):
 
 class BookForm(ElementForm):
     ean = forms.CharField(max_length=13,min_length=13,required=True)
+    book_abstract = forms.ModelChoiceField(queryset=models.elements.BookAbstract.objects.all(),required=False)
     class Meta:
         model = models.elements.Book
-        fields = ElementForm.fields + [ "custom_id_generic", "ean", "use_ean_as_effective_barcode"]
+        fields = ElementForm.fields + [ "custom_id_generic", "ean", "format_book", "book_abstract", "use_ean_as_effective_barcode"]
         widgets = ElementForm.widgets
 
 class MovieForm(ModelForm):
@@ -518,6 +519,36 @@ class MovieCaseInteractiveForm(DisableFieldsMixin,ModelForm):
         widgets = {
             "category": CategoryWidget
     }
+
+class BookInteractiveForm(DisableFieldsMixin,ModelForm):
+    externalapiid = forms.CharField(max_length=30)
+    price = forms.FloatField(required=False,initial=0.0)
+    quantity = forms.IntegerField(max_value=10,min_value=0)
+    custom_id_generic = forms.IntegerField(label="ID (leave blank to get one automatically)",required=False)
+    class Meta:
+        model = models.elements.Book
+        fields = ['name', "category", "externalapiid", "custom_id_generic", "format_book", "ean", "price"]
+        widgets = {
+            "category": CategoryWidget
+    }
+
+
+class BookAbstractForm(DisableFieldsMixin,ModelForm):
+    externalapiid = forms.CharField(max_length=30)
+    class Meta:
+        model = models.elements.BookAbstract
+
+        fields = [  "title",
+                    "summary",
+                    "nb_pages",
+                    "release_date",
+                    "cover",
+                    "author",
+                    "author_2",
+                    "publisher",
+                    "ean",
+                    "externalapiid"]
+
 
 class LocationForm(ModelForm):
 

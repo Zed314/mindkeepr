@@ -10,7 +10,7 @@ class BookSerializer(ElementFieldMixin, serializers.HyperlinkedModelSerializer):
     custom_id_display = serializers.CharField(read_only=True)
     class Meta:
         model = Book
-        fields = ElementSerializer.Meta.fields + ("custom_id_display",)
+        fields = ElementSerializer.Meta.fields + ("custom_id_display","barcode_effective")
         depth = 1
 
     def create(self, validated_data):

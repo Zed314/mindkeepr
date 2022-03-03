@@ -11,9 +11,6 @@ class MovieGenre(models.Model):
 
 class Movie(models.Model):
 
-    def is_unique(self):
-        return True
-    #todo : dvd is maintainable, so is machine. mixin ?
     original_language = models.CharField(max_length=30, null=True, blank=True)
     original_title = models.CharField(max_length=100,  null=True, blank=True)
     nationality = models.CharField(max_length=30,blank=True, null=True)
@@ -44,6 +41,7 @@ class Movie(models.Model):
 
 
 class MovieCase(Element):
+    #todo : dvd is maintainable, so is machine. mixin ?
     """ Movie in DVD/Bluray format """
     FORMAT = [
        ('DVD', "DVD"),
@@ -69,6 +67,7 @@ class MovieCase(Element):
        ("ACT", "Action")
     ]
     movie = models.ForeignKey('Movie',
+    #not sure. TODO
                                 on_delete=models.CASCADE,
                                 related_name='cases',
                                 null=True)

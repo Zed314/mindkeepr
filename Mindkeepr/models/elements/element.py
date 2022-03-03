@@ -315,6 +315,8 @@ class Element(PolymorphicModel):
 
     def save(self, *args, **kwargs):
         if not self.id:
+            self.barcode_effective = None
+            self.custom_id_display = None
             super().save(*args, **kwargs)
             self.id_barcode = self.generate_id_barcode()
             print(self.id_barcode)
