@@ -43,11 +43,14 @@
   var searchString = findGetParameter("search");
   $('#searchinput').val(searchString);
 {% block elt_table_js %}
+var draw = 0;
   var elt_table = $('#element-table').DataTable({
               "dom": '<"top">rt<"bottom"lip><"clear">',
               'serverSide': true,
               "responsive": true,
-              'ajax': '/api/v1/{% block typeapi %}elements{% endblock %}/?format=datatables',
+              'ajax': {url:'/api/v1/{% block typeapi %}elements{% endblock %}/?format=datatables'
+            ,cache:true},
+              "iDisplayLength": 50,
               "oSearch": {"sSearch": searchString},
               "fnCreatedRow": function( nRow, aData, iDataIndex ) {
                   $(nRow).attr('id', "row-elt-"+aData.id);
@@ -130,8 +133,7 @@
                       title: 'Reserve',
                       render: function(data, type, row, meta){
                       if(type === 'display'){
-                        console.log(row);
-                          data = '<button type="button" class="btn btn-primary event" href="#" data-element-id="'+data+'" data-event-type="borrow" data-form="/formborroweventreservemodal?element='+data+'&state=NOT_THERE" title="Reserve"{% if not perms.Mindkeepr.add_borrow %}disabled{% endif %}>Reserve</button>';
+                          data = '<button type="button" class="btn btn-primary btn-sm event" href="#" data-element-id="'+data+'" data-event-type="borrow" data-form="/formborroweventreservemodal?element='+data+'&state=NOT_THERE" title="Reserve"{% if not perms.Mindkeepr.add_borrow %}disabled{% endif %}>Reserve</button>';
 
                       }
                       return data;
@@ -150,7 +152,7 @@
                               }
                               else
                               {
-                                      data = '<button type="button" class="btn btn-primary event" href="#" data-element-id="'+data+'" data-event-type="borrow"  data-form="/formborroweventimmediatemodal?element='+data+'&state=NOT_STARTED" title="Borrow"{% if not perms.Mindkeepr.add_borrow %}disabled{% endif %}>Borrow</button>';
+                                      data = '<button type="button" class="btn btn-primary btn-sm event" href="#" data-element-id="'+data+'" data-event-type="borrow"  data-form="/formborroweventimmediatemodal?element='+data+'&state=NOT_STARTED" title="Borrow"{% if not perms.Mindkeepr.add_borrow %}disabled{% endif %}>Borrow</button>';
                               }
                             }
                             return data;

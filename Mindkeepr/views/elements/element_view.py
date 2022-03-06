@@ -34,7 +34,7 @@ class ElementsView(LoginRequiredMixin, viewsets.ModelViewSet):
             queryset = queryset.filter(category=category)
         queryset = searchFilter(queryset, self.request).order_by('-id')
         return queryset
-    @method_decorator(cache_page(60))
+    @method_decorator(cache_page(60*5))
     def dispatch(self, *args, **kwargs):
        return super(ElementsView, self).dispatch(*args, **kwargs)
 
