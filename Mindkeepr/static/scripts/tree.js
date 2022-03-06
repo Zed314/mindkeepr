@@ -11,10 +11,10 @@ $(document).ready(function() {
     }
     function get_children_node_call(node_id){
 
-        return $.ajax({ url: "/api/v1/categoriesFull/"+node_id});
+        return $.ajax({ url: "/api/v1/categoriesFull/"+node_id+"/"});
     }
     function get_children_locations_node_call(node_id){
-        return $.ajax({ url: "/api/v1/locationsFull/"+node_id});
+        return $.ajax({ url: "/api/v1/locationsFull/"+node_id}+"/");
     }
 
 
@@ -29,7 +29,7 @@ $(document).ready(function() {
                     id = node.id
                 }
 
-                $.ajax({ url: "/api/v1/categories/" + id }).done(function(json) {
+                $.ajax({ url: "/api/v1/categories/" + id +"/" }).done(function(json) {
                     res = {
                         id: json["id"],
                         text: json["name"],
@@ -58,7 +58,7 @@ $(document).ready(function() {
                     search_string+="|"+child.id;
                 });
             search_string+=")$"
-
+                // no cache due to sEcho used for keeping track of orders of requests.
             $('#element-table').DataTable().column( 7 ).search(
                 search_string , true,
                    false
@@ -78,7 +78,7 @@ $(document).ready(function() {
                     id = node.id
                 }
 
-                $.ajax({ url: "/api/v1/locationsFull/" + id }).done(function(json) {
+                $.ajax({ url: "/api/v1/locationsFull/" + id +"/"}).done(function(json) {
                     res = {
                         id: json["id"],
                         text: json["name"],

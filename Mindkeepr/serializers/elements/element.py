@@ -27,7 +27,7 @@ class ElementSerializer(serializers.HyperlinkedModelSerializer, SerializerFactor
 
     class Meta:
         model = Element
-        fields = ("id", "name", "description", "id_barcode", "comment", "category", "quantity_owned","quantity_available",
+        fields = ("id", "name", "description", "id_barcode", "comment", "category","quantity_available",# "quantity_owned",
                   "type", "image")#,"buy_history", "sell_history", "borrow_history")
         depth = 2
         extra_kwargs = {
