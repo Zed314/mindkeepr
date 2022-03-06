@@ -11,16 +11,16 @@ from ..serializer_factory import SerializerFactory
 
 class ElementFieldMixin(serializers.Serializer):
     category = CategorySerializerShortShort()
-    stock_repartitions = StockRepartitionSerializer(many=True, read_only=True)
-    buy_history = BuyEventSerializer(many=True, read_only=True)
-    sell_history = SellEventSerializer(many=True, read_only=True)
-    borrow_history = BorrowEventSerializer(many=True, read_only=True)
-    def get_category(self, validated_data):
-        try:
-            category = Category.objects.get(id=validated_data.pop("category")["id"])
-        except Exception:
-            raise serializers.ValidationError('Missing category.')
-        return {"category":category}
+   # stock_repartitions = StockRepartitionSerializer(many=True, read_only=True)
+   # buy_history = BuyEventSerializer(many=True, read_only=True)
+   # sell_history = SellEventSerializer(many=True, read_only=True)
+   # borrow_history = BorrowEventSerializer(many=True, read_only=True)
+   # def get_category(self, validated_data):
+   #     try:
+   #         category = Category.objects.get(id=validated_data.pop("category")["id"])
+   #     except Exception:
+   #         raise serializers.ValidationError('Missing category.')
+   #     return {"category":category}
 
 
 class ElementSerializer(serializers.HyperlinkedModelSerializer, SerializerFactory):
@@ -28,7 +28,7 @@ class ElementSerializer(serializers.HyperlinkedModelSerializer, SerializerFactor
     class Meta:
         model = Element
         fields = ("id", "name", "description", "id_barcode", "comment", "category", "quantity_owned","quantity_available",
-                  "type", "stock_repartitions", "image","buy_history", "sell_history", "borrow_history")
+                  "type", "image")#,"buy_history", "sell_history", "borrow_history")
         depth = 2
         extra_kwargs = {
             "type": {
