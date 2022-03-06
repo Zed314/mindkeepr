@@ -18,6 +18,10 @@ from django.core.exceptions import PermissionDenied
 
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
+
+from django.utils.decorators import method_decorator
+from django.views.decorators.cache import cache_page
+
 #from rest_framework import filters
 #https://betterprogramming.pub/how-to-make-search-fields-dynamic-in-django-rest-framework-72922bfa1543
 class ElementsView(LoginRequiredMixin, viewsets.ModelViewSet):
@@ -30,6 +34,9 @@ class ElementsView(LoginRequiredMixin, viewsets.ModelViewSet):
             queryset = queryset.filter(category=category)
         queryset = searchFilter(queryset, self.request).order_by('-id')
         return queryset
+    @method_decorator(cache_page(60))
+    def dispatch(self, *args, **kwargs):
+       return super(ElementsView, self).dispatch(*args, **kwargs)
 
 class ElementCreate(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
 
