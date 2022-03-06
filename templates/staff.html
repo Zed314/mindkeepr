@@ -76,7 +76,7 @@
                 <div class="col-md-12">
                     {{ form|crispy }}
                     {{ form.media.js }}
-                    <table id="active-borrowings-table" class="table compact table-striped table-bordered"
+                    <table id="active-borrowings-table" class="display compact table-striped table-bordered"
                         style="width:100%">
                     </table>
                 </div>
@@ -85,7 +85,7 @@
         <div class="tab-pane" id="reservations">
             <div class="row">
                 <div class="col-md-12">
-                    <table id="reserve-borrowings-table" class="table compact table-striped table-bordered"
+                    <table id="reserve-borrowings-table" class="display compact table-striped table-bordered"
                         style="width:100%">
                     </table>
                 </div>
@@ -114,7 +114,7 @@
     permission_borrow = {% if perms.Mindkeepr.change_borrowevent %} true {% else %} false {% endif %};
     function create_btn_borrowevent(action, display, btnclass, disabled, id) {
 
-        button = '<button type="button" class="btn ' + btnclass + ' borroweventaction" href="#" data-borrow-action="' + action + '" data-borrow-id="' + id + '" title="Start" ';
+        button = '<button type="button" class="btn ' + btnclass + ' btn-sm borroweventaction" href="#" data-borrow-action="' + action + '" data-borrow-id="' + id + '" title="Start" ';
         if (disabled) {
             button += " disabled";
         }
@@ -126,18 +126,36 @@
         'serverSide': true,
         'ajax': '/api/v1/borrowings/?state=NOT_STARTED&format=datatables',
         "order": [[0, "desc"]],
+        "iDisplayLength": 50,
         'columns': [
             { data: 'id', title: "ID", visible: false },
             {
                 data: "element.custom_id_display",
                 title: "Id",
                 orderable: false,
-                searchable: false
+                searchable: true
+            },
+            {
+                data: "element",
+                title: "Name",
+                orderable: true,
+                searchable:false,
+                render: function (data, type, row, meta) {
+                    if (type === 'display') {
+                        url = "/element/" + data.id
+                        data = '<a href="' + url + '">' + data.name + '</a>';
+                        return data;
+                    } else {
+                        return data.name;
+                    }
+                }
             },
             {
                 data: "element.name",
                 title: "Name",
+                visible:false,
                 orderable: false,
+                searchable: true,
             },
             {
                 data: "beneficiary.first_name",
@@ -168,7 +186,7 @@
                 orderable: true,
             },
             {
-                data: "borrow_date_display", title: "From",
+                data: "borrow_date_display", title: "From",searchable:false,
                 render: function (data, type, row, meta) {
                     if (type === 'display') {
                         if (data) {
@@ -183,7 +201,7 @@
                 }
             },
             {
-                data: "return_date_display", title: "to",
+                data: "return_date_display", title: "to",searchable:false,
                 render: function (data, type, row, meta) {
                     if (type === 'display') {
                         if (data) {
@@ -225,30 +243,43 @@
         'serverSide': true,
         'ajax': '/api/v1/borrowings/?state=IN_PROGRESS&format=datatables',
         "order": [[0, "desc"]],
+        "iDisplayLength": 50,
         'columns': [
-            { data: 'id', title: "ID", visible: false },
+            { data: 'id', title: "ID", visible: false, searchable:false },
             {
                 data: "element.custom_id_display",
                 title: "Id",
                 orderable: false,
-                searchable: false
+                searchable: true
+            },
+            {
+                data: "element",
+                title: "Name",
+                orderable: false,
+                searchable: false,
+                render: function (data, type, row, meta) {
+                    if (type === 'display') {
+                        url = "/element/" + data.id
+                        data = '<a href="' + url + '">' + data.name + '</a>';
+                        return data;
+                    } else {
+                        return data.name;
+                    }
+                }
             },
             {
                 data: "element.name",
                 title: "Name",
-                orderable: false,
-            },
-            {
-                data: "element.ean",
-                title: "Name",
                 visible:false,
                 orderable: false,
+                searchable: true,
             },
             {
                 data: "element.barcode_effective",
-                title: "Name",
+                title: "Barcode",
                 visible:false,
                 orderable: false,
+                searchable: true
             },
             {
                 data: "beneficiary.first_name",
@@ -265,7 +296,7 @@
                 data: "beneficiary.get_full_name",
                 title: "Beneficiary",
                 orderable: false,
-                searchable: false
+                searchable: false,
             },
             {
                 data: "comment",
@@ -274,6 +305,7 @@
             },
             {
                 data: "borrow_date_display", title: "From",
+                searchable: false,
                 render: function (data, type, row, meta) {
                     if (type === 'display') {
                         if (data) {
@@ -289,6 +321,7 @@
             },
             {
                 data: "return_date_display", title: "to",
+                searchable: false,
                 render: function (data, type, row, meta) {
                     if (type === 'display') {
                         if (data) {
