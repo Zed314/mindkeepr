@@ -12,6 +12,6 @@
 {% else %}
   You must be logged in to see this page.
 <a href="{% url 'oidc_authentication_init' %}">Login using CAS</a>
-<a href="{% url 'loginlocal' %}">Login (using local database).</a>
+<!--<a href="{% url 'loginlocal' %}">Login (using local database).</a> -->
 {% endif %}
 {% endblock %}
