@@ -63,7 +63,10 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'mozilla_django_oidc.middleware.SessionRefresh',
+     # Caused issues with xhr. Hope to
+     # be fixed in https://github.com/mozilla/mozilla-django-oidc/pull/377
+     # when refresh of token will be done on background, instead of blocking xhr
+     #'mozilla_django_oidc.middleware.SessionRefresh',
     'corsheaders.middleware.CorsMiddleware'
 ]
 
@@ -73,9 +76,11 @@ ALLOWED_HOSTS=['mindkeepr.kekfactory.fr']
 
 CORS_ORIGIN_ALLOW_ALL = False
 
-
-# Value now taken from Keycloak, I believe
-#OIDC_RENEW_ID_TOKEN_EXPIRY_SECONDS = 180
+# To be used with mozilla_django_oidc.middleware.SessionRefresh middleware
+# If commented, value taken from Keycloak
+# Use case : user is disabled in SSO, but logged in in app.
+# With this setting, it will be eventually logged out.
+# OIDC_RENEW_ID_TOKEN_EXPIRY_SECONDS = 180
 
 ROOT_URLCONF = 'MindkeeprMain.urls'
 
