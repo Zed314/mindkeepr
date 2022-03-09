@@ -22,7 +22,7 @@ from Mindkeepr import views
 from Mindkeepr.views.elements import movie_view, book_view
 from Mindkeepr.views.elements.movie_view import moviecases
 from Mindkeepr.views.events import *
-from Mindkeepr.views.elements import ComponentsView, ElementsView, ToolsView, BooksView, MachinesView, MovieCasesView, MoviesView, MovieGenresView
+from Mindkeepr.views.elements import ComponentsView, VideoGamesView, ElementsView, ToolsView, BooksView, MachinesView, MovieCasesView, MoviesView, MovieGenresView
 from Mindkeepr.views import LocationView, LocationViewFull, CategoryView, CategoryViewFull, CategoryViewShort,  ProjectsView, UserView, StockRepartitionsView
 
 # for static files in dev only…
@@ -38,6 +38,7 @@ router.register(r'machines', MachinesView, basename='machine')
 router.register(r'tools', ToolsView, basename='tool')
 router.register(r'books', BooksView, basename='book')
 router.register(r'movies', MoviesView, basename='movie')
+router.register(r'videogames', VideoGamesView, basename='videogame')
 router.register(r"moviegenres", MovieGenresView, basename="moviegenre")
 router.register(r'categories', CategoryView, basename='category')
 router.register(r'categoriesFull', CategoryViewFull, basename='categoryfull')
@@ -65,6 +66,7 @@ urlpatterns = [
     path('component', views.ComponentCreate.as_view()),
     path('tool', views.ToolCreate.as_view()),
     path('book', views.BookCreate.as_view()),
+    path('videogame', views.VideoGameCreate.as_view()),
     path("addMovie",views.addMovieInteractive),
     path("addBook",views.addBookInteractive),
     path('movie', views.MovieCreate.as_view()),
@@ -109,6 +111,7 @@ urlpatterns = [
     path("components", views.components,name="components-list"),
     path("machines",views.machines,name="machines-list"),
     path("books",views.books,name="books-list"),
+    path("videogames",views.videogames,name="videogames-list"),
     path("tools",views.tools,name="tools-list"),
     path("moviecases",moviecases,name="moviecases-list"),
     path('', views.index),

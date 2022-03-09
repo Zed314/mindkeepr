@@ -1,12 +1,12 @@
 from rest_framework import serializers
 
 from Mindkeepr.models.elements.element import Element
-from Mindkeepr.models.category import Category
+#from Mindkeepr.models.category import Category
 from ..category import CategorySerializerShortShort
-from ..stock_repartition import StockRepartitionSerializer
-from ..events.borrow_event import BorrowEventSerializer
-from ..events.buy_event import BuyEventSerializer
-from ..events.sell_event import SellEventSerializer
+#from ..stock_repartition import StockRepartitionSerializer
+#from ..events.borrow_event import BorrowEventSerializer
+#from ..events.buy_event import BuyEventSerializer
+#from ..events.sell_event import SellEventSerializer
 from ..serializer_factory import SerializerFactory
 
 class ElementFieldMixin(serializers.Serializer):

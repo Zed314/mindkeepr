@@ -484,6 +484,14 @@ class BookForm(ElementForm):
         fields = ElementForm.fields + [ "custom_id_generic", "ean", "format_book", "book_abstract", "use_ean_as_effective_barcode"]
         widgets = ElementForm.widgets
 
+
+class VideoGameForm(ElementForm):
+    ean = forms.CharField(max_length=13,min_length=13,required=True)
+    class Meta:
+        model = models.elements.VideoGame
+        fields = ElementForm.fields + [ "custom_id_generic", "ean", "platform", "nb_disk", "use_ean_as_effective_barcode"]
+        widgets = ElementForm.widgets
+
 class MovieForm(ModelForm):
     class Meta:
         model = models.elements.Movie

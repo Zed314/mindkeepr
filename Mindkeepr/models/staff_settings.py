@@ -27,8 +27,8 @@ class StaffSettings(SingletonModel):
     support = models.EmailField(default='support@example.com')
     open_day_borrow = models.ManyToManyField(Days)
     # If open, got priority over close
-    exceptionnaly_open_day_borrow = models.ManyToManyField(DayException, null=True, blank=True, related_name="open_days")
-    exceptionnaly_close_day_borrow = models.ManyToManyField(DayException, null=True, blank=True, related_name="close_days")
+    exceptionnaly_open_day_borrow = models.ManyToManyField(DayException, blank=True, related_name="open_days")
+    exceptionnaly_close_day_borrow = models.ManyToManyField(DayException, blank=True, related_name="close_days")
 
     def get_list_open_day_borrow(begin_date, end_date):
         settings = StaffSettings.objects.get_or_create(pk=1)[0]
