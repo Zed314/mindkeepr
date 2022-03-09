@@ -26,10 +26,12 @@ def index(request):
     return response
 
 
-class UserView(LoginRequiredMixin, viewsets.ModelViewSet):
+class UserView(LoginRequiredMixin, UserPassesTestMixin, viewsets.ModelViewSet):
     #queryset = User.objects.get_queryset().order_by('id')
     serializer_class = UserDetailedSerializer
 
+    def test_func(self):
+        return is_staff(self.request.user)
 
     def get_queryset(self):
         queryset = User.objects.all()
