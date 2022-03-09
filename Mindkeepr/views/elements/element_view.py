@@ -9,10 +9,10 @@ from ..search import searchFilter
 from django.db import transaction
 from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
-from Mindkeepr.forms import AttributeFormSet, AttachmentFormSet
+from Mindkeepr.forms import AttributeFormSet, AttachmentFormSet, VideoGameForm
 from django.urls import reverse_lazy
 
-from Mindkeepr.models.elements import Component,Machine,Tool,Book, MovieCase
+from Mindkeepr.models.elements import Component,Machine,Tool,Book, MovieCase, VideoGame
 from Mindkeepr.forms import ToolForm,MachineForm,ComponentForm,BookForm, MovieCaseForm
 from django.core.exceptions import PermissionDenied
 
@@ -81,21 +81,24 @@ class ElementUpdate(LoginRequiredMixin, UpdateView):
         Tool: ToolForm,
         Book: BookForm,
         # Todo : change as MovieCaseInteractiveForm is today reserved as interactive add movie
-        MovieCase : MovieCaseForm
+        MovieCase : MovieCaseForm,
+        VideoGame : VideoGameForm
     }
     _permission_required = {
         Component: "Mindkeepr.change_component",
         Machine: "Mindkeepr.change_machine",
         Tool: "Mindkeepr.change_tool",
         Book: "Mindkeepr.change_book",
-        MovieCase: "Mindkeepr.change_moviecase"
+        MovieCase: "Mindkeepr.change_moviecase",
+        VideoGame: "Mindkeepr.change_videogame"
     }
     templates = {
         Component: 'element-detail.html',
         Machine: 'machine-detail.html',
         Tool: 'element-detail.html',
         Book: 'element-detail.html',
-        MovieCase : "element-detail.html"
+        MovieCase : "element-detail.html",
+        VideoGame : "element-detail.html"
     }
     # todo : if possible, add change_machine and change_component
     #permission_required = "Mindkeepr.change_element"

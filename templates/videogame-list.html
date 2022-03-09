@@ -1,0 +1,12 @@
+{% extends 'element-list.html' %}
+{% load static %}
+{% block extracolumns %}
+{% endblock %}
+{% block qtycolumn %}
+{% endblock %}
+{% block topblock %}
+<a class=" btn btn-primary  {% if not perms.Mindkeepr.add_videogame %}disabled{% endif%}" href="/videogame"
+title="Add Video Game">Add Video Game</a>
+{% endblock %}
+{% block title_extra %} - Video Games{% endblock %}
+{% block typeapi %}videogames{% endblock %}
