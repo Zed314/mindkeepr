@@ -71,11 +71,16 @@ class StaffView(LoginRequiredMixin,UserPassesTestMixin,FormView):
     def test_func(self):
         return is_staff(self.request.user)
 
-
-
 class ProfileView(LoginRequiredMixin, DetailView):
     model = User
     template_name = "profile/profile.html"
+    # 404 in case of non staff on other people profile, not perfect, I know
+    def get_queryset(self):
+        if self.request.user.groups.filter(name='staff').exists():
+            return super().get_queryset().all()
+        return super().get_queryset().filter(
+            pk=self.request.user.pk
+        )
 
 @login_required(login_url='/accounts/login')
 def addMovieInteractive(request):
