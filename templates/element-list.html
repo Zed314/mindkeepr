@@ -51,6 +51,7 @@ var draw = 0;
               'ajax': {url:'/api/v1/{% block typeapi %}elements{% endblock %}/?format=datatables'
             ,cache:true},
               "iDisplayLength": 50,
+
               "oSearch": {"sSearch": searchString},
               "fnCreatedRow": function( nRow, aData, iDataIndex ) {
                   $(nRow).attr('id', "row-elt-"+aData.id);
@@ -68,7 +69,8 @@ var draw = 0;
                   { data: "custom_id_display", title: "Id", orderable: true, visible:true, searchable:true},
                   { data: 'name', title: "Name" },
                   { data: "id_barcode", title: "Barcode ID", visible:false},
-                  { data: "barcode_effective", title: "Barcode", visible:true},
+                  { data: "barcode_effective", title: "Barcode", visible:true,
+                  responsivePriority: 10005},
                   { data: 'category.name', title: "Category", visible:false},
                   { data: 'category.id', title: "Category ID", visible: false, searchable: true},
                   /*{ data: 'description', title: "Description" },*/
@@ -77,11 +79,12 @@ var draw = 0;
                       data:"type",
                       title: "Type",
                       orderable: false,
-                      bSearchable:false
+                      bSearchable:false,
+                      responsivePriority: 10009,
                   },
                   {% endblock %}
                   {% block qtycolumn %}
-                  { data: "quantity_owned", title: "Quantity", orderable: false,bSearchable:false, visible:false},
+               /*   { data: "quantity_owned", title: "Quantity", orderable: false,bSearchable:false, visible:false},*/
                   {% endblock %}
                   { data: "quantity_available", title: "Quantity", orderable: false,bSearchable:false, visible:false},
                   /*{
@@ -127,7 +130,7 @@ var draw = 0;
                           },
                           orderable: false,
 
-                    },
+                          responsivePriority: 10003},
                     {
                       data: 'id',
                       title: 'Reserve',
