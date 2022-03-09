@@ -9,7 +9,7 @@ from Mindkeepr.models.elements import Element
 from . import EventViewModal
 from django.contrib.auth.models import User
 from Mindkeepr.forms import BorrowEventForm, BorrowEventImmediateForm, BorrowEventReserveForm
-
+from django.core.exceptions import PermissionDenied
 
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
@@ -87,13 +87,15 @@ class BorrowEventReserveViewModal(EventViewModal):
         return response
 
 
-@login_required(login_url='/accounts/login')
-def borrowings(request):
-    return render(request, "borrowings.html")
+#@login_required(login_url='/accounts/login')
+#def borrowings(request):
+#    return render(request, "borrowings.html")
 
 
 @login_required(login_url='/accounts/login')
 def borrow_start(request,pk):
+    if not request.user.has_perm('Mindkeepr.change_borrowevent'):
+        raise PermissionDenied()
     evt = get_object_or_404(BorrowEvent, pk=pk)
     evt.borrow()
     evt.save()
@@ -101,6 +103,8 @@ def borrow_start(request,pk):
 
 @login_required(login_url='/accounts/login')
 def borrow_return(request,pk):
+    if not request.user.has_perm('Mindkeepr.change_borrowevent'):
+        raise PermissionDenied()
     evt = get_object_or_404(BorrowEvent, pk=pk)
     evt.return_borrow()
     evt.save()
@@ -109,6 +113,8 @@ def borrow_return(request,pk):
 @login_required(login_url='/accounts/login')
 def borrow_extend(request,pk):
     #for now, no date parameters
+    if not request.user.has_perm('Mindkeepr.change_borrowevent'):
+        raise PermissionDenied()
     evt = get_object_or_404(BorrowEvent, pk=pk)
     evt.prolongate_borrow_nb_days(7)
     evt.save()
@@ -116,6 +122,8 @@ def borrow_extend(request,pk):
 
 @login_required(login_url='/accounts/login')
 def borrow_cancel(request,pk):
+    if not request.user.has_perm('Mindkeepr.change_borrowevent'):
+        raise PermissionDenied()
     #for now, no date parameters
     evt = get_object_or_404(BorrowEvent, pk=pk)
     evt.cancel_borrow()
