@@ -124,6 +124,7 @@
 
     $('#reserve-borrowings-table').DataTable({
         'serverSide': true,
+        "responsive": true,
         'ajax': '/api/v1/borrowings/?state=NOT_STARTED&format=datatables',
         "order": [[0, "desc"]],
         "iDisplayLength": 50,
@@ -184,6 +185,7 @@
                 data: "comment",
                 title: "Comment",
                 orderable: true,
+                responsivePriority: 10009,
             },
             {
                 data: "borrow_date_display", title: "From",searchable:false,
@@ -198,7 +200,8 @@
                     } else {
                         return data;
                     }
-                }
+                },
+                responsivePriority: 10007,
             },
             {
                 data: "return_date_display", title: "to",searchable:false,
@@ -213,7 +216,8 @@
                     } else {
                         return data;
                     }
-                }
+                },
+                responsivePriority: 10006,
             },
             {
                 data: "id", title: "Start", searchable: "false", orderable: "false",
@@ -241,6 +245,7 @@
 
     $('#active-borrowings-table').DataTable({
         'serverSide': true,
+        "responsive": true,
         'ajax': '/api/v1/borrowings/?state=IN_PROGRESS&format=datatables',
         "order": [[0, "desc"]],
         "iDisplayLength": 50,
@@ -302,6 +307,7 @@
                 data: "comment",
                 title: "Comment",
                 orderable: true,
+                responsivePriority: 10010,
             },
             {
                 data: "borrow_date_display", title: "From",
@@ -317,7 +323,8 @@
                     } else {
                         return data;
                     }
-                }
+                },
+                responsivePriority: 10008,
             },
             {
                 data: "return_date_display", title: "to",
@@ -333,7 +340,8 @@
                     } else {
                         return data;
                     }
-                }
+                },
+                responsivePriority: 10007,
             },
             { data : "id", title: "Return", searchable: "false", orderable: "false",
             render:function(data,type,row,meta){
