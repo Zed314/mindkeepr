@@ -1,12 +1,12 @@
 from rest_framework import serializers
 
-from ..user import UserSerializer
+from ..user import UserSerializerShort
 from Mindkeepr.models.events import Event
 from ..serializer_factory import SerializerFactory
 
 class EventFieldMixin(serializers.Serializer):
     recording_date = serializers.ReadOnlyField()
-    creator = UserSerializer(read_only=True, default=serializers.CreateOnlyDefault(serializers.CurrentUserDefault()))
+    creator = UserSerializerShort(read_only=True, default=serializers.CreateOnlyDefault(serializers.CurrentUserDefault()))
 
     def add_event_read_only_default_fields(self, validated_data):
         # Include default for read_only `creator` field
