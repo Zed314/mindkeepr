@@ -8,14 +8,14 @@ from ..serializer_factory import SerializerFactory
 from .event import EventSerializer, EventFieldMixin
 from ..location import LocationShortSerializer
 from ..elements.element_short import ElementShortSerializer
-from ..user import UserSerializerShort
+from ..user import UserSerializer
 
 @SerializerFactory.register('BorrowEvent')
 class BorrowEventSerializer(EventFieldMixin, serializers.HyperlinkedModelSerializer):
 
     location_source = LocationShortSerializer()
     element = ElementShortSerializer()
-    beneficiary = UserSerializerShort(default=serializers.CreateOnlyDefault(serializers.CurrentUserDefault()))
+    beneficiary = UserSerializer(default=serializers.CreateOnlyDefault(serializers.CurrentUserDefault()))
     is_returned = serializers.ReadOnlyField()
     class Meta:
         model = BorrowEvent
