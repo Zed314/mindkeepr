@@ -24,7 +24,12 @@ class BorrowingsView(LoginAndPermissionRequiredMixin,viewsets.ModelViewSet):
     serializer_class = BorrowEventSerializer
 
     def get_queryset(self):
-        queryset = BorrowEvent.objects.all()
+        queryset = None
+        if self.request.user.groups.filter(name='staff').exists():
+            queryset = BorrowEvent.objects.all()
+        else:
+            queryset= BorrowEvent.objects.filter(
+            beneficiary=self.request.user)
         beneficiary = self.request.query_params.get('user', None)
 
         state = self.request.query_params.get('state', None)
