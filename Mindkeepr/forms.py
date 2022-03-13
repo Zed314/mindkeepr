@@ -467,7 +467,7 @@ class ComponentForm(ElementForm):
 class MachineForm(ElementForm):
     class Meta:
         model = models.elements.Machine
-        fields = ElementForm.fields
+        fields = ElementForm.fields + ["machine_type", "custom_id_generic"]
         widgets = ElementForm.widgets
 
 class ToolForm(ElementForm):
