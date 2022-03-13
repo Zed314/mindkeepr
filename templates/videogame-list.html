@@ -1,6 +1,12 @@
 {% extends 'element-list.html' %}
 {% load static %}
 {% block extracolumns %}
+{
+    data: 'platform_display',
+    title: 'Platform',
+    orderable: false,
+    searchable:false
+},
 {% endblock %}
 {% block qtycolumn %}
 {% endblock %}
