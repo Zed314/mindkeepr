@@ -45,7 +45,7 @@
 {% block elt_table_js %}
 var draw = 0;
   var elt_table = $('#element-table').DataTable({
-              "dom": '<"top">rt<"bottom"lip><"clear">',
+              "dom": '<"top">frt<"bottom"lip><"clear">',
               'serverSide': true,
               "responsive": true,
               'ajax': {url:'/api/v1/{% block typeapi %}elements{% endblock %}/?format=datatables'
@@ -69,7 +69,7 @@ var draw = 0;
                   { data: "custom_id_display", title: "Id", orderable: true, visible:true, searchable:true},
                   { data: 'name', title: "Name" },
                   { data: "id_barcode", title: "Barcode ID", visible:false},
-                  { data: "barcode_effective", title: "Barcode", visible:true,
+                  { data: "barcode_effective", title: "Barcode", visible:true, searchable:true,
                   responsivePriority: 10005},
                   { data: 'category.name', title: "Category", visible:false},
                   { data: 'category.id', title: "Category ID", visible: false, searchable: true},
@@ -131,6 +131,7 @@ var draw = 0;
                           orderable: false,
 
                           responsivePriority: 10003},
+                    {% if perms.Mindkeepr.add_borrow %}
                     {
                       data: 'id',
                       title: 'Reserve',
@@ -142,7 +143,6 @@ var draw = 0;
                       return data;
                     },
                     orderable: false,
-
                     },
                     {
                             data: 'id',
@@ -161,8 +161,8 @@ var draw = 0;
                             return data;
                           },
                           orderable: false,
-
                     },
+                    {% endif %}
                  /*   {% if perms.Mindkeepr.delete_element %}
                     {
                             data: 'id',
@@ -209,18 +209,19 @@ var draw = 0;
           });
  {% endblock %}
           $( "#formsearch" ).submit(function( event ) {
-            str_search = $('#searchinput').val()
-            if(str_search.length()==13 && Number.isInteger(Number(str_search)))
+        //    event.preventDefault();
+            str_search = $('#searchinput').val();
+            console.log(elt_table)
+            console.log(str_search)
+            if(str_search.length==13 && Number.isInteger(Number(str_search)))
             {
-              elt_table.search("^"+str_search+"$").draw() ;
+              elt_table.search("^"+str_search+"$", true).draw() ;
             }
             else
             {
-              elt_table.search($(str_search)).draw();
+              elt_table.search(str_search).draw();
             }
 
-
-            event.preventDefault();
           });
 
           elt_table.on("click",".copy-link", function(event) {

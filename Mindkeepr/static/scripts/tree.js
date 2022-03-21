@@ -45,6 +45,8 @@ $(document).ready(function() {
         },
         "plugins": ["themes", "ui", "cookies", "crrm", "sort"]
     });
+//    $("#jstree_category").jstree("open_node", $("#1"));
+
     $('#jstree_category').on("select_node.jstree", function(e, data) {
         // caution : lazy loading cause grandchildren not to be rendered (unless they were rendered previously)...
         id = data.node.id;
@@ -66,7 +68,6 @@ $(document).ready(function() {
         });
 
     });
-
 
     $("#jstree_locations").jstree({
         "core": {
