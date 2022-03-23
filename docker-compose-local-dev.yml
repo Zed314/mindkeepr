@@ -28,7 +28,7 @@ services:
     volumes:
       - ./data/db:/var/lib/postgresql/data/
     env_file:
-      - ./.env.dev.local.db
+      - ./.env.local.dev.db
     networks:
       - dbnetwork_dev
 
