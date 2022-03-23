@@ -34,13 +34,12 @@ DEBUG = int(os.environ.get("DEBUG", default=0))
 # For example: 'DJANGO_ALLOWED_HOSTS=localhost 127.0.0.1 [::1]'
 ALLOWED_HOSTS = os.environ.get("DJANGO_ALLOWED_HOSTS").split(" ")
 
+USE_SSO = os.environ.get("USE_SSO","false") == "true"
 
 # Application definition
-
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
-    'mozilla_django_oidc',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
@@ -55,6 +54,8 @@ INSTALLED_APPS = [
     "corsheaders",
     "django.contrib.postgres" # for trigram search
 ]
+if USE_SSO:
+    INSTALLED_APPS.append("mozilla_django_oidc")
 
 
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
@@ -75,7 +76,7 @@ MIDDLEWARE = [
 ]
 
 
-ALLOWED_HOSTS=[os.environ.get("ALLOWED_HOST", "http://127.0.0.1:3001")]
+#ALLOWED_HOSTS=[os.environ.get("ALLOWED_HOST", "http://127.0.0.1:3001")]
 
 
 CORS_ORIGIN_ALLOW_ALL = False
@@ -100,7 +101,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
-#                "MindkeeprMain.context_processors.logout_oath_url",
+                "MindkeeprMain.context_processors.is_sso_enabled",
             ],
         },
     },
@@ -141,11 +142,13 @@ REST_FRAMEWORK = {
 #            'PORT': 5432,
 #            }
 if not 'test' in sys.argv and not 'test_coverage' in sys.argv:
-    AUTHENTICATION_BACKENDS = (
+
+    AUTHENTICATION_BACKENDS = [
         'django.contrib.auth.backends.ModelBackend',
-        'MindkeeprMain.auth.MyOIDCAB',
         # ...
-    )
+    ]
+    if USE_SSO:
+        AUTHENTICATION_BACKENDS.append("MindkeeprMain.auth.MyOIDCAB")
 else:
     AUTHENTICATION_BACKENDS = (
         'django.contrib.auth.backends.ModelBackend',
@@ -186,7 +189,7 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-CACHES = {}
+#CACHES = {}
 
 if os.environ.get("ENABLE_CACHE")=="true":
     CACHES = {
