@@ -13,7 +13,11 @@ https://docs.djangoproject.com/en/2.1/ref/settings/
 import os
 import sys
 
-from .settings_secrets import *
+try:
+    from .settings_secrets import *
+except ModuleNotFoundError:
+    print("No secret settings found. Add one in settings_secrets.py in MindkeeprMain")
+
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -71,8 +75,8 @@ MIDDLEWARE = [
 ]
 
 
-ALLOWED_HOSTS=['mindkeepr.kekfactory.fr']
-#ALLOWED_HOSTS=['http://127.0.0.1:3001']
+ALLOWED_HOSTS=[os.environ.get("ALLOWED_HOST", "http://127.0.0.1:3001")]
+
 
 CORS_ORIGIN_ALLOW_ALL = False
 
@@ -182,17 +186,20 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-CACHES = {
-    'default': {
-        'BACKEND': 'django_redis.cache.RedisCache',
-        "LOCATION": 'redis://redis:6379',
-        "OPTIONS": {
-            "CLIENT_CLASS": "django_redis.client.DefaultClient",
-            "SOCKET_CONNECT_TIMEOUT": 10,
-            "SOCKET_TIMEOUT": 10,
-        }
-    },
-}
+CACHES = {}
+
+if os.environ.get("ENABLE_CACHE")=="true":
+    CACHES = {
+        'default': {
+            'BACKEND': 'django_redis.cache.RedisCache',
+            "LOCATION": "redis://"+os.environ.get("REDIS_URL","redis")+":6379",
+            "OPTIONS": {
+                "CLIENT_CLASS": "django_redis.client.DefaultClient",
+                "SOCKET_CONNECT_TIMEOUT": 10,
+                "SOCKET_TIMEOUT": 10,
+            }
+        },
+    }
 
 # Internationalization
 # https://docs.djangoproject.com/en/2.1/topics/i18n/
@@ -216,8 +223,8 @@ STATIC_ROOT = os.path.join(BASE_DIR, "static")
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 MEDIA_URL = '/media/'
 
-LOGIN_REDIRECT_URL="https://mindkeepr.kekfactory.fr"
-LOGOUT_REDIRECT_URL= "https://login.kekfactory.fr/auth/realms/cse/protocol/openid-connect/logout?redirect_uri=http://mindkeepr.kekfactory.fr/"
+LOGIN_REDIRECT_URL=os.environ.get("LOGIN_REDIRECT_URL", "/")
+LOGOUT_REDIRECT_URL=os.environ.get("LOGOUT_REDIRECT_URL", "/")
 
 if os.environ.get("DEV"):
     from MindkeeprMain.dev import *
