@@ -14,8 +14,6 @@ RUN mkdir /code/templates
 ADD ./templates/ /code/templates
 COPY ./manage.py /code/
 COPY ./requirements.txt /code/
-COPY ./.env.dev /code/
-COPY ./.env.prod /code/
 COPY ./entrypoint.sh /code/
 RUN chmod u+x /code/entrypoint.sh
 RUN mkdir /code/static
@@ -30,8 +28,7 @@ ENV PYTHONUNBUFFERED 1
 RUN apt-get update
 RUN apt-get install -y netcat
 RUN pip install --upgrade pip && pip install -r requirements.txt
-#RUN python manage.py loaddata fixtures/initdata.json
-#RUN python manage.py loaddata fixtures/moviegenre.json
+
 EXPOSE 80
 
 ENTRYPOINT ["/code/entrypoint.sh"]

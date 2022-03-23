@@ -5,16 +5,16 @@ services:
   mindkeepr:
     build: ./
     command : python manage.py runserver 0.0.0.0:80
+    ports:
+      - "80:80"
     links:
       - db:db
     depends_on:
       - db
     env_file:
-      - ./.env.dev
+      - ./.env.local.dev
     networks:
-      - dbnetwork
-      - web
-      - cache
+      - dbnetwork_dev
 
     volumes:
       - ./MindkeeprMain:/code/MindkeeprMain
@@ -28,16 +28,9 @@ services:
     volumes:
       - ./data/db:/var/lib/postgresql/data/
     env_file:
-      - ./.env.prod.db
+      - ./.env.dev.local.db
     networks:
-      - dbnetwork
-  redis:
-    image: redis:alpine
-    restart: always
-    networks:
-      - cache
+      - dbnetwork_dev
+
 networks:
-  web:
-    external: true
-  dbnetwork:
-  cache:
+  dbnetwork_dev:
