@@ -11,7 +11,10 @@
 </form>
 {% else %}
   You must be logged in to see this page.
+  {% if is_sso_enabled %}
 <a href="{% url 'oidc_authentication_init' %}">Login using CAS</a>
-<!--<a href="{% url 'loginlocal' %}">Login (using local database).</a> -->
+{% else %}
+<a href="{% url 'loginlocal' %}">Login (using local database).</a>
+{% endif %}
 {% endif %}
 {% endblock %}

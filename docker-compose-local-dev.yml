@@ -6,16 +6,13 @@ services:
     build: ./
     command : python manage.py runserver 0.0.0.0:80
     ports:
-      - "80:80"
+      - "8000:80"
     links:
       - db:db
     depends_on:
       - db
     env_file:
       - ./.env.local.dev
-    networks:
-      - dbnetwork_dev
-
     volumes:
       - ./MindkeeprMain:/code/MindkeeprMain
       - ./Mindkeepr:/code/Mindkeepr
@@ -29,8 +26,4 @@ services:
       - ./data/db:/var/lib/postgresql/data/
     env_file:
       - ./.env.local.dev.db
-    networks:
-      - dbnetwork_dev
 
-networks:
-  dbnetwork_dev:
