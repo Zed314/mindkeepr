@@ -19,3 +19,4 @@ docker-compose-prod.yml
 docker-compose-online-dev.yml
 .env.dev
 .env.dev.db
+db copy/
