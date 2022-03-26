@@ -470,12 +470,6 @@ class MachineForm(ElementForm):
         fields = ElementForm.fields + ["machine_type", "custom_id_generic"]
         widgets = ElementForm.widgets
 
-class ToolForm(ElementForm):
-    class Meta:
-        model = models.elements.Tool
-        fields = ElementForm.fields
-        widgets = ElementForm.widgets
-
 class BookForm(ElementForm):
     ean = forms.CharField(max_length=13,min_length=13,required=True)
     book_abstract = forms.ModelChoiceField(queryset=models.elements.BookAbstract.objects.all(),required=False)
