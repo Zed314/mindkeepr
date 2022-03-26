@@ -1,7 +1,7 @@
 from rest_framework import serializers
 
 from Mindkeepr.models.elements.element import Element
-#from Mindkeepr.models.category import Category
+from Mindkeepr.models.category import Category
 from ..category import CategorySerializerShortShort
 #from ..stock_repartition import StockRepartitionSerializer
 #from ..events.borrow_event import BorrowEventSerializer
@@ -15,12 +15,12 @@ class ElementFieldMixin(serializers.Serializer):
    # buy_history = BuyEventSerializer(many=True, read_only=True)
    # sell_history = SellEventSerializer(many=True, read_only=True)
    # borrow_history = BorrowEventSerializer(many=True, read_only=True)
-   # def get_category(self, validated_data):
-   #     try:
-   #         category = Category.objects.get(id=validated_data.pop("category")["id"])
-   #     except Exception:
-   #         raise serializers.ValidationError('Missing category.')
-   #     return {"category":category}
+    def get_category(self, validated_data):
+        try:
+            category = Category.objects.get(id=validated_data.pop("category")["id"])
+        except Exception:
+            raise serializers.ValidationError('Missing category.')
+        return {"category":category}
 
 
 class ElementSerializer(serializers.HyperlinkedModelSerializer, SerializerFactory):

@@ -319,7 +319,6 @@ class Element(PolymorphicModel):
             self.custom_id_display = None
             super().save(*args, **kwargs)
             self.id_barcode = self.generate_id_barcode()
-            print(self.id_barcode)
             self.refresh_barcode_effective()
             self.refresh_custom_id_prefix_generic()
             self.set_custom_id()
