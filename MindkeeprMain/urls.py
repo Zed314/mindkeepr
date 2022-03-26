@@ -22,7 +22,7 @@ from Mindkeepr import views
 from Mindkeepr.views.elements import movie_view, book_view
 from Mindkeepr.views.elements.movie_view import moviecases
 from Mindkeepr.views.events import *
-from Mindkeepr.views.elements import ComponentsView, VideoGamesView, ElementsView, ToolsView, BooksView, MachinesView, MovieCasesView, MoviesView, MovieGenresView
+from Mindkeepr.views.elements import ComponentsView, VideoGamesView, ElementsView, BooksView, MachinesView, MovieCasesView, MoviesView, MovieGenresView
 from Mindkeepr.views import LocationView, LocationViewFull, CategoryView, CategoryViewFull, CategoryViewShort,  ProjectsView, UserView, StockRepartitionsView
 
 # for static files in dev only…
@@ -35,7 +35,6 @@ router.register(r'events', EventsView, basename='event')
 router.register(r'elements', ElementsView, basename='element')
 router.register(r'components', ComponentsView, basename='component')
 router.register(r'machines', MachinesView, basename='machine')
-router.register(r'tools', ToolsView, basename='tool')
 router.register(r'books', BooksView, basename='book')
 router.register(r'movies', MoviesView, basename='movie')
 router.register(r'videogames', VideoGamesView, basename='videogame')
@@ -64,7 +63,6 @@ urlpatterns = [
     path('admin/', admin.site.urls),  # Interface d'admin
     path('machine', views.MachineCreate.as_view()),
     path('component', views.ComponentCreate.as_view()),
-    path('tool', views.ToolCreate.as_view()),
     path('book', views.BookCreate.as_view()),
     path('videogame', views.VideoGameCreate.as_view()),
     path("addMovie",views.addMovieInteractive),
@@ -112,7 +110,6 @@ urlpatterns = [
     path("machines",views.machines,name="machines-list"),
     path("books",views.books,name="books-list"),
     path("videogames",views.videogames,name="videogames-list"),
-    path("tools",views.tools,name="tools-list"),
     path("moviecases",moviecases,name="moviecases-list"),
     path('', views.index),
     path("api/v1/borrowevent/<int:pk>/start", borrowing_view.borrow_start),

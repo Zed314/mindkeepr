@@ -229,11 +229,11 @@ MEDIA_URL = '/media/'
 LOGIN_REDIRECT_URL=os.environ.get("LOGIN_REDIRECT_URL", "/")
 LOGOUT_REDIRECT_URL=os.environ.get("LOGOUT_REDIRECT_URL", "/")
 
-if os.environ.get("DEV"):
-    from MindkeeprMain.dev import *
-else:
-    from MindkeeprMain.prod import *
+#if os.environ.get("DEV"):
+#    from MindkeeprMain.dev import *
+#else:
+from MindkeeprMain.prod import *
 
-if 'test' in sys.argv or 'test_coverage' in sys.argv: #Covers regular testing and django-coverage
-    print("Test database : sqlite3",flush="true")
-    DATABASES['default']['ENGINE'] = 'django.db.backends.sqlite3'
+#if 'test' in sys.argv or 'test_coverage' in sys.argv: #Covers regular testing and django-coverage
+#    print("Test database : sqlite3",flush="true")
+#    DATABASES['default']['ENGINE'] = 'django.db.backends.sqlite3'

@@ -12,8 +12,8 @@ from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from Mindkeepr.forms import AttributeFormSet, AttachmentFormSet, VideoGameForm
 from django.urls import reverse_lazy
 
-from Mindkeepr.models.elements import Component,Machine,Tool,Book, MovieCase, VideoGame
-from Mindkeepr.forms import ToolForm,MachineForm,ComponentForm,BookForm, MovieCaseForm
+from Mindkeepr.models.elements import Component,Machine,Book, MovieCase, VideoGame
+from Mindkeepr.forms import MachineForm,ComponentForm,BookForm, MovieCaseForm
 from django.core.exceptions import PermissionDenied
 
 from django.contrib.auth.decorators import login_required
@@ -78,7 +78,6 @@ class ElementUpdate(LoginRequiredMixin, UpdateView):
     form_class = {
         Component: ComponentForm,
         Machine: MachineForm,
-        Tool: ToolForm,
         Book: BookForm,
         # Todo : change as MovieCaseInteractiveForm is today reserved as interactive add movie
         MovieCase : MovieCaseForm,
@@ -87,7 +86,6 @@ class ElementUpdate(LoginRequiredMixin, UpdateView):
     _permission_required = {
         Component: "Mindkeepr.change_component",
         Machine: "Mindkeepr.change_machine",
-        Tool: "Mindkeepr.change_tool",
         Book: "Mindkeepr.change_book",
         MovieCase: "Mindkeepr.change_moviecase",
         VideoGame: "Mindkeepr.change_videogame"
@@ -95,7 +93,6 @@ class ElementUpdate(LoginRequiredMixin, UpdateView):
     templates = {
         Component: 'element-detail.html',
         Machine: 'machine-detail.html',
-        Tool: 'element-detail.html',
         Book: 'element-detail.html',
         MovieCase : "element-detail.html",
         VideoGame : "element-detail.html"
@@ -162,7 +159,6 @@ class ElementUpdateEmbedded(ElementUpdate):
     templates = {
         Component: 'element-detail-embedded.html',
         Machine: 'machine-detail-embedded.html',
-        Tool: 'element-detail-embedded.html',
         Book: "element-detail-embedded.html",
         MovieCase : "element-detail-embedded.html"
     }
