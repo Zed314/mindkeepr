@@ -81,7 +81,7 @@ class APITestCase(TestCase):
         self.assertEqual(stock_repartition.location.id,self.location.id)
         self.assertEqual(stock_repartition.status,"RESERVED")
 
-        use_event["location_source"]={"id":2}
+        use_event["location_source"]={"id":self.location2.id}
         request = factory.post('/api/events',use_event,format= 'json')
         request.user = self.reserve_allowed_user
         response = self.view_reserveevent_create(request)
@@ -93,14 +93,14 @@ class APITestCase(TestCase):
         self.assertEqual(len(stock_repartitions),2)
         stock_repartition = stock_repartitions[0]
         self.assertEqual(stock_repartition.quantity,15)
-        self.assertEqual(stock_repartition.location.id,1)
+        self.assertEqual(stock_repartition.location.id,self.location.id)
         self.assertEqual(stock_repartition.status,"FREE")
         stock_repartition = stock_repartitions[1]
         self.assertEqual(stock_repartition.quantity,5)
-        self.assertEqual(stock_repartition.location.id,1)
+        self.assertEqual(stock_repartition.location.id,self.location.id)
         self.assertEqual(stock_repartition.status,"RESERVED")
 
-        use_event["location_source"]={"id":1}
+        use_event["location_source"]={"id":self.location.id}
         use_event["quantity"]=20
         request = factory.post('/api/events',use_event,format= 'json')
         request.user = self.reserve_allowed_user
@@ -112,11 +112,11 @@ class APITestCase(TestCase):
         self.assertEqual(len(stock_repartitions),2)
         stock_repartition = stock_repartitions[0]
         self.assertEqual(stock_repartition.quantity,15)
-        self.assertEqual(stock_repartition.location.id,1)
+        self.assertEqual(stock_repartition.location.id,self.location.id)
         self.assertEqual(stock_repartition.status,"FREE")
         stock_repartition = stock_repartitions[1]
         self.assertEqual(stock_repartition.quantity,5)
-        self.assertEqual(stock_repartition.location.id,1)
+        self.assertEqual(stock_repartition.location.id,self.location.id)
         self.assertEqual(stock_repartition.status,"RESERVED")
 
 

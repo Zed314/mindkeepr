@@ -53,7 +53,7 @@ class APITestCase(TestCase):
         component = self.component
         stock_repartition = component.stock_repartitions.all()[0]
         self.assertEqual(stock_repartition.quantity,20)
-        self.assertEqual(stock_repartition.location.id,1)
+        self.assertEqual(stock_repartition.location.id,self.location.id)
         self.assertEqual(stock_repartition.status,"FREE")
 
         request = factory.post('/',buy_event,format= 'json')
@@ -65,7 +65,7 @@ class APITestCase(TestCase):
         self.assertEqual(len(component.stock_repartitions.all()),1)
         stock_repartition = component.stock_repartitions.all()[0]
         self.assertEqual(stock_repartition.quantity,40)
-        self.assertEqual(stock_repartition.location.id,1)
+        self.assertEqual(stock_repartition.location.id,self.location.id)
         self.assertEqual(stock_repartition.status,"FREE")
         self.assertEqual(response.data["creator"]["id"],self.buy_allowed_user.id)
 
@@ -78,7 +78,7 @@ class APITestCase(TestCase):
         self.assertEqual(len(component.stock_repartitions.all()),2)
         stock_repartition = component.stock_repartitions.all()[1]
         self.assertEqual(stock_repartition.quantity,20)
-        self.assertEqual(stock_repartition.location.id,2)
+        self.assertEqual(stock_repartition.location.id,self.location2.id)
         self.assertEqual(stock_repartition.status,"FREE")
         self.assertEqual(component.quantity_available,60)
         self.assertEqual(response.data["creator"]["id"],self.buy_allowed_user.id)

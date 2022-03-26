@@ -13,13 +13,13 @@ class APITestCase(TestCase):
     def setUp(self):
         self.user = User.objects.create_superuser('mindkeepr', 'mindkeepr@example.fr', 'admin')
         self.dumb_user = User.objects.create_user('benoit', 'benoit@example.fr')
-        location = models.Location.objects.create(name = "Location 1")
-        location = models.Location.objects.create(name = "Location 2")
-        component = models.elements.Component.objects.create(name = "Component 1",description="First component !")
+        location = models.Location.objects.create(id=1,name = "Location 1")
+        location = models.Location.objects.create(id=2,name = "Location 2")
+        self.component = models.elements.Component.objects.create(name = "Component 1",description="First component !")
         stock_repartition = models.StockRepartition.objects.create(quantity=1,status="FREE",location=location)
-        component.stock_repartitions.add(stock_repartition)
+        self.component.stock_repartitions.add(stock_repartition)
         stock_repartition = models.StockRepartition.objects.create(quantity=5,status="RESERVED",location=location)
-        component.stock_repartitions.add(stock_repartition)
+        self.component.stock_repartitions.add(stock_repartition)
         self.category = models.Category.objects.create(name="Cat")
         self.view_event_create = EventsView.as_view({'post':'create'})
         self.view_event_list = EventsView.as_view({'get':'list'})
@@ -120,7 +120,7 @@ class APITestCase(TestCase):
         request = factory.post(reverse('element-list'),element,format= 'json')
         request.user = self.user
         response = view_element_create(request)
-
+#
         self.assertEqual(response.status_code,201)
 
         element.pop('type')
@@ -172,7 +172,7 @@ class APITestCase(TestCase):
             "supplier" : "TME",
             "quantity" : 20,
             "location_destination" : {'id':1},
-            "element" : {'id':1}
+            "element" : {'id':self.component.id}
         }
 
         request = factory.post(reverse('event-list'),buy_event,format= 'json')
@@ -221,7 +221,7 @@ class APITestCase(TestCase):
             "supplier" : "TME",
             "quantity" : 20,
             "location_destination" : {'id':1},
-            "element" : {'id':1}
+            "element" : {'id':self.component.id}
         }
 
         request = factory.post('/api/events',buy_event,format= 'json')
@@ -236,7 +236,7 @@ class APITestCase(TestCase):
             "price" : 9.8,
             "quantity" : 10,
             "location_source" : {'id':1},
-            "element" : {'id':1}
+            "element" : {'id':self.component.id}
         }
         request = factory.post('/api/events',sell_event,format= 'json')
         request.user = self.user
@@ -250,7 +250,7 @@ class APITestCase(TestCase):
             "recording_date" : None,
             "quantity" : 10,
             "location_source" : {'id':1},
-            "element" : {'id':1}
+            "element" : {'id':self.component.id}
         }
         request = factory.post('/api/events',consume_event,format= 'json')
         request.user = self.user
