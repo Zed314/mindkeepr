@@ -3,7 +3,10 @@ from Mindkeepr.models import events
 
 
 from Mindkeepr.models.elements.component import Component
-from Mindkeepr.models.elements import  MovieCase, Movie, Book, BookAbstract
+from Mindkeepr.models.elements import  MovieCase, Book
+from Mindkeepr.models.products import Product
+from Mindkeepr.models.products.book_product import BookProduct
+from Mindkeepr.models.products.movie_product import MovieProduct
 from Mindkeepr.models.elements.element import Element
 from Mindkeepr.models.location import Location
 from Mindkeepr.models.events import use_event,buy_event, consume_event, event, borrow_event
@@ -28,8 +31,8 @@ class ConsumeEventInline(admin.TabularInline):
 class AttachmentInline(admin.TabularInline):
     model = Attachment
 
-class MovieInline(admin.TabularInline):
-    model = Movie
+#class MovieInline(admin.TabularInline):
+#    model = Movie
 
 class BookInline(admin.TabularInline):
     model = Book
@@ -41,8 +44,8 @@ class ElementInline(admin.TabularInline):
 class MovieCaseAdmin(admin.ModelAdmin):
     pass#inlines = (MovieInline)
 
-@admin.register(Movie)
-class MovieAdmin(admin.ModelAdmin):
+@admin.register(MovieProduct)
+class MovieProductAdmin(admin.ModelAdmin):
     pass
 
 
@@ -65,9 +68,13 @@ class BookAdmin(admin.ModelAdmin):
     inlines = (BuyEventInline,UseEventInline, ConsumeEventInline, AttachmentInline)
     pass
 
-@admin.register(BookAbstract)
-class BookAbstractAdmin(admin.ModelAdmin):
-    inlines = (BookInline,)
+#@admin.register(BookAbstract)
+#class BookAbstractAdmin(admin.ModelAdmin):
+    #inlines = (BookInline,)
+
+@admin.register(Product)
+class ProductAdmin(admin.ModelAdmin):
+    inlines = (ElementInline,)
 
 
 

@@ -3,7 +3,8 @@
 {% load display_shortcuts %}
 
 {% block body_content %}
-
+{% block extra_js_content %}
+{% endblock %}
 <div class="container">
     <div class="card">
         <div class="card-header">
@@ -24,6 +25,7 @@
 <nav class="nav nav-tabs">
   <a class="nav-item nav-link active" href="#elt-{{form.instance.id}}-main" data-toggle="tab">Element</a>
   {% if form.instance.id %}
+  <a class="nav-item nav-link" href="#elt-product" data-toggle="tab">Product</a>
   <a class="nav-item nav-link" href="#elt-{{form.instance.id}}-borrowreserve" data-toggle="tab">Reservations</a>
   <a class="nav-item nav-link" href="#elt-{{form.instance.id}}-borrow" data-toggle="tab">Borrows</a>
   {% if not  form.instance.is_unique %}
@@ -128,6 +130,9 @@
     data-element-id="{{form.instance.id}}"
     class="table compact table-striped table-bordered element-borrow-table"
     style="width:100%"></table>
+  </div>
+  <div class="tab-pane" id="elt-product">
+    {{form.instance.product.title}}
   </div>
   <div class="tab-pane" id="elt-{{form.instance.id}}-borrowreserve">
     <table

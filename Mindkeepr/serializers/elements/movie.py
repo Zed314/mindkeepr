@@ -1,5 +1,6 @@
+
 from rest_framework import serializers
-from Mindkeepr.models.elements.movie import MovieCase, Movie, MovieGenre
+from Mindkeepr.models.elements.movie import MovieCase
 
 from .element import ElementFieldMixin, ElementSerializer
 from ..serializer_factory import SerializerFactory
@@ -15,17 +16,3 @@ class MovieCaseSerializer(ElementFieldMixin, serializers.HyperlinkedModelSeriali
         depth = 1
     def get_category_box_display(self,obj):
             return obj.get_category_box_display()
-
-class MovieGenreSerializer(serializers.HyperlinkedModelSerializer):
-    class Meta:
-        model = MovieGenre
-        fields = ["id","name_en","name_fr"]
-
-
-class MovieSerializer(serializers.HyperlinkedModelSerializer):
-    cases = MovieCaseSerializer(many=True, read_only=True)
-    class Meta:
-        model = Movie
-        #fields = ["local_title","original_language"]
-        fields = ["id","poster","original_title","local_title", "catch_phrase","synopsis","trailer_video_url","genres","cases"]
-        depth = 1

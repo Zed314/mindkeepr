@@ -19,3 +19,4 @@ class BookSerializer(ElementFieldMixin, serializers.HyperlinkedModelSerializer):
    #    category = self.get_category(validated_data)
    #    book = Book.objects.create(**validated_data, **category)
    #    return book
+

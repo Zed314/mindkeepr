@@ -5,7 +5,8 @@ from django.shortcuts import render
 from ..search import searchFilter
 from Mindkeepr.forms import BookInteractiveForm, BookAbstractForm
 from . import ElementCreate
-from Mindkeepr.models.elements import Book, BookAbstract
+from Mindkeepr.models.elements import Book
+from Mindkeepr.models.products.book_product import BookProduct
 from Mindkeepr.models.location import Location
 from Mindkeepr.models.events import BuyEvent
 from Mindkeepr.serializers.elements.book import BookSerializer
@@ -47,6 +48,12 @@ def get_image_url(image_url):
         lf.write(block)
     return file_name, files.File(lf)
 
+def create_bookabstract_from_gb_ean(ean, cover = True):
+    res = requests.get(url="https://www.googleapis.com/books/v1/volumes?q=isbn:"+ean)
+    gl_book = res.json()
+    if gl_book["totalItems"] == 0:
+        return None
+    return create_bookabstract_from_gb(gl_book["items"][0]["id"],ean,cover)
 def create_bookabstract_from_gb(gl_book_id,ean=None, cover = True):
     res = requests.get(url="https://www.googleapis.com/books/v1/volumes/"+gl_book_id)
     gl_book = res.json()
@@ -62,7 +69,7 @@ def create_bookabstract_from_gb(gl_book_id,ean=None, cover = True):
     publisher = gl_book["publisher"]
     if gl_book.get("publishedDate"):
         release_date =   datetime.datetime.strptime(gl_book.get("publishedDate")[0:4], '%Y').date()
-    book = BookAbstract(
+    book = BookProduct(
         title=gl_book["title"],
         release_date=release_date,
         author = gl_book["authors"][0],
@@ -103,7 +110,7 @@ def create_bookabstract_from_ol(ol_book):
         author_2 = ol_book.authors[0].name
     if len(ol_book.publishers)>0:
         publisher = ol_book.publishers[0]
-    book = BookAbstract(
+    book = BookProduct(
         title=ol_book.title,
         release_date=release_date,
         open_library_api_id=ol_book.olid,
@@ -212,8 +219,8 @@ class BookAbstractViewModal(LoginRequiredMixin, PermissionRequiredMixin, PresetN
 #                book.save()
         response =  super(BookAbstractViewModal, self).form_valid(form)
         # Put it in model, maybe ?
-        for book in Book.objects.filter(ean=form.cleaned_data["ean"]).filter(book_abstract__isnull=True):
-            book.book_abstract = form.instance
+        for book in Book.objects.filter(ean=form.cleaned_data["ean"]).filter(product__isnull=True):
+            book.product = form.instance
             book.save()
         return response
 
@@ -227,21 +234,21 @@ class BookViewModal(LoginRequiredMixin, PermissionRequiredMixin, PresetNameMixin
     def form_valid(self, form):
         prev_id = form.instance.id
         try:
-            form.instance.book_abstract = BookAbstract.objects.get(ean = form.cleaned_data["ean"])
-        except BookAbstract.DoesNotExist:
+            form.instance.product = BookProduct.objects.get(ean = form.cleaned_data["ean"])
+        except BookProduct.DoesNotExist:
            # ol = OpenLibrary()
            # book_open_library = ol.Edition.get(olid=form.cleaned_data["externalapiid"])
             bookabstract = create_bookabstract_from_gb(form.cleaned_data["externalapiid"],form.cleaned_data["ean"])
 
             bookabstract.save()
-            form.instance.book_abstract = bookabstract
+            form.instance.product = bookabstract
         #TODO : change...
         location_destination = Location.objects.get(id=2)
         form.instance.creator = self.request.user
         print(form.cleaned_data["quantity"],flush=True)
         if form.cleaned_data["quantity"]==0 :
-            for book in Book.objects.filter(ean=form.cleaned_data["ean"]).filter(book_abstract__isnull=True):
-                book.book_abstract = form.instance.book_abstract
+            for book in Book.objects.filter(ean=form.cleaned_data["ean"]).filter(product__isnull=True):
+                book.product = form.instance.product
                 book.save()
         else:
             book = form.instance
@@ -262,11 +269,8 @@ class BookViewModal(LoginRequiredMixin, PermissionRequiredMixin, PresetNameMixin
         if form.instance.id  and not prev_id:
             #created ?
             return JsonResponse({"custom_id_generic":"{}{:03d}".format(form.instance.custom_id_prefix_generic,form.instance.custom_id_generic),
-                                 "local_title":form.instance.name})
-
-        print(response)
+                                 "title":form.instance.name})
         return response
-
 
 class BooksView(LoginRequiredMixin, viewsets.ModelViewSet):
 
@@ -286,11 +290,25 @@ class BooksView(LoginRequiredMixin, viewsets.ModelViewSet):
 
 class BookCreate(ElementCreate):
     permission_required = "Mindkeepr.add_book"
-
+    template_name = 'book-detail.html'
     @property
     def form_class(self):
         return BookForm
     success_url = None
+
+    def form_valid(self, form):
+        if not form.instance.product:
+            try:
+                form.instance.product = BookProduct.objects.get(ean = form.cleaned_data["ean"])
+            except BookProduct.DoesNotExist:
+                bookabstract = create_bookabstract_from_gb_ean(form.cleaned_data["ean"])
+                if bookabstract:
+                    bookabstract.save()
+                    form.instance.product = bookabstract
+        form.instance.creator = self.request.user
+        response =  super(BookCreate , self).form_valid(form)
+
+        return response
 
 @login_required(login_url='/accounts/login')
 def books(request):

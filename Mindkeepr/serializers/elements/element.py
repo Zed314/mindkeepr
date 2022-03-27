@@ -38,7 +38,7 @@ class ElementSerializer(serializers.HyperlinkedModelSerializer, SerializerFactor
 
     def to_representation(self, obj):
         """
-        Because Event is Polymorphic
+        Because Element is Polymorphic
         """
         type = obj.__class__.__name__
         serializer = SerializerFactory.create_serializer(type, context=self.context)
@@ -49,7 +49,7 @@ class ElementSerializer(serializers.HyperlinkedModelSerializer, SerializerFactor
 
     def to_internal_value(self, data):
         """
-        Because Event is Polymorphic
+        Because Element is Polymorphic
         """
         type = data.get('type')
         serializer = SerializerFactory.create_serializer(type,context=self.context)
