@@ -6,9 +6,9 @@ from datetime import date
 from django.db.models import Q
 import datetime
 from ..category import Category
-from ..location import Location
 from ..stock_repartition import StockRepartition
 from ..staff_settings import StaffSettings
+from ..products import Product
 
 
 class Element(PolymorphicModel):
@@ -23,10 +23,8 @@ class Element(PolymorphicModel):
         Category, on_delete=models.PROTECT, null=True)
     image = models.ImageField(upload_to='element_images', blank=True, null=True)
     creator = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
-    #default_location = models.ForeignKey(Location, on_delete=models.SET_NULL, null = True)
     id_barcode = models.CharField(max_length=13,unique=True, null=True)
-    # duplicate books, movies, etc are possible, therefore unique is False
-    #ean = models.CharField(max_length=13,unique=False, null=True)
+    product = models.ForeignKey(Product, on_delete=models.SET_NULL, null=True)
     barcode_effective = models.CharField(max_length=13,unique=True, null=True)
     # Ex : D>214<, B>503<
     custom_id_generic = models.IntegerField("Custom id", unique=False, null=True, blank=True)

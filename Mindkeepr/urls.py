@@ -4,7 +4,9 @@ from Mindkeepr import views
 from Mindkeepr.views.elements import movie_view, book_view
 from Mindkeepr.views.elements.movie_view import moviecases
 from Mindkeepr.views.events import *
-from Mindkeepr.views.elements import ComponentsView, VideoGamesView, ElementsView, BooksView, MachinesView, MovieCasesView, MoviesView, MovieGenresView
+from Mindkeepr.views.elements import ComponentsView, VideoGamesView, ElementsView, BooksView, MachinesView, MovieCasesView
+from Mindkeepr.views.products import MovieProductsView, MovieProductGenresView, BookProductsView, ProductsView
+
 from Mindkeepr.views import LocationView, LocationViewFull, CategoryView, CategoryViewFull, CategoryViewShort,  ProjectsView, UserView, StockRepartitionsView
 
 # for static files in dev only…
@@ -17,9 +19,12 @@ router.register(r'elements', ElementsView, basename='element')
 router.register(r'components', ComponentsView, basename='component')
 router.register(r'machines', MachinesView, basename='machine')
 router.register(r'books', BooksView, basename='book')
-router.register(r'movies', MoviesView, basename='movie')
+router.register(r'bookproducts', BookProductsView, basename='bookproduct')
+router.register(r'movieproducts', MovieProductsView, basename='movieproduct')
+router.register(r'products', ProductsView, basename='movieproduct')
+
 router.register(r'videogames', VideoGamesView, basename='videogame')
-router.register(r"moviegenres", MovieGenresView, basename="moviegenre")
+router.register(r"moviegenres", MovieProductGenresView, basename="moviegenre")
 router.register(r'categories', CategoryView, basename='category')
 router.register(r'categoriesFull', CategoryViewFull, basename='categoryfull')
 router.register(r'categoriesShort', CategoryViewShort, basename='categoryshort')

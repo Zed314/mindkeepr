@@ -5,27 +5,27 @@ from itertools import count, filterfalse
 
 
 
-class BookAbstract(models.Model):
-    """ Class that represent a book, but not as the object, rather the concept. """
-
-    title = models.CharField(max_length=100,  null=True, blank=True)
-
-    summary = models.CharField(max_length=2300, blank=True, null=True)
-    nb_pages = models.IntegerField(null=True, blank=True)
-
-    release_date = models.DateField( null=True, blank=True)
-    cover = models.ImageField(upload_to='book_images/cover', null=True, blank=True)
-    author = models.CharField(max_length=100, blank=True, null=True)
-    author_2 = models.CharField(max_length=100, blank=True, null=True)
-    publisher = models.CharField(max_length=100, blank=True, null=True)
-    """ EAN13 """
-    ean = models.CharField(max_length=13,unique=False, null=True)
-
-    def __str__(self):
-        if self.title:
-            return self.title
-        else:
-            return "Undefined title"
+#class BookAbstract(models.Model):
+#    """ Class that represent a book, but not as the object, rather the concept. """
+#
+#    title = models.CharField(max_length=100,  null=True, blank=True)
+#
+#    summary = models.CharField(max_length=2300, blank=True, null=True)
+#    nb_pages = models.IntegerField(null=True, blank=True)
+#
+#    release_date = models.DateField( null=True, blank=True)
+#    cover = models.ImageField(upload_to='book_images/cover', null=True, blank=True)
+#    author = models.CharField(max_length=100, blank=True, null=True)
+#    author_2 = models.CharField(max_length=100, blank=True, null=True)
+#    publisher = models.CharField(max_length=100, blank=True, null=True)
+#    """ EAN13 """
+#    ean = models.CharField(max_length=13,unique=False, null=True)
+#
+#    def __str__(self):
+#        if self.title:
+#            return self.title
+#        else:
+#            return "Undefined title"
 
 
 class Book(Element):
@@ -33,7 +33,6 @@ class Book(Element):
     #isbn = models.CharField(max_length=13,unique=False, null=True)
     ean = models.CharField(max_length=13,unique=False, null=True)
     use_ean_as_effective_barcode = models.BooleanField("Use ean as effective barcode",null=False,default=True,blank=False)
-
     FORMAT = [
        ('NOV', "Novel"),
        ('COM', "Comic Book"),
@@ -48,10 +47,10 @@ class Book(Element):
     def is_unique(self):
         return True
 
-    book_abstract = models.ForeignKey('BookAbstract',
-                                on_delete=models.SET_NULL,
-                                related_name='books',
-                                null=True)
+    #book_abstract = models.ForeignKey('BookAbstract',
+    #                            on_delete=models.SET_NULL,
+    #                            related_name='books',
+    #                            null=True)
     #def custom_id_display(self):
     #    if self.custom_id_generic:
     #        return "{}{:03d}".format("L",self.custom_id_generic)

@@ -4,40 +4,41 @@ from itertools import count, filterfalse
 
 from .element import Element
 
-class MovieGenre(models.Model):
-    #remote_api_id = models.IntegerField(blank=False, null=False, unique=True)
-    name_en = models.CharField(max_length=30,blank=False, null=False)
-    name_fr = models.CharField(max_length=30,blank=False, null=False)
 
-class Movie(models.Model):
-
-    original_language = models.CharField(max_length=30, null=True, blank=True)
-    original_title = models.CharField(max_length=100,  null=True, blank=True)
-    nationality = models.CharField(max_length=30,blank=True, null=True)
-    local_title = models.CharField(max_length=100)
-    catch_phrase = models.CharField(max_length=300,blank=True,null=True)
-    synopsis = models.CharField(max_length=1000, blank=True, null=True)
-    time_length = models.IntegerField(null=True, blank=True)
-    #vote_average = models.FloatField( null=True, blank=True)
-    #vote_count = models.IntegerField(blank=True,null=True)
-    release_date = models.DateField( null=True, blank=True)
-    backdrop_image = models.ImageField(upload_to='movie_images/backdrop', null=True, blank=True)
-    poster = models.ImageField(upload_to='movie_images/poster', null=True, blank=True)
-   # poster_url = models.URLField(null=True, blank=True)
-    budget = models.FloatField(null=True)
-    remote_api_id = models.IntegerField(blank=True)
-    trailer_video_url = models.URLField(null=True, blank=True)
-    # replaced by comments
-    #summary = models.CharField(max_length=2000)
-    # replaced by description
-    #tagline = models.CharField(max_length=1000)
-    genres = models.ManyToManyField(MovieGenre)
-
-    def __str__(self):
-        if(self.release_date):
-            return "{} ({})".format(self.local_title,self.release_date.year)
-        else:
-            return self.local_title
+#class MovieGenre(models.Model):
+#    #remote_api_id = models.IntegerField(blank=False, null=False, unique=True)
+#    name_en = models.CharField(max_length=30,blank=False, null=False)
+#    name_fr = models.CharField(max_length=30,blank=False, null=False)
+#
+#class Movie(models.Model):
+#
+#    original_language = models.CharField(max_length=30, null=True, blank=True)
+#    original_title = models.CharField(max_length=100,  null=True, blank=True)
+#    nationality = models.CharField(max_length=30,blank=True, null=True)
+#    local_title = models.CharField(max_length=100)
+#    catch_phrase = models.CharField(max_length=300,blank=True,null=True)
+#    synopsis = models.CharField(max_length=1000, blank=True, null=True)
+#    time_length = models.IntegerField(null=True, blank=True)
+#    #vote_average = models.FloatField( null=True, blank=True)
+#    #vote_count = models.IntegerField(blank=True,null=True)
+#    release_date = models.DateField( null=True, blank=True)
+#    backdrop_image = models.ImageField(upload_to='movie_images/backdrop', null=True, blank=True)
+#    poster = models.ImageField(upload_to='movie_images/poster', null=True, blank=True)
+#   # poster_url = models.URLField(null=True, blank=True)
+#    budget = models.FloatField(null=True)
+#    remote_api_id = models.IntegerField(blank=True)
+#    trailer_video_url = models.URLField(null=True, blank=True)
+#    # replaced by comments
+#    #summary = models.CharField(max_length=2000)
+#    # replaced by description
+#    #tagline = models.CharField(max_length=1000)
+#    genres = models.ManyToManyField(MovieGenre)
+#
+#    def __str__(self):
+#        if(self.release_date):
+#            return "{} ({})".format(self.local_title,self.release_date.year)
+#        else:
+#            return self.local_title
 
 
 class MovieCase(Element):
@@ -66,11 +67,11 @@ class MovieCase(Element):
        ('DRA', "Drama"),
        ("ACT", "Action")
     ]
-    movie = models.ForeignKey('Movie',
-    #not sure. TODO
-                                on_delete=models.CASCADE,
-                                related_name='cases',
-                                null=True)
+    #movie = models.ForeignKey('Movie',
+    ##not sure. TODO
+    #                            on_delete=models.CASCADE,
+    #                            related_name='cases',
+    #                            null=True)
     is_new = models.BooleanField("Is new",null=False,blank=False,default=False)
     ean = models.CharField(max_length=13,unique=False, null=True)
 

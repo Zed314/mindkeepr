@@ -8,6 +8,8 @@ from django import forms
 
 from Mindkeepr.models.events import borrow_event
 from . import models
+from Mindkeepr.models.products.book_product import BookProduct
+from Mindkeepr.models.products.movie_product import MovieProduct
 from Mindkeepr.models.elements.attachment import Attachment
 
 from django.forms.models import inlineformset_factory
@@ -471,13 +473,15 @@ class MachineForm(ElementForm):
         widgets = ElementForm.widgets
 
 class BookForm(ElementForm):
-    ean = forms.CharField(max_length=13,min_length=13,required=True)
-    book_abstract = forms.ModelChoiceField(queryset=models.elements.BookAbstract.objects.all(),required=False)
+    ean = forms.CharField(max_length=13, min_length=13, required=True)
+    product = forms.ModelChoiceField(
+        queryset=BookProduct.objects.all(), required=False)
+
     class Meta:
         model = models.elements.Book
-        fields = ElementForm.fields + [ "custom_id_generic", "ean", "format_book", "book_abstract", "use_ean_as_effective_barcode"]
+        fields = ['name', 'description', "comment", 'category', "image", "custom_id_generic",
+                  "ean", "format_book", "product", "use_ean_as_effective_barcode"]
         widgets = ElementForm.widgets
-
 
 class VideoGameForm(ElementForm):
     ean = forms.CharField(max_length=13,min_length=13,required=True)
@@ -486,10 +490,12 @@ class VideoGameForm(ElementForm):
         fields = ElementForm.fields + [ "custom_id_generic", "ean", "platform", "nb_disk", "use_ean_as_effective_barcode"]
         widgets = ElementForm.widgets
 
+
 class MovieForm(ModelForm):
     class Meta:
-        model = models.elements.Movie
-        fields = ("original_language","original_title","local_title","release_date","poster","budget","remote_api_id","trailer_video_url")
+        model = MovieProduct
+        fields = ("original_language","original_title","title","release_date","poster","budget","remote_api_id","trailer_video_url")
+
 
 class MovieCaseForm(ElementForm):
     ean = forms.CharField(max_length=13,min_length=13,required=True)
@@ -538,7 +544,7 @@ class BookInteractiveForm(DisableFieldsMixin,ModelForm):
 class BookAbstractForm(DisableFieldsMixin,ModelForm):
     externalapiid = forms.CharField(max_length=30)
     class Meta:
-        model = models.elements.BookAbstract
+        model = BookProduct
 
         fields = [  "title",
                     "summary",
