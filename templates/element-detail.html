@@ -89,9 +89,9 @@
 
         </table>
             {% if  request.resolver_match.kwargs.pk %}
-            <input type="submit" value="Update">
+            <input type="submit" name="save_book" value="Update">
             {% else %}
-            <input type="submit" value="Save">
+            <input type="submit"  value="Save">
             {% endif %}
         </form>
         {{ form.media.js }}
@@ -132,7 +132,24 @@
     style="width:100%"></table>
   </div>
   <div class="tab-pane" id="elt-product">
-    {{form.instance.product.title}}
+     <form id="form-element-selectproduct" enctype="multipart/form-data" method="post">
+     {% csrf_token %}
+    <table>
+            {{ f_product_select|crispy}}
+            <input type="submit" name="save_product_select" value="Update">
+    </table>
+    </form>
+     <form id="form-element-product" enctype="multipart/form-data" method="post">
+     {% csrf_token %}
+    <table>
+            {{ f_product|crispy}}
+            {% if  f_product.instance.id %}
+            <input type="submit" name="save_product" value="Update">
+            {% else %}
+            <input type="submit" name="save_product" value="Create">
+            {% endif %}
+    </table>
+    </form>
   </div>
   <div class="tab-pane" id="elt-{{form.instance.id}}-borrowreserve">
     <table
