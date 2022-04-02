@@ -1,7 +1,6 @@
 """
 Forms used by Django
 """
-
 from Mindkeepr.models.elements.element import Element
 from django.forms import ModelForm, fields
 from django import forms
@@ -482,6 +481,34 @@ class BookForm(ElementForm):
         fields = ['name', 'description', "comment", 'category', "image", "custom_id_generic",
                   "ean", "format_book", "product", "use_ean_as_effective_barcode"]
         widgets = ElementForm.widgets
+
+class ProductForm(ModelForm):
+    image = forms.ImageField(required=False)
+    #ean = forms.CharField(max_length=13,min_length=13,required=False)
+    fields = ['title', "image", "short_description"]
+
+class BookProductForm(ModelForm):
+    element = forms.ModelChoiceField(queryset=Element.objects.all(),widget=forms.HiddenInput())
+    class Meta:
+        model = models.products.BookProduct
+        fields = ProductForm.fields + [ "element","summary", "nb_pages", "release_date", "cover", "author","author_2","publisher", "book_type", "ean"]
+    def save(self):
+        instance = super(BookProductForm, self).save(commit=False)
+        instance.save()
+        self.cleaned_data["element"].product = self.instance
+        self.cleaned_data["element"].save()
+        return instance
+
+
+class SelectProductForm(forms.Form):
+    product = forms.ModelChoiceField(queryset=BookProduct.objects.all(), required=False)
+    element = forms.ModelChoiceField(queryset=Element.objects.all(),widget=forms.HiddenInput())
+    def save(self):
+        self.cleaned_data["element"].product = self.cleaned_data["product"]
+        self.cleaned_data["element"].save()
+
+
+
 
 class VideoGameForm(ElementForm):
     ean = forms.CharField(max_length=13,min_length=13,required=True)

@@ -64,6 +64,7 @@ urlpatterns = [
     path('location/delete/<int:pk>', views.LocationDelete.as_view(), name='delete_location'),
     path("project/delete/<int:pk>", views.ProjectDelete.as_view(),name="delete_project"),
     path('element/<int:pk>', views.ElementUpdate.as_view(), name='view_element'),
+    path("book/<int:pk>", views.update_book_view, name="book_test_view"),
     path('element/embedded/<int:pk>', views.ElementUpdateEmbedded.as_view(), name='view_element_embedded'),
     path('event/<int:pk>',views.EventUpdate.as_view(),name='view_event'),
     path('element/barcode/<int:pk>', views.barcode, name='view_barcode'),
