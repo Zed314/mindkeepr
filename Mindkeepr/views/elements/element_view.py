@@ -72,6 +72,9 @@ class ElementCreate(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
     def get_success_url(self):
         return reverse_lazy('view_element', kwargs={'pk': self.object.pk})
 
+from Mindkeepr.forms import BookProductForm, SelectProductForm#, MovieProductForm, VideoGameProductForm
+from django.http import HttpResponse, HttpResponseRedirect
+
 class ElementUpdate(LoginRequiredMixin, UpdateView):
 
     model = Element
@@ -82,6 +85,13 @@ class ElementUpdate(LoginRequiredMixin, UpdateView):
         # Todo : change as MovieCaseInteractiveForm is today reserved as interactive add movie
         MovieCase : MovieCaseForm,
         VideoGame : VideoGameForm
+    }
+    product_form_class = {
+        #Component: ComponentForm,
+        #Machine: MachineForm,
+        Book: BookProductForm,
+        #MovieCase : MovieCaseForm,
+        #VideoGame : VideoGameForm
     }
     _permission_required = {
         Component: "Mindkeepr.change_component",
@@ -109,9 +119,13 @@ class ElementUpdate(LoginRequiredMixin, UpdateView):
     def get_form_class(self):
         return self.form_class[self.object.__class__]
 
+    def get_product_form_class(self):
+        return self.product_form_class[self.object.__class__]
+
     def get_context_data(self, **kwargs):
         data = super(ElementUpdate, self).get_context_data(**kwargs)
-        if self.request.POST:
+        print(data,flush=True)
+        if 'save_book' in self.request.POST:
             data['attributes'] = AttributeFormSet(
                 self.request.POST, instance=self.object)
             data['attachments'] = AttachmentFormSet(
@@ -125,22 +139,82 @@ class ElementUpdate(LoginRequiredMixin, UpdateView):
         if not(self.request.user.has_perm(self._permission_required[form.instance.__class__])):
             raise PermissionDenied()
             # 'Mindkeepr.change_machine'
+
+        print("Form valid",flush=True)
         context = self.get_context_data()
         attributes = context['attributes']
         attachments = context["attachments"]
-        with transaction.atomic():
-            form.instance.created_by = self.request.user
-            self.object = form.save()
-            if attributes.is_valid():
-                attributes.instance = self.object
-                attributes.save()
-            if attachments.is_valid():
-                attachments.instance = self.object
-                attachments.save()
-            return super(ElementUpdate, self).form_valid(form)
+        if 'save_book' in self.request.POST:
+            with transaction.atomic():
+                form.instance.created_by = self.request.user
+                self.object = form.save()
+
+                if attributes.is_valid():
+                    attributes.instance = self.object
+                    attributes.save()
+                if attachments.is_valid():
+                    attachments.instance = self.object
+                    attachments.save()
+            return HttpResponseRedirect(self.get_success_url()) #super(ElementUpdate, self).form_valid(form)
+        return HttpResponseRedirect(self.get_success_url())
 
     def get_success_url(self):
         return reverse_lazy('view_element', kwargs={'pk': self.object.pk})
+
+    def post(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        f_element        = self.get_form_class()(instance=self.object)
+        f_product_select    = SelectProductForm(initial={"product":self.object.product,"element":self.object})
+        f_product    = self.get_product_form_class()(instance=self.object.product, initial={"element":self.object})
+
+        if 'save_product_select' in request.POST:
+            f_product_select = SelectProductForm(request.POST)
+            if f_product_select.is_valid():
+                f_product_select.save()
+            else:
+                 return self.render_to_response(self.get_context_data(f_product_select=f_product_select,
+                    f_product=f_product,
+                    form=f_element))
+        if 'save_product' in request.POST:
+            f_product = self.get_product_form_class()(request.POST, instance=self.object.product)
+            if f_product.is_valid():
+                f_product.save()
+            else:
+                return self.render_to_response(self.get_context_data(f_product_select=f_product_select,
+                   f_product=f_product,
+                   form=f_element))
+
+        if 'save_book' in request.POST:
+            # Specify instance to avoid a new element to be created
+            f_element = BookForm(request.POST, instance=self.object)
+            if f_element.is_valid():
+               self.form_valid(f_element)
+            else:
+                 return self.render_to_response(self.get_context_data(f_product_select=f_product_select,
+                    f_product=f_product,
+                    form=f_element))
+
+        return HttpResponseRedirect(self.get_success_url())
+        # HttpResponse better, as otherwise change in element’s product are not refreshed in form of product or product_select
+        #return self.render_to_response(
+        #      self.get_context_data(f_product_select=f_product_select,
+        #            f_product=f_product,
+        #            form=f_element))
+
+
+
+    def get(self, request, *args, **kwargs):
+        super(ElementUpdate, self).get(request, *args, **kwargs)
+        f_element        = self.get_form_class()(instance=self.object)
+        f_product_select    = SelectProductForm(initial={"product":self.object.product,"element":self.object})
+        f_product    = self.get_product_form_class()(instance=self.object.product, initial={"element":self.object})
+
+        return self.render_to_response(self.get_context_data(
+            object=self.object, f_product_select=f_product_select,
+            f_product=f_product,
+            form=f_element,
+        ))
+
 
 
 class ElementDelete(LoginRequiredMixin, PermissionRequiredMixin, DeleteView):
