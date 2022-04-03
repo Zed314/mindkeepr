@@ -5,7 +5,7 @@ from ..search import searchFilter
 from . import ElementCreate
 from Mindkeepr.models.elements import Machine
 from Mindkeepr.serializers.elements.machine import MachineSerializer
-from Mindkeepr.forms import MachineForm
+from Mindkeepr.forms.elements import MachineForm
 
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render

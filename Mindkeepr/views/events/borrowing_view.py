@@ -8,7 +8,7 @@ from Mindkeepr.models.events import BorrowEvent
 from Mindkeepr.models.elements import Element
 from . import EventViewModal
 from django.contrib.auth.models import User
-from Mindkeepr.forms import BorrowEventForm, BorrowEventImmediateForm, BorrowEventReserveForm
+from Mindkeepr.forms.events import BorrowEventForm, BorrowEventImmediateForm, BorrowEventReserveForm
 from django.core.exceptions import PermissionDenied
 
 from django.contrib.auth.decorators import login_required

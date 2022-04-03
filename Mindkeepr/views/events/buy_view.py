@@ -5,7 +5,7 @@ from Mindkeepr.serializers.events.buy_event import BuyEventSerializer
 
 from Mindkeepr.models.events import BuyEvent
 from . import EventViewModal
-from Mindkeepr.forms import BuyEventForm
+from Mindkeepr.forms.events import BuyEventForm
 
 class BuysView(LoginAndPermissionRequiredMixin, viewsets.ModelViewSet):
     serializer_class = BuyEventSerializer

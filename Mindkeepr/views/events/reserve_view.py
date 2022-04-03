@@ -5,7 +5,7 @@ from Mindkeepr.serializers.events.use_event import UseEventSerializer
 
 from Mindkeepr.models.events import UseEvent
 from . import EventViewModal
-from Mindkeepr.forms import UseEventForm, UnUseEventForm
+from Mindkeepr.forms.events import UseEventForm, UnUseEventForm
 
 class ReservesView(LoginAndPermissionRequiredMixin, viewsets.ModelViewSet):
     serializer_class = UseEventSerializer

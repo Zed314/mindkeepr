@@ -3,7 +3,8 @@ from ..mixins import LoginRequiredMixin
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
 from ..search import searchFilter
-from Mindkeepr.forms import BookInteractiveForm, BookProductForm
+from Mindkeepr.forms.products import BookProductForm, SelectProductForm
+from Mindkeepr.forms.elements import BookForm, BookInteractiveForm
 from . import ElementCreate
 from Mindkeepr.models.elements import Book
 from Mindkeepr.models.products.book_product import BookProduct
@@ -12,9 +13,7 @@ from Mindkeepr.models.events import BuyEvent
 from Mindkeepr.serializers.elements.book import BookSerializer
 from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.views.generic.edit import CreateView
-from Mindkeepr.forms import BookForm
 from django.http.response import JsonResponse
-from Mindkeepr.forms import BookProductForm, SelectProductForm
 from olclient.openlibrary import OpenLibrary
 import olclient.common as common
 import datetime

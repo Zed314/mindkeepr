@@ -5,7 +5,7 @@ from Mindkeepr.serializers.events.consume_event import ConsumeEventSerializer
 
 from Mindkeepr.models.events import ConsumeEvent
 from . import EventViewModal
-from Mindkeepr.forms import ConsumeEventForm
+from Mindkeepr.forms.events import ConsumeEventForm
 
 class ConsumesView(LoginAndPermissionRequiredMixin, viewsets.ModelViewSet):
     serializer_class = ConsumeEventSerializer

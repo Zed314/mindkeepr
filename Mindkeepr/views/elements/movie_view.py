@@ -13,7 +13,8 @@ from Mindkeepr.models.events import BuyEvent
 from Mindkeepr.models.location import Location
 from Mindkeepr.serializers.elements.movie import  MovieCaseSerializer
 
-from Mindkeepr.forms import MovieCaseInteractiveForm, MovieForm
+from Mindkeepr.forms.elements import MovieCaseInteractiveForm
+from Mindkeepr.forms.products import MovieProductForm
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
 from django.contrib.auth.mixins import PermissionRequiredMixin
@@ -60,13 +61,13 @@ class MovieCreate(LoginRequiredMixin, PermissionRequiredMixin, PresetMovieMixin,
     template_name = 'movie-detail.html'
     @property
     def form_class(self):
-        return MovieForm
+        return MovieProductForm
     success_url = None
 
 class MovieViewModal(LoginRequiredMixin, PermissionRequiredMixin,CreateView):
     template_name = 'movie-detail-modal.html'
     permission_required = "Mindkeepr.add_movie"
-    form_class = MovieForm
+    form_class = MovieProductForm
     success_url = '/'
 
 class PresetNameMixin():

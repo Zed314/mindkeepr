@@ -6,7 +6,7 @@ from Mindkeepr.serializers.user import UserDetailedSerializer
 from django.db.models import Q
 from rest_framework import viewsets
 from django.views.generic.edit import FormView
-from Mindkeepr.forms import StaffUserDummyForm
+from Mindkeepr.forms.forms import StaffUserDummyForm
 from django.contrib.auth.mixins import UserPassesTestMixin
 
 from .mixins import LoginRequiredMixin
