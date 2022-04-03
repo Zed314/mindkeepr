@@ -3,7 +3,7 @@ from ..mixins import LoginRequiredMixin
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
 from ..search import searchFilter
-from Mindkeepr.forms import VideoGameForm
+from Mindkeepr.forms.elements import VideoGameForm
 from . import ElementCreate
 
 from Mindkeepr.serializers.elements.videogame import VideoGameSerializer

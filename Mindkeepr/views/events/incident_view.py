@@ -5,7 +5,7 @@ from Mindkeepr.serializers.events.incident_event import IncidentEventSerializer
 
 from Mindkeepr.models.events import IncidentEvent
 from . import EventViewModal
-from Mindkeepr.forms import IncidentEventForm
+from Mindkeepr.forms.events import IncidentEventForm
 class IncidentsView(LoginAndPermissionRequiredMixin, viewsets.ModelViewSet):
     serializer_class = IncidentEventSerializer
 

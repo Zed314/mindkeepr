@@ -5,7 +5,7 @@ from django.core.exceptions import PermissionDenied
 from django.urls import reverse_lazy
 from django.views.generic.edit import CreateView
 from Mindkeepr.models.events import *
-from Mindkeepr.forms import *
+from Mindkeepr.forms.events import *
 
 from django.contrib.auth.mixins import PermissionRequiredMixin
 from ..mixins import PresetElementQuantitySourceMixin

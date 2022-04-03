@@ -1,5 +1,5 @@
 from Mindkeepr.models.models import UserProfile
-from Mindkeepr.forms import UserProfileForm
+from Mindkeepr.forms.userprofile import UserProfileForm
 from .mixins import LoginRequiredMixin
 from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.views.generic.edit import UpdateView

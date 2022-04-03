@@ -10,12 +10,15 @@ from ..search import searchFilter
 from django.db import transaction
 from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
-from Mindkeepr.forms import AttributeFormSet, AttachmentFormSet, VideoGameForm
+from Mindkeepr.forms.forms import AttributeFormSet, AttachmentFormSet
+from Mindkeepr.forms.elements.videogame import VideoGameForm
 from django.urls import reverse_lazy
 
 from Mindkeepr.models.elements import Component,Machine,Book, MovieCase, VideoGame
-from Mindkeepr.forms import MachineForm,ComponentForm,BookForm, MovieCaseForm
+from Mindkeepr.forms.elements import MachineForm,ComponentForm,BookForm, MovieCaseForm
 from django.core.exceptions import PermissionDenied
+from Mindkeepr.forms.products import BookProductForm, SelectProductForm#, MovieProductForm, VideoGameProductForm
+from django.http import HttpResponse, HttpResponseRedirect
 
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
@@ -73,8 +76,7 @@ class ElementCreate(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
     def get_success_url(self):
         return reverse_lazy('view_element', kwargs={'pk': self.object.pk})
 
-from Mindkeepr.forms import BookProductForm, SelectProductForm#, MovieProductForm, VideoGameProductForm
-from django.http import HttpResponse, HttpResponseRedirect
+
 
 class ElementUpdate(LoginRequiredMixin, UpdateView):
 

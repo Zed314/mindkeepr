@@ -5,7 +5,7 @@ from Mindkeepr.serializers.events.maintenance_event import MaintenanceEventSeria
 from django.views.generic.edit import UpdateView
 from Mindkeepr.models.events import MaintenanceEvent
 from . import EventViewModal
-from Mindkeepr.forms import MaintenanceEventForm
+from Mindkeepr.forms.events import MaintenanceEventForm
 from django.contrib.auth.mixins import PermissionRequiredMixin
 
 class MaintenancesView(LoginAndPermissionRequiredMixin,viewsets.ModelViewSet):

@@ -5,7 +5,7 @@ from Mindkeepr.serializers.events.sell_event import SellEventSerializer
 
 from Mindkeepr.models.events import SellEvent
 from . import EventViewModal
-from Mindkeepr.forms import SellEventForm
+from Mindkeepr.forms.events import SellEventForm
 
 class SellsView(LoginAndPermissionRequiredMixin, viewsets.ModelViewSet):
     serializer_class = SellEventSerializer
@@ -18,7 +18,6 @@ class SellsView(LoginAndPermissionRequiredMixin, viewsets.ModelViewSet):
         element = self.request.query_params.get('element', None)
         if element is not None:
             queryset = queryset.filter(element_id=element)
-
         return queryset
 
 class SellEventViewModal(EventViewModal):
