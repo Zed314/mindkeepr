@@ -68,15 +68,9 @@ class BookAdmin(admin.ModelAdmin):
     inlines = (BuyEventInline,UseEventInline, ConsumeEventInline, AttachmentInline)
     pass
 
-#@admin.register(BookAbstract)
-#class BookAbstractAdmin(admin.ModelAdmin):
-    #inlines = (BookInline,)
-
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
     inlines = (ElementInline,)
-
-
 
 @admin.register(Component)
 class ComponentAdmin(admin.ModelAdmin):

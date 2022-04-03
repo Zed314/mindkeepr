@@ -86,7 +86,7 @@ urlpatterns = [
     path("formmoviemodal",movie_view.MovieViewModal.as_view()),
     path("formmoviecasemodal",movie_view.MovieCaseViewModal.as_view()),
     path("formbookmodal",book_view.BookViewModal.as_view()),
-    path("formbookabstractmodal", book_view.BookAbstractViewModal.as_view()),
+    path("formbookproductmodal", book_view.BookProductViewModal.as_view()),
     path('elements', views.elements,name="elements-list"),
     path("components", views.components,name="components-list"),
     path("machines",views.machines,name="machines-list"),

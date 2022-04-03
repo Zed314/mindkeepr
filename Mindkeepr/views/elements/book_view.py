@@ -3,7 +3,7 @@ from ..mixins import LoginRequiredMixin
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
 from ..search import searchFilter
-from Mindkeepr.forms import BookInteractiveForm, BookAbstractForm
+from Mindkeepr.forms import BookInteractiveForm, BookProductForm
 from . import ElementCreate
 from Mindkeepr.models.elements import Book
 from Mindkeepr.models.products.book_product import BookProduct
@@ -48,13 +48,13 @@ def get_image_url(image_url):
         lf.write(block)
     return file_name, files.File(lf)
 
-def create_bookabstract_from_gb_ean(ean, cover = True):
+def create_bookproduct_from_gb_ean(ean, cover = True):
     res = requests.get(url="https://www.googleapis.com/books/v1/volumes?q=isbn:"+ean)
     gl_book = res.json()
     if gl_book["totalItems"] == 0:
         return None
-    return create_bookabstract_from_gb(gl_book["items"][0]["id"],ean,cover)
-def create_bookabstract_from_gb(gl_book_id,ean=None, cover = True):
+    return create_bookproduct_from_gb(gl_book["items"][0]["id"],ean,cover)
+def create_bookproduct_from_gb(gl_book_id,ean=None, cover = True):
     res = requests.get(url="https://www.googleapis.com/books/v1/volumes/"+gl_book_id)
     gl_book = res.json()
     gl_book = gl_book["volumeInfo"]
@@ -98,7 +98,7 @@ def fetch_cover_from_gb(gl_book_id):
             return get_image_url(gl_book["imageLinks"].get("thumbnail"))
     return None,None
 
-def create_bookabstract_from_ol(ol_book):
+def create_bookproduct_from_ol(ol_book):
 
     release_date = None
     author_2 = None
@@ -163,7 +163,7 @@ class PresetNameMixin():
                 initial['externalapiid'] = externalapiid
                 self._disabled_fields.append("externalapiid")
 
-                book = create_bookabstract_from_gb(externalapiid, None, False)
+                book = create_bookproduct_from_gb(externalapiid, None, False)
                 initial["summary"] = book.summary
                 initial["author"] = book.author
                 initial["author_2"] = book.author_2
@@ -201,11 +201,11 @@ class PresetAbstractBookMixin():
 
         return initial
 #oups, inversé presetnamemixin de book... je vais devoir le changer plus tard
-class BookAbstractViewModal(LoginRequiredMixin, PermissionRequiredMixin, PresetNameMixin, CreateView):
-    template_name = 'bookabstract-detail-modal.html'
+class BookProductViewModal(LoginRequiredMixin, PermissionRequiredMixin, PresetNameMixin, CreateView):
+    template_name = 'bookproduct-detail-modal.html'
     permission_required = "Mindkeepr.add_abstractbook"
-    form_class = BookAbstractForm
-    success_url = '/formbookabstractmodal'
+    form_class = BookProductForm
+    success_url = '/formbookproductmodal'
 
     def form_valid(self, form):
         if not form.instance.id:
@@ -217,7 +217,7 @@ class BookAbstractViewModal(LoginRequiredMixin, PermissionRequiredMixin, PresetN
             #for book in Book.objects.filter(ean=form.cleaned_data["ean"]).filter(book_abstract__isnull=True):
                 #book.book_abstract = form.instance
 #                book.save()
-        response =  super(BookAbstractViewModal, self).form_valid(form)
+        response =  super(BookProductViewModal, self).form_valid(form)
         # Put it in model, maybe ?
         for book in Book.objects.filter(ean=form.cleaned_data["ean"]).filter(product__isnull=True):
             book.product = form.instance
@@ -238,10 +238,10 @@ class BookViewModal(LoginRequiredMixin, PermissionRequiredMixin, PresetNameMixin
         except BookProduct.DoesNotExist:
            # ol = OpenLibrary()
            # book_open_library = ol.Edition.get(olid=form.cleaned_data["externalapiid"])
-            bookabstract = create_bookabstract_from_gb(form.cleaned_data["externalapiid"],form.cleaned_data["ean"])
+            bookproduct = create_bookproduct_from_gb(form.cleaned_data["externalapiid"],form.cleaned_data["ean"])
 
-            bookabstract.save()
-            form.instance.product = bookabstract
+            bookproduct.save()
+            form.instance.product = bookproduct
         #TODO : change...
         location_destination = Location.objects.get(id=2)
         form.instance.creator = self.request.user
@@ -301,10 +301,10 @@ class BookCreate(ElementCreate):
             try:
                 form.instance.product = BookProduct.objects.get(ean = form.cleaned_data["ean"])
             except BookProduct.DoesNotExist:
-                bookabstract = create_bookabstract_from_gb_ean(form.cleaned_data["ean"])
-                if bookabstract:
-                    bookabstract.save()
-                    form.instance.product = bookabstract
+                bookproduct = create_bookproduct_from_gb_ean(form.cleaned_data["ean"])
+                if bookproduct:
+                    bookproduct.save()
+                    form.instance.product = bookproduct
         form.instance.creator = self.request.user
         response =  super(BookCreate , self).form_valid(form)
 
