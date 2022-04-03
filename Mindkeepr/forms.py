@@ -2,12 +2,14 @@
 Forms used by Django
 """
 from Mindkeepr.models.elements.element import Element
+from Mindkeepr.models.elements import Book
 from django.forms import ModelForm, fields
 from django import forms
 
 from Mindkeepr.models.events import borrow_event
 from . import models
 from Mindkeepr.models.products.book_product import BookProduct
+from Mindkeepr.models.products import Product
 from Mindkeepr.models.products.movie_product import MovieProduct
 from Mindkeepr.models.elements.attachment import Attachment
 
@@ -488,10 +490,15 @@ class ProductForm(ModelForm):
     fields = ['title', "image", "short_description"]
 
 class BookProductForm(ModelForm):
-    element = forms.ModelChoiceField(queryset=Element.objects.all(),widget=forms.HiddenInput())
+    element = forms.ModelChoiceField(queryset=Book.objects.all(),widget=forms.HiddenInput())
+
     class Meta:
         model = models.products.BookProduct
         fields = ProductForm.fields + [ "element","summary", "nb_pages", "release_date", "cover", "author","author_2","publisher", "book_type", "ean"]
+    @staticmethod
+    def required_perm_edit():
+        return "Mindkeepr.change_bookproduct"
+
     def save(self):
         instance = super(BookProductForm, self).save(commit=False)
         instance.save()
@@ -501,8 +508,9 @@ class BookProductForm(ModelForm):
 
 
 class SelectProductForm(forms.Form):
-    product = forms.ModelChoiceField(queryset=BookProduct.objects.all(), required=False)
+    product = forms.ModelChoiceField(queryset=Product.objects.all(), required=False)
     element = forms.ModelChoiceField(queryset=Element.objects.all(),widget=forms.HiddenInput())
+
     def save(self):
         self.cleaned_data["element"].product = self.cleaned_data["product"]
         self.cleaned_data["element"].save()

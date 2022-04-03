@@ -1,3 +1,4 @@
+from Mindkeepr.models.products.book_product import BookProduct
 from Mindkeepr.serializers.elements.element import ElementSerializer
 from rest_framework import viewsets
 from ..mixins import LoginRequiredMixin
@@ -89,7 +90,7 @@ class ElementUpdate(LoginRequiredMixin, UpdateView):
     product_form_class = {
         #Component: ComponentForm,
         #Machine: MachineForm,
-        Book: BookProductForm,
+        BookProduct: BookProductForm,
         #MovieCase : MovieCaseForm,
         #VideoGame : VideoGameForm
     }
@@ -120,7 +121,7 @@ class ElementUpdate(LoginRequiredMixin, UpdateView):
         return self.form_class[self.object.__class__]
 
     def get_product_form_class(self):
-        return self.product_form_class[self.object.__class__]
+        return self.product_form_class[self.object.product_class()]
 
     def get_context_data(self, **kwargs):
         data = super(ElementUpdate, self).get_context_data(**kwargs)
@@ -136,19 +137,15 @@ class ElementUpdate(LoginRequiredMixin, UpdateView):
         return data
 
     def form_valid(self, form):
-        if not(self.request.user.has_perm(self._permission_required[form.instance.__class__])):
-            raise PermissionDenied()
-            # 'Mindkeepr.change_machine'
-
-        print("Form valid",flush=True)
         context = self.get_context_data()
         attributes = context['attributes']
         attachments = context["attachments"]
         if 'save_book' in self.request.POST:
+            if not(self.request.user.has_perm(self._permission_required[form.instance.__class__])):
+                raise PermissionDenied()
             with transaction.atomic():
                 form.instance.created_by = self.request.user
                 self.object = form.save()
-
                 if attributes.is_valid():
                     attributes.instance = self.object
                     attributes.save()
@@ -156,6 +153,13 @@ class ElementUpdate(LoginRequiredMixin, UpdateView):
                     attachments.instance = self.object
                     attachments.save()
             return HttpResponseRedirect(self.get_success_url()) #super(ElementUpdate, self).form_valid(form)
+        if "save_product_select"  in self.request.POST:
+            if (not(self.request.user.has_perm(self.get_product_form_class().required_perm_edit())) or
+                not(self.request.user.has_perm(self._permission_required[self.object.__class__]))):
+                raise PermissionDenied()
+        if "save_product"  in self.request.POST:
+            if not(self.request.user.has_perm(self.get_product_form_class().required_perm_edit())):
+                raise PermissionDenied()
         return HttpResponseRedirect(self.get_success_url())
 
     def get_success_url(self):
@@ -165,11 +169,13 @@ class ElementUpdate(LoginRequiredMixin, UpdateView):
         self.object = self.get_object()
         f_element        = self.get_form_class()(instance=self.object)
         f_product_select    = SelectProductForm(initial={"product":self.object.product,"element":self.object})
+        f_product_select.fields["product"].queryset = self.object.product_class().objects.all()
         f_product    = self.get_product_form_class()(instance=self.object.product, initial={"element":self.object})
 
         if 'save_product_select' in request.POST:
             f_product_select = SelectProductForm(request.POST)
             if f_product_select.is_valid():
+                self.form_valid(f_product_select)
                 f_product_select.save()
             else:
                  return self.render_to_response(self.get_context_data(f_product_select=f_product_select,
@@ -178,6 +184,7 @@ class ElementUpdate(LoginRequiredMixin, UpdateView):
         if 'save_product' in request.POST:
             f_product = self.get_product_form_class()(request.POST, instance=self.object.product)
             if f_product.is_valid():
+                self.form_valid(f_product)
                 f_product.save()
             else:
                 return self.render_to_response(self.get_context_data(f_product_select=f_product_select,
@@ -207,6 +214,7 @@ class ElementUpdate(LoginRequiredMixin, UpdateView):
         super(ElementUpdate, self).get(request, *args, **kwargs)
         f_element        = self.get_form_class()(instance=self.object)
         f_product_select    = SelectProductForm(initial={"product":self.object.product,"element":self.object})
+        f_product_select.fields["product"].queryset = self.object.product_class().objects.all()
         f_product    = self.get_product_form_class()(instance=self.object.product, initial={"element":self.object})
 
         return self.render_to_response(self.get_context_data(

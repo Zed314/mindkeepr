@@ -67,6 +67,9 @@ class Element(PolymorphicModel):
     def type(self):
         return self.__class__.__name__
 
+    @staticmethod
+    def product_class():
+        return None
 
     @property
     def borrow_interval_session(self):
