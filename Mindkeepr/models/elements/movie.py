@@ -2,6 +2,8 @@
 from django.db import models
 from itertools import count, filterfalse
 
+from Mindkeepr.models.products.movie_product import MovieProduct
+
 from .element import Element
 
 
@@ -126,3 +128,7 @@ class MovieCase(Element):
     @property
     def is_unique(self):
         return True
+
+    @staticmethod
+    def product_class():
+        return MovieProduct

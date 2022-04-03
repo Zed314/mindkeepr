@@ -20,7 +20,7 @@ class MovieProduct(Product):
     backdrop_image = models.ImageField(upload_to='movie_product_images/backdrop', null=True, blank=True)
     poster = models.ImageField(upload_to='movie_product_images/poster', null=True, blank=True)
    # poster_url = models.URLField(null=True, blank=True)
-    budget = models.FloatField(null=True)
+    budget = models.FloatField(null=True, blank=True)
     remote_api_id = models.IntegerField(blank=True)
     trailer_video_url = models.URLField(null=True, blank=True)
     # replaced by comments

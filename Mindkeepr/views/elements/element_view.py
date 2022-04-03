@@ -1,4 +1,5 @@
-from Mindkeepr.models.products.book_product import BookProduct
+
+from Mindkeepr.models.products import BookProduct, ComponentProduct, MovieProduct, VideoGameProduct, MachineProduct
 from Mindkeepr.serializers.elements.element import ElementSerializer
 from rest_framework import viewsets
 from ..mixins import LoginRequiredMixin
@@ -17,7 +18,7 @@ from django.urls import reverse_lazy
 from Mindkeepr.models.elements import Component,Machine,Book, MovieCase, VideoGame
 from Mindkeepr.forms.elements import MachineForm,ComponentForm,BookForm, MovieCaseForm
 from django.core.exceptions import PermissionDenied
-from Mindkeepr.forms.products import BookProductForm, SelectProductForm#, MovieProductForm, VideoGameProductForm
+from Mindkeepr.forms.products import BookProductForm, SelectProductForm, MachineProductForm, ComponentProductForm, MovieProductForm, VideoGameProductForm
 from django.http import HttpResponse, HttpResponseRedirect
 
 from django.contrib.auth.decorators import login_required
@@ -90,9 +91,11 @@ class ElementUpdate(LoginRequiredMixin, UpdateView):
         VideoGame : VideoGameForm
     }
     product_form_class = {
-        #Component: ComponentForm,
-        #Machine: MachineForm,
+        ComponentProduct: ComponentProductForm,
+        MachineProduct: MachineProductForm,
         BookProduct: BookProductForm,
+        MovieProduct: MovieProductForm,
+        VideoGameProduct: VideoGameProductForm,
         #MovieCase : MovieCaseForm,
         #VideoGame : VideoGameForm
     }
@@ -128,7 +131,7 @@ class ElementUpdate(LoginRequiredMixin, UpdateView):
     def get_context_data(self, **kwargs):
         data = super(ElementUpdate, self).get_context_data(**kwargs)
         print(data,flush=True)
-        if 'save_book' in self.request.POST:
+        if 'save_element' in self.request.POST:
             data['attributes'] = AttributeFormSet(
                 self.request.POST, instance=self.object)
             data['attachments'] = AttachmentFormSet(
@@ -142,7 +145,7 @@ class ElementUpdate(LoginRequiredMixin, UpdateView):
         context = self.get_context_data()
         attributes = context['attributes']
         attachments = context["attachments"]
-        if 'save_book' in self.request.POST:
+        if 'save_element' in self.request.POST:
             if not(self.request.user.has_perm(self._permission_required[form.instance.__class__])):
                 raise PermissionDenied()
             with transaction.atomic():
@@ -177,25 +180,29 @@ class ElementUpdate(LoginRequiredMixin, UpdateView):
         if 'save_product_select' in request.POST:
             f_product_select = SelectProductForm(request.POST)
             if f_product_select.is_valid():
+                print("OK",flush=True)
                 self.form_valid(f_product_select)
                 f_product_select.save()
             else:
-                 return self.render_to_response(self.get_context_data(f_product_select=f_product_select,
-                    f_product=f_product,
-                    form=f_element))
+                print("KÈO",flush=True)
+                return self.render_to_response(self.get_context_data(f_product_select=f_product_select,
+                   f_product=f_product,
+                   form=f_element))
         if 'save_product' in request.POST:
             f_product = self.get_product_form_class()(request.POST, instance=self.object.product)
             if f_product.is_valid():
+                print("ok",flush=True)
                 self.form_valid(f_product)
                 f_product.save()
             else:
+                print("KÈO",flush=True)
                 return self.render_to_response(self.get_context_data(f_product_select=f_product_select,
                    f_product=f_product,
                    form=f_element))
 
-        if 'save_book' in request.POST:
+        if 'save_element' in request.POST:
             # Specify instance to avoid a new element to be created
-            f_element = BookForm(request.POST, instance=self.object)
+            f_element = self.get_form_class()(request.POST, instance=self.object)
             if f_element.is_valid():
                self.form_valid(f_element)
             else:
