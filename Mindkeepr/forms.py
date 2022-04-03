@@ -576,7 +576,7 @@ class BookInteractiveForm(DisableFieldsMixin,ModelForm):
     }
 
 
-class BookAbstractForm(DisableFieldsMixin,ModelForm):
+class BookProductForm(DisableFieldsMixin,ModelForm):
     externalapiid = forms.CharField(max_length=30)
     class Meta:
         model = BookProduct
