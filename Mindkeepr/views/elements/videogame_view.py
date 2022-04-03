@@ -7,9 +7,6 @@ from Mindkeepr.forms.elements import VideoGameForm
 from . import ElementCreate
 
 from Mindkeepr.serializers.elements.videogame import VideoGameSerializer
-from django.contrib.auth.mixins import PermissionRequiredMixin
-
-
 
 from Mindkeepr.models.elements import VideoGame
 

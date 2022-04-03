@@ -4,6 +4,7 @@ from itertools import count, filterfalse
 
 from .mixins import Consumable
 from .element import Element
+from Mindkeepr.models.products import ComponentProduct
 
 class Component(Consumable,Element):
     """ Electronic component """
@@ -21,3 +22,7 @@ class Component(Consumable,Element):
 
     def refresh_custom_id_prefix_generic(self):
         self.custom_id_prefix_generic="X"
+
+    @staticmethod
+    def product_class():
+        return ComponentProduct

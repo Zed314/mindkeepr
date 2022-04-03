@@ -1,16 +1,16 @@
 from django.http.response import JsonResponse
 from tmdbv3api import tmdb
-from Mindkeepr import models
+
 from rest_framework import viewsets
 from ..mixins import LoginRequiredMixin
 
 from ..search import searchFilter
 from . import ElementCreate
 
-from Mindkeepr.models.elements import MovieCase
-
 from Mindkeepr.models.events import BuyEvent
 from Mindkeepr.models.location import Location
+from Mindkeepr.models.elements import MovieCase
+from Mindkeepr.models.products import MovieProduct, MovieProductGenre
 from Mindkeepr.serializers.elements.movie import  MovieCaseSerializer
 
 from Mindkeepr.forms.elements import MovieCaseInteractiveForm

@@ -2,6 +2,8 @@
 from django.db import models
 
 from itertools import count, filterfalse
+
+from Mindkeepr.models.products.machine_product import MachineProduct
 from .element import Element
 
 
@@ -51,3 +53,7 @@ class Machine(Element):
 
     def refresh_barcode_effective(self):
         self.barcode_effective = self.id_barcode
+
+    @staticmethod
+    def product_class():
+        return MachineProduct
