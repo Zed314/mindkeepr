@@ -31,7 +31,10 @@ class VideoGame(Element):
     )
 
     def __str__(self):
-        return self.name
+        if self.name and self.custom_id_prefix_generic and self.custom_id_generic:
+            return "{} ({}{:03d})".format(self.name,self.custom_id_prefix_generic,self.custom_id_generic)
+        else:
+            return "None"
 
     def refresh_barcode_effective(self):
         if self.use_ean_as_effective_barcode:

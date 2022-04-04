@@ -105,10 +105,10 @@ class MovieCase(Element):
     #        return self.name
 
     def __str__(self):
-        if self.custom_id_generic:
-            return "{} ({}{:03d})".format(self.name,self.format_disk[0],self.custom_id_generic)
+        if self.name and self.custom_id_prefix_generic and self.custom_id_generic:
+            return "{} ({}{:03d})".format(self.name,self.custom_id_prefix_generic,self.custom_id_generic)
         else:
-            return self.name
+            return "None"
 
     def refresh_barcode_effective(self):
         if self.use_ean_as_effective_barcode:
