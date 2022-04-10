@@ -128,13 +128,9 @@ function loadData(search) {
       ean13 = book.volumeInfo.industryIdentifiers.find(o => o.type === 'ISBN_13');
       if(ean13 != null)
       {
-        console.log(preset_ean)
-        console.log(ean13)
       ean_identifier = preset_ean? ean13.identifier:""
-      console.log(ean_identifier)
       title_encoded = encodeURIComponent(book.volumeInfo.title)
       imgurl=""
-      console.log(book.volumeInfo)
       if(book.volumeInfo.imageLinks)
       {
         imgurl=book.volumeInfo.imageLinks.thumbnail;
@@ -182,7 +178,6 @@ form.on("submit", function(e){
 $('#searchfieldbook').on('input', function() {
     // do something
    // alert("ee")
-    console.log($('#searchfieldbook').val())
     loadData($('#searchfieldbook').val())
 });
 </script>

@@ -1,0 +1,40 @@
+<div class="container">
+    <div class="row">
+        <div class="col-sm-12">
+            <table id="borrowinghistory-table" class="table compact table-striped table-bordered element-borrow-table" style="width:100%">
+                <thead>
+                <tr>
+                </tr>
+                </thead>
+            </table>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+
+    $('#borrowinghistory-table').DataTable({
+        'serverSide': true,
+        'ajax': '/api/v1/borrowings?user={{ object.id }}&state=DONE&format=datatables',
+        'columns': [
+            {
+                data: 'element',
+                title: 'Element',
+                render: function (data, type, row, meta) {
+                    if (type === 'display') {
+                        url = "/element/" + data.id
+                        data = '<a href="' + url + '">' + data.name + '</a>';
+                        return data;
+                    } else {
+                        return data.name;
+                    }
+                }
+
+            },
+            {data: 'borrow_date_display', title: "From"},
+            {data: 'return_date_display', title: "To"},
+        ],
+        "order": [[ 2, "desc" ]]
+
+    });
+</script>
+

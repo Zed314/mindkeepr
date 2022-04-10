@@ -12,6 +12,7 @@
 
             <nav class="nav nav-tabs">
                 <a class="nav-item nav-link active" href="#borrows" data-toggle="tab">Borrows</a>
+                <a class="nav-item nav-link" href="#borrowhistory" data-toggle="tab">Borrow history</a>
                 <a class="nav-item nav-link" href="#reservations" data-toggle="tab">Reservations</a>
                 <a class="nav-item nav-link" href="#maintenances" data-toggle="tab">Maintenances</a>
 
@@ -21,6 +22,9 @@
 
                 <div class="tab-pane active" id="borrows">
                     {% include "profile/borrowings-list-component.html" %}
+                </div>
+                <div class="tab-pane" id="borrowhistory">
+                    {% include "profile/borrowinghistory-component.html" %}
                 </div>
                 <div class="tab-pane" id="reservations">
                     {% include "profile/reservation-list-component.html" %}

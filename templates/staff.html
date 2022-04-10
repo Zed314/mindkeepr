@@ -10,7 +10,6 @@
         $("#formbarcode").submit(function(e) {
 
         e.preventDefault(); // avoid to execute the actual submit of the form.
-        console.log($("#barcodeinput").val());
        var form = $(this);
 
 
@@ -25,9 +24,11 @@
 
 
         $('#active-borrowings-table').DataTable().ajax.url(
-            "/api/v1/borrowings/?barcode_extended="+$("#barcodeinput").val()+"&format=datatables"
+            "/api/v1/borrowings/?barcode_extended="+$("#barcodeinput").val()+"&state=IN_PROGRESS&format=datatables"
         ).load();
-
+        $('#reserve-borrowings-table').DataTable().ajax.url(
+            "/api/v1/borrowings/?barcode_extended="+$("#barcodeinput").val()+"&state=NOT_STARTED&format=datatables"
+        ).load();
 
 /*
 
@@ -39,16 +40,16 @@
         });
 
         $("#id_user").on('change', function (evt) {
-            console.log(this.value)
             value = this.value
             $("#newborrowimmediate").data("beneficiary-id",value);
-            console.log($("#newborrowimmediate").data("beneficiary-id"))
             $('#active-borrowings-table').DataTable().ajax.url(
             "/api/v1/borrowings/?user="+value+"&state=IN_PROGRESS&format=datatables"
-        ).load();
-        $('#reserve-borrowings-table').DataTable().ajax.url(
+            ).load();
+         //   $('#active-borrowings-table').DataTable().column(5).search(value).draw();
+            $('#reserve-borrowings-table').DataTable().ajax.url(
             "/api/v1/borrowings/?user="+value+"&state=NOT_STARTED&format=datatables"
-        ).load();
+            ).load();
+            //$('#reserve-borrowings-table').DataTable().column(4).search(value).draw();
         });
     });
 </script>
@@ -159,22 +160,34 @@
                 searchable: true,
             },
             {
+                data: "beneficiary.id",
+                title: "Beneficiary Id ",
+                visible: false
+            },
+            {
                 data: "beneficiary.first_name",
-                title: "Beneficiary",
+                title: "Beneficiary first name",
                 visible: false
             },
 
             {
                 data: "beneficiary.last_name",
-                title: "Beneficiary",
+                title: "Beneficiary last name",
                 visible: false
             },
-            {
-                data: "beneficiary.get_full_name",
-                title: "Beneficiary",
-                orderable: false,
-                searchable: false
-            },
+            { data: "beneficiary.get_full_name", visible: true, title: "For",
+            render: function (data, type, row, meta) {
+                if (type === 'display') {
+                    if (data) {
+                        return "<a href='/profile/"+row.beneficiary.id+"'"+" >"+data+"</a>";
+                    }
+                    else {
+                        return "Undefined";
+                    }
+                } else {
+                    return data;
+                }
+            }},
             {
                 data: "element.barcode_effective",
                 title: "Name",
@@ -287,22 +300,34 @@
                 searchable: true
             },
             {
+                data: "beneficiary.id",
+                title: "Beneficiary Id ",
+                visible: false
+            },
+            {
                 data: "beneficiary.first_name",
-                title: "Beneficiary",
+                title: "Beneficiary first name",
                 visible: false
             },
 
             {
                 data: "beneficiary.last_name",
-                title: "Beneficiary",
+                title: "Beneficiary last name",
                 visible: false
             },
-            {
-                data: "beneficiary.get_full_name",
-                title: "Beneficiary",
-                orderable: false,
-                searchable: false,
-            },
+            { data: "beneficiary.get_full_name", visible: true, title: "For",
+            render: function (data, type, row, meta) {
+                if (type === 'display') {
+                    if (data) {
+                        return "<a href='/profile/"+row.beneficiary.id+"'"+" >"+data+"</a>";
+                    }
+                    else {
+                        return "Undefined";
+                    }
+                } else {
+                    return data;
+                }
+            }},
             {
                 data: "comment",
                 title: "Comment",

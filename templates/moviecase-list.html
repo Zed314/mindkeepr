@@ -1,4 +1,5 @@
 {% extends 'element-list.html' %}
+{% load auth_extras %}
 {% load static %}
 {% block topblock %}
 <a class=" btn btn-primary  {% if not perms.Mindkeepr.add_movie %}disabled{% endif%}" href="/addMovie"
@@ -48,7 +49,7 @@ title="Add movie">Add movie</a>
                   { data: 'name', title: "Name" },
                   { data: "nb_disk", title: "Nb disk"},
                   { data: "ean", title: "EAN", visible:false},
-                  { data: "barcode_effective", title: "Barcode", visible:false},
+                  { data: "barcode_effective", title: "Barcode", visible:{% if request.user|has_group:"staff" %}true{%else%}false{% endif %}},
                   { data: 'category.name', title: "Category", visible:false},
                   { data: 'category.id', title: "Category ID", visible: false, searchable: true},
                   { data: "is_new", title: "New", visible:false},
@@ -56,6 +57,7 @@ title="Add movie">Add movie</a>
                     {
                       data:"id",
                       title:"Direct link",
+                      visible: {% if  perms.Mindkeepr.change_element %}true{%else%}false{% endif %},
                       render: function(data, type, row, meta){
                           if(type === 'display'){
                                 var base_url =  window.location.protocol+"//"+ window.location.host;

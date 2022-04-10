@@ -36,13 +36,11 @@ class BorrowingsView(LoginAndPermissionRequiredMixin,viewsets.ModelViewSet):
         barcode_extended = self.request.query_params.get("barcode_extended", None)
         element = self.request.query_params.get('element', None)
 
-        if barcode_extended is not None and barcode_extended != "":
-            #TODO change for applicable barcode
-
-            events = BorrowEvent.objects.filter(element__barcode_effective=barcode_extended).filter(state="IN_PROGRESS")
+        if barcode_extended is not None and barcode_extended != "" and state:
+            events = BorrowEvent.objects.filter(element__barcode_effective=barcode_extended).filter(state=state)
             if events:
                 user_id = events[0].beneficiary.id
-                queryset = queryset.filter(beneficiary_id = user_id).filter(state="IN_PROGRESS")
+                queryset = queryset.filter(beneficiary_id = user_id).filter(state=state)
             else:
                 queryset = BorrowEvent.objects.none()
 

@@ -3,7 +3,6 @@ $(document).on('hide.bs.modal',"#eventModal", function (evt) {
     // Assuming that an update just got completed
     if($(evt.target).data("element-id"))
     {
-        console.log($(evt.target).data("element-id"));
         $(".element-"+$(evt.target).data("event-type")+"-table[data-element-id="+$(evt.target).data("element-id")+"]").DataTable().rows().invalidate().draw();
         $(".element-stock-table[data-element-id="+$(evt.target).data("element-id")+"]").DataTable().rows().invalidate().draw();
     }
@@ -37,13 +36,11 @@ $(document).on('hide.bs.modal',"#eventModal", function (evt) {
 $(document).on("click",".event", function(ev) {
     ev.preventDefault();
     var url = $(this).data("form");
-    console.log(url)
     //ugly, I know.
     // TODO : refactor to add other parameters that are currently passed in url into data attributes
     var n = url.indexOf('?');
     base_url= url.substring(0, n != -1 ? n : url.length);
     //base_url = url.slice(0, url.lastIndexOf('?') + 1)
-    console.log(base_url);
     param =""
     if(n==-1)
     {
@@ -54,7 +51,6 @@ $(document).on("click",".event", function(ev) {
     {
         param = url.slice(n+1);
         base_url+="?";
-        console.log(param)
     }
     let searchParams = new URLSearchParams(param);
     var beneficiary_id=$(this).data("beneficiary-id");
@@ -66,11 +62,8 @@ $(document).on("click",".event", function(ev) {
     {
         searchParams.set('beneficiary', beneficiary_id);
     }
-    console.log("benoit");
-    console.log(base_url+searchParams)
     $("#eventModal").load(base_url+searchParams, function() {
         $(this).modal('show');
-        console.log($(this));
     });
     var evttype=$(this).data("event-type");
 
@@ -126,7 +119,6 @@ var csrftoken = getCookie('csrftoken');
 $(document).on("click",".borroweventaction", function(ev) {
     ev.preventDefault(); // prevent navigation
     //var url = ("form"); // get form from url
-    console.log($(this).data("borrow-id"));
     $("#active-borrowings-table").DataTable().rows().invalidate().draw();
 
     $("#reserve-borrowings-table").DataTable().rows().invalidate().draw();
@@ -141,6 +133,7 @@ $(document).on("click",".borroweventaction", function(ev) {
 
             $(".element-borrow-table").DataTable().rows($("#row-borrow-evt-"+$(ev.target).data("borrow-id"))).invalidate().draw();
             $(".element-borrowreserve-table").DataTable().rows().invalidate().draw();
+            $(".element-borrowhistory-table").DataTable().rows().invalidate().draw();
             $(".element-stock-table").DataTable().rows().invalidate().draw();
             $("#active-borrowings-table").DataTable().rows().invalidate().draw();
             $("#reserve-borrowings-table").DataTable().rows().invalidate().draw();
@@ -621,6 +614,113 @@ function load_borrowreserve_table(id,is_unique,permission_reserve)
 
 }
 
+function load_borrowhistory_table(id,is_unique)
+{
+    $(".element-borrowhistory-table[data-element-id="+id+"]").DataTable({
+        "dom": '<"top">rt<"bottom"lip><"clear">',
+        'serverSide': true,
+        "responsive": true,
+        'ajax': '/api/v1/borrowings?state=DONE&element='+id+'&format=datatables',
+        "fnCreatedRow": function( nRow, aData, iDataIndex ) {
+            $(nRow).attr('id', "row-borrowreserve-evt-"+aData.id);
+        },
+        "columnDefs": [
+          {
+              "targets": '_all',
+              "defaultContent": ""
+          }
+        ],
+        columns: [
+            { data: "id", title: "ID", visible: false },
+            { data: "element.id", title: "element-id", visible: false },
+            {
+                data: "beneficiary.id",
+                title: "Beneficiary Id ",
+                visible: false
+            },
+            {
+                data: "beneficiary.first_name",
+                title: "Beneficiary first name",
+                visible: false
+            },
+
+            {
+                data: "beneficiary.last_name",
+                title: "Beneficiary last name",
+                visible: false
+            },
+            { data: "beneficiary.get_full_name", visible: true, title: "For",
+            render: function (data, type, row, meta) {
+                if (type === 'display') {
+                    if (data) {
+                        return "<a href='/profile/"+row.beneficiary.id+"'"+" >"+data+"</a>";
+                    }
+                    else {
+                        return "Undefined";
+                    }
+                } else {
+                    return data;
+                }
+            }},
+            {
+                data: "recording_date", visible: false, title: "Date",
+                render: function (data, type, row, meta) {
+                    if (type === 'display') {
+                        if (data) {
+                            return convertISO8601ToHumanDay(data);
+                        }
+                        else {
+                            return "Undefined";
+                        }
+                    } else {
+                        return data;
+                    }
+                }
+            },
+            { data: "quantity", title: "Quantity", visible: !is_unique },
+            {
+                data: "scheduled_return_date", title: "To (scheduled)",visible:false
+            },
+            {
+                data: "borrow_date_display", title: "From",
+                render: function (data, type, row, meta) {
+                        if (type === 'display') {
+                            if(data){
+                                comment = ""
+                                if(data>row.scheduled_return_date)
+                                {
+                                    comment = " (LATE)"
+                                }
+                                return convertISO8601ToHumanDay(data) + comment;
+                            }
+                            else
+                            {
+                                return "Undefined";
+                            }
+                        } else {
+                            return data;
+                        }
+                    }},
+                    { data: "return_date_display", title: "To",
+                    render: function (data, type, row, meta) {
+                        if (type === 'display') {
+                            if(data){
+                                return convertISO8601ToHumanDay(data);
+                            }
+                            else
+                            {
+                                return "Undefined";
+                            }
+                        } else {
+                            return data;
+                        }
+                    }},
+                    { data: "comment", title: "Comment"},
+        ]
+});
+
+}
+
 
 function load_incident_table(id,permission)
 {
@@ -740,6 +840,7 @@ function load_maintenance_table(id,permission)
 }
 
 function load_element_stock_table(id,
+    is_consummable,
     permission_borrow,
     permission_use,
     permission_unuse,
@@ -748,6 +849,7 @@ function load_element_stock_table(id,
     permission_move)
 {
     load_location_stock_table(id,
+        is_consummable,
         permission_borrow,
         permission_use,
         permission_unuse,
@@ -766,6 +868,7 @@ function load_project_stock_table(id,
     permission_move)
 {
     load_location_stock_table(id,
+        false, /** Maybe fetch for each element if it is consummable*/
         permission_borrow,
         permission_use,
         permission_unuse,
@@ -775,6 +878,7 @@ function load_project_stock_table(id,
         src="project")
 }
 function load_location_stock_table(id,
+    is_consummable,
     permission_borrow,
     permission_use,
     permission_unuse,
@@ -898,7 +1002,7 @@ function load_location_stock_table(id,
                     }},
 
 
-                    { data: "id", title: "Consume",
+                    { data: "id", title: "Consume", visible: is_consummable,
                     render: function(data,type,row,meta){
                     if(type === 'display'){
                             button = '<button type="button" class="btn btn-primary event" href="#" data-stock="'+data+'" data-'+src+'-id="'+id+'" data-event-type="consume"  data-form="/formconsumeeventmodal?stock='+data+'" title="Consume"';

@@ -27,13 +27,13 @@
   {% if form.instance.id %}
   <a class="nav-item nav-link" href="#elt-product" data-toggle="tab">Product</a>
   <a class="nav-item nav-link" href="#elt-{{form.instance.id}}-borrowreserve" data-toggle="tab">Reservations</a>
-  <a class="nav-item nav-link" href="#elt-{{form.instance.id}}-borrow" data-toggle="tab">Borrows</a>
+  <a class="nav-item nav-link" href="#elt-{{form.instance.id}}-borrowhistory" data-toggle="tab">Borrows</a>
   {% if not  form.instance.is_unique %}
 
   {% endif %}
   <a class="nav-item nav-link" href="#elt-{{form.instance.id}}-buy" data-toggle="tab">Buy History</a>
-  <a class="nav-item nav-link" href="#elt-{{form.instance.id}}-sell" data-toggle="tab">Sell History</a>
-  <a class="nav-item nav-link" href="#elt-{{form.instance.id}}-reservation" data-toggle="tab">Allocation History</a>
+  <!--<a class="nav-item nav-link" href="#elt-{{form.instance.id}}-sell" data-toggle="tab">Sell History</a> -->
+  <!--<a class="nav-item nav-link" href="#elt-{{form.instance.id}}-reservation" data-toggle="tab">Allocation History</a> -->
   <a class="nav-item nav-link" href="#elt-{{form.instance.id}}-location" data-toggle="tab">Locations</a>
   {% if form.instance.is_consummable %}
   <a class="nav-item nav-link" href="#elt-{{form.instance.id}}-consume" data-toggle="tab">Consume History</a>
@@ -125,12 +125,6 @@
     class="table compact table-striped table-bordered element-sell-table"
     style="width:100%"></table>
   </div>
-  <div class="tab-pane" id="elt-{{form.instance.id}}-borrow">
-    <table
-    data-element-id="{{form.instance.id}}"
-    class="table compact table-striped table-bordered element-borrow-table"
-    style="width:100%"></table>
-  </div>
   <div class="tab-pane" id="elt-product">
      <form id="form-element-selectproduct" enctype="multipart/form-data" method="post">
      {% csrf_token %}
@@ -155,6 +149,16 @@
     <table
     data-element-id="{{form.instance.id}}"
     class="table compact table-striped table-bordered element-borrowreserve-table"
+    style="width:100%"></table>
+  </div>
+  <div class="tab-pane" id="elt-{{form.instance.id}}-borrowhistory">
+    <table
+    data-element-id="{{form.instance.id}}"
+    class="table compact table-striped table-bordered element-borrow-table"
+    style="width:100%"></table>
+    <table
+    data-element-id="{{form.instance.id}}"
+    class="table compact table-striped table-bordered element-borrowhistory-table"
     style="width:100%"></table>
   </div>
   <div class="tab-pane" id="elt-{{form.instance.id}}-reservation">
@@ -213,6 +217,8 @@ load_borrowreserve_table({{form.instance.id}},
                 {% if form.instance.is_unique %} true {% else %} false {% endif %},
                 {% if perms.Mindkeepr.add_borrowevent  %} true {% else %} false {% endif %});
 
+load_borrowhistory_table({{form.instance.id}},
+                {% if form.instance.is_unique %} true {% else %} false {% endif %})
 
 load_reserve_table({{form.instance.id}},
                 {% if form.instance.is_unique %} true {% else %} false {% endif %},
@@ -224,6 +230,7 @@ load_consume_table({{form.instance.id}});
 
 
                 load_element_stock_table({{form.instance.id}},
+                {% if form.instance.is_consummable %}true{% else %}false{% endif %},
                 {% if perms.Mindkeepr.add_borrowevent  %} true {% else %} false {% endif %},
                 {% if perms.Mindkeepr.add_useevent  %} true {% else %} false {% endif %},
                 {% if perms.Mindkeepr.add_unuseevent  %} true {% else %} false {% endif %},

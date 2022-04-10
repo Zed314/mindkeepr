@@ -89,7 +89,6 @@ $(".view-fav").on("click", function() {
     data.results.forEach(function (movie, index) {
   date = new Date(movie.release_date);
   year = date.getFullYear()
-      console.log(movie)
       title_encoded = encodeURIComponent(movie.title)
       gridHtml +=
     `<div class="card" style="width: 15rem;">
@@ -140,7 +139,6 @@ form.submit(loadData);
 $('#searchfieldmovie').on('input', function() {
     // do something
    // alert("ee")
-    console.log($('#searchfieldmovie').val())
     loadData($('#searchfieldmovie').val())
 });
 </script>
