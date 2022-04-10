@@ -139,7 +139,7 @@ table.dataTable thead .sorting_desc {
           </div>
         </div>
       {% else %}
-        {% if is_sso_enabled %}
+        {% if USE_SSO %}
         <a class="btn btn-success" href="{% url 'oidc_authentication_init' %}">Login</a>
         {% else %}
         <a class="btn btn-success" href="{% url 'loginlocal' %}" >Login</a>
