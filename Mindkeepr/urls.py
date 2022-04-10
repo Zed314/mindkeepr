@@ -93,7 +93,7 @@ urlpatterns = [
     path("books",views.books,name="books-list"),
     path("videogames",views.videogames,name="videogames-list"),
     path("moviecases",moviecases,name="moviecases-list"),
-    path('', views.index),
+    path('', views.index, name="landing_page"),
     path("api/v1/borrowevent/<int:pk>/start", borrowing_view.borrow_start),
     path("api/v1/borrowevent/<int:pk>/return", borrowing_view.borrow_return),
     path("api/v1/borrowevent/<int:pk>/extend", borrowing_view.borrow_extend),
