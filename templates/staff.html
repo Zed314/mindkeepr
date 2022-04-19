@@ -175,7 +175,7 @@
                 title: "Beneficiary last name",
                 visible: false
             },
-            { data: "beneficiary.get_full_name", visible: true, title: "For",
+            { data: "beneficiary.get_full_name", visible: true, searchable:false, title: "For",
             render: function (data, type, row, meta) {
                 if (type === 'display') {
                     if (data) {
@@ -315,7 +315,7 @@
                 title: "Beneficiary last name",
                 visible: false
             },
-            { data: "beneficiary.get_full_name", visible: true, title: "For",
+            { data: "beneficiary.get_full_name", visible: true, searchable:false, title: "For",
             render: function (data, type, row, meta) {
                 if (type === 'display') {
                     if (data) {
