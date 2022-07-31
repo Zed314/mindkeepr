@@ -7,7 +7,8 @@ from Mindkeepr.models.elements import Element
 class ProductForm(ModelForm):
     image = ImageField(required=False)
     #ean = forms.CharField(max_length=13,min_length=13,required=False)
-    fields = ['title', "image", "short_description"]
+    fields = ['title', "image", "short_description", "is_new"]
+
 
 
 class SelectProductForm(Form):

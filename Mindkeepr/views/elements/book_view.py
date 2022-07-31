@@ -3,7 +3,7 @@ from ..mixins import LoginRequiredMixin
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
 from ..search import searchFilter
-from Mindkeepr.forms.products import BookProductForm, SelectProductForm
+from Mindkeepr.forms.products import BookProductForm, SelectProductForm, BookProductInteractiveForm
 from Mindkeepr.forms.elements import BookForm, BookInteractiveForm
 from . import ElementCreate
 from Mindkeepr.models.elements import Book
@@ -178,6 +178,7 @@ class PresetNameMixin():
 
         return initial
 
+
 class PresetAbstractBookMixin():
 
     def __init__(self):
@@ -199,23 +200,25 @@ class PresetAbstractBookMixin():
             pass
 
         return initial
+
+
 #oups, inversé presetnamemixin de book... je vais devoir le changer plus tard
 class BookProductViewModal(LoginRequiredMixin, PermissionRequiredMixin, PresetNameMixin, CreateView):
     template_name = 'bookproduct-detail-modal.html'
     permission_required = "Mindkeepr.add_abstractbook"
-    form_class = BookProductForm
+    form_class = BookProductInteractiveForm
     success_url = '/formbookproductmodal'
 
     def form_valid(self, form):
+        print("Save",flush=True)
         if not form.instance.id:
+            print("Save",flush=True)
             # try to fetch cover if missing
             if not form.instance.cover:
                 name, file =  fetch_cover_from_gb(form.cleaned_data["externalapiid"])
                 if name and file:
                     form.instance.cover.save(name+".jpg",file)
-            #for book in Book.objects.filter(ean=form.cleaned_data["ean"]).filter(book_abstract__isnull=True):
-                #book.book_abstract = form.instance
-#                book.save()
+
         response =  super(BookProductViewModal, self).form_valid(form)
         # Put it in model, maybe ?
         for book in Book.objects.filter(ean=form.cleaned_data["ean"]).filter(product__isnull=True):

@@ -1,4 +1,4 @@
-from .book_product import BookProductForm
+from .book_product import BookProductForm, BookProductInteractiveForm
 from .movie_product import MovieProductForm
 from .product import ProductForm,SelectProductForm
 from .videogame_product import VideoGameProductForm

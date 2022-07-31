@@ -182,7 +182,7 @@ class ElementUpdate(LoginRequiredMixin, UpdateView):
         f_product    = self.get_product_form_class()(instance=self.object.product, initial={"element":self.object})
 
         if 'save_product_select' in request.POST:
-            f_product_select = SelectProductForm(request.POST)
+            f_product_select = SelectProductForm(request.POST,  files=request.FILES)
             if f_product_select.is_valid():
                 self.form_valid(f_product_select)
                 f_product_select.save()
@@ -191,7 +191,7 @@ class ElementUpdate(LoginRequiredMixin, UpdateView):
                    f_product=f_product,
                    form=f_element))
         if 'save_product' in request.POST:
-            f_product = self.get_product_form_class()(request.POST, instance=self.object.product)
+            f_product = self.get_product_form_class()(request.POST,  files=request.FILES, instance=self.object.product)
             if f_product.is_valid():
                 self.form_valid(f_product)
                 f_product.save()
@@ -202,7 +202,7 @@ class ElementUpdate(LoginRequiredMixin, UpdateView):
 
         if 'save_element' in request.POST:
             # Specify instance to avoid a new element to be created
-            f_element = self.get_form_class()(request.POST, instance=self.object)
+            f_element = self.get_form_class()(request.POST,  files=request.FILES, instance=self.object)
             if f_element.is_valid():
                self.form_valid(f_element)
             else:

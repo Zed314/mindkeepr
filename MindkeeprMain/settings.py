@@ -34,6 +34,9 @@ DEBUG = int(os.environ.get("DEBUG", default=0))
 # For example: 'DJANGO_ALLOWED_HOSTS=localhost 127.0.0.1 [::1]'
 ALLOWED_HOSTS = os.environ.get("DJANGO_ALLOWED_HOSTS").split(" ")
 
+
+CORS_ALLOWED_ORIGINS = os.environ.get("CORS_ALLOWED_ORIGINS").split(" ")
+
 USE_SSO = os.environ.get("USE_SSO","false") == "true"
 
 # Application definition
@@ -61,6 +64,7 @@ if USE_SSO:
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -72,7 +76,7 @@ MIDDLEWARE = [
      # be fixed in https://github.com/mozilla/mozilla-django-oidc/pull/377
      # when refresh of token will be done on background, instead of blocking xhr
      #'mozilla_django_oidc.middleware.SessionRefresh',
-    'corsheaders.middleware.CorsMiddleware'
+
 ]
 
 
@@ -115,6 +119,7 @@ REST_FRAMEWORK = {
        # 'rest_framework.permissions.IsAuthenticated',
     ],
     'DEFAULT_AUTHENTICATION_CLASSES': [
+        "mozilla_django_oidc.contrib.drf.OIDCAuthentication",
         'rest_framework.authentication.BasicAuthentication',
         'rest_framework.authentication.SessionAuthentication',
     ],
@@ -127,7 +132,7 @@ REST_FRAMEWORK = {
         'rest_framework_datatables.filters.DatatablesFilterBackend',
     ),
     'DEFAULT_PAGINATION_CLASS': 'rest_framework_datatables.pagination.DatatablesPageNumberPagination',
-    'PAGE_SIZE': 50,
+    'PAGE_SIZE': 20,
 }
 
 # Database

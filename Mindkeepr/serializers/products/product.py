@@ -7,13 +7,14 @@ class ProductSerializer(serializers.HyperlinkedModelSerializer, SerializerFactor
 
     class Meta:
         model = Product
-        fields = ["id", "title", "type", "image", "short_description"]
+        fields = ["id", "title", "type", "image", "short_description","is_new"]
         depth = 2
         extra_kwargs = {
             "type": {
                 "read_only": False
             }
         }
+
 
     def to_representation(self, obj):
         """
