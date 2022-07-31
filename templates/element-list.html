@@ -40,6 +40,10 @@
 
 
   var searchString = findGetParameter("search");
+  if(searchString === null)
+  {
+    searchString = ""
+  }
   $('#searchinput').val(searchString.replace(/\+/g, " "));
 {% block elt_table_js %}
 var draw = 0;
