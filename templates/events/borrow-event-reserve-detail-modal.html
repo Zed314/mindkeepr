@@ -43,10 +43,14 @@
                         var options = { timezone: "Europe/Paris", weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
 
                         $("#id_scheduled_return_date option").remove();
+                        let i = 0;
+                        let target_return_date_id = Math.min(data["data"].length-1,3);
                         data["data"].forEach(element => {
                             dateStr = new Date(element).toLocaleDateString('fr-fr', options)
                             date = new Date(element)
-                            $("#id_scheduled_return_date").append('<option value=' + date.getDate() + "/" + (date.getMonth() + 1) + "/" + date.getFullYear() + '>' + dateStr + '</option>');
+
+                            $("#id_scheduled_return_date").append('<option value="' + date.getDate() + "/" + (date.getMonth() + 1) + "/" + date.getFullYear() +'" ' + (i==target_return_date_id?"selected":"") + '>' + dateStr + '</option>');
+                            i++;
 
                         });
                     }

@@ -119,7 +119,8 @@ def borrow_extend(request,pk):
     if not request.user.has_perm('Mindkeepr.change_borrowevent'):
         raise PermissionDenied()
     evt = get_object_or_404(BorrowEvent, pk=pk)
-    evt.prolongate_borrow_nb_days(7)
+    #evt.prolongate_borrow_nb_days(7)
+    evt.prolongate_borrow_next_session(2)
     evt.save()
     return JsonResponse({"status":evt.state})
 

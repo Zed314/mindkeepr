@@ -1,10 +1,8 @@
-
 from django.db import models
 from django.contrib.auth.models import User
 from datetime import date
-from django.db import models
-from django.contrib.auth.models import User
 import datetime
+from ..staff_settings import StaffSettings
 from .event import Event
 
 class BorrowEvent(Event):
@@ -165,7 +163,8 @@ class BorrowEvent(Event):
     def prolongate_borrow_nb_days(self, nb_days):
         if not self.element.is_unique:
             return False
-        new_end_date = self.scheduled_return_date + datetime.timedelta(days=10)
+        # TODO : find next day open for borrow
+        new_end_date = self.scheduled_return_date + datetime.timedelta(days=nb_days)
         if self.state == "IN_PROGRESS":
             if new_end_date <= self.scheduled_return_date:
                 self.scheduled_return_date = new_end_date
@@ -176,7 +175,31 @@ class BorrowEvent(Event):
                 self.return_date_display = self.scheduled_return_date
                 return True
             return False
+    def prolongate_borrow_next_session(self, nb_sessions = 1):
+        if not self.element.is_unique:
+            return False
+        if nb_sessions <1 or nb_sessions>10:
+            return False
+        new_end_date = None
+        list_open_days = StaffSettings.get_list_open_day_borrow(self.scheduled_return_date+ + datetime.timedelta(days=1), self.scheduled_return_date + datetime.timedelta(days=10*nb_sessions))
 
+        if not list_open_days:
+            return False
+        if len(list_open_days)<nb_sessions:
+            new_end_date = list_open_days[-1]
+        else:
+            new_end_date = list_open_days[nb_sessions-1]
+
+        if self.state == "IN_PROGRESS":
+            if new_end_date <= self.scheduled_return_date:
+                self.scheduled_return_date = new_end_date
+                self.return_date_display = self.scheduled_return_date
+                return True
+            elif self.is_time_free("IN_PROGRESS", None, new_end_date):
+                self.scheduled_return_date = new_end_date
+                self.return_date_display = self.scheduled_return_date
+                return True
+            return False
 
     def return_borrow(self):
         if not self.element.is_unique:
