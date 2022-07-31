@@ -476,6 +476,7 @@ function load_borrow_table(id,is_unique,permission_borrow)
                             return data;
                         }
                     }},
+                    { data: "comment", title: "Comment"},
                     {
                         data: "id", title: "Extend",
                         render: function (data, type, row, meta) {
