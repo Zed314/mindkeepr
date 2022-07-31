@@ -40,7 +40,7 @@
 
 
   var searchString = findGetParameter("search");
-  $('#searchinput').val(searchString);
+  $('#searchinput').val(searchString.replace(/\+/g, " "));
 {% block elt_table_js %}
 var draw = 0;
   var elt_table = $('#element-table').DataTable({
@@ -51,7 +51,7 @@ var draw = 0;
             ,cache:true},
               "iDisplayLength": 50,
 
-              "oSearch": {"sSearch": searchString},
+              "oSearch": {"sSearch": searchString.replace(/\+/g, " ")},
               "fnCreatedRow": function( nRow, aData, iDataIndex ) {
                   $(nRow).attr('id', "row-elt-"+aData.id);
                   //$(nRow).attr("id","ee")
