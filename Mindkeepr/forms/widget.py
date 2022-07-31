@@ -26,6 +26,9 @@ class UserWidget(s2forms.ModelSelect2Widget):
         #"email__icontains"
     ]
 
+from functools import reduce
+from django.db.models import Q
+
 class ElementWidget(s2forms.ModelSelect2Widget):
     model=Element
     search_fields=[
@@ -35,7 +38,39 @@ class ElementWidget(s2forms.ModelSelect2Widget):
         "custom_id_display__icontains"#,
         #"custom_id__iexact"
     ]
+#select2 always split spaces and do an OR on results, here is my attempt to fix this...
+#see https://github.com/applegrew/django-select2/blob/master/django_select2/forms.py
 
+    def filter_queryset(self, request, term, queryset=None, **dependent_fields):
+        """
+        Return QuerySet filtered by search_fields matching the passed term.
+        Args:
+            request (django.http.request.HttpRequest): The request is being passed from
+                the JSON view and can be used to dynamically alter the response queryset.
+            term (str): Search term
+            queryset (django.db.models.query.QuerySet): QuerySet to select choices from.
+            **dependent_fields: Dependent fields and their values. If you want to inherit
+                from ModelSelect2Mixin and later call to this method, be sure to pop
+                everything from keyword arguments that is not a dependent field.
+        Returns:
+            QuerySet: Filtered QuerySet
+        """
+        if queryset is None:
+            queryset = self.get_queryset()
+        search_fields = self.get_search_fields()
+        select = Q()
+        term = term.replace("\t", " ")
+        term = term.replace("\n", " ")
+
+        select &= reduce(
+            lambda x, y: x | Q(**{y: term}),
+            search_fields[1:],
+            Q(**{search_fields[0]: term}),
+        )
+        if dependent_fields:
+            select &= Q(**dependent_fields)
+
+        return queryset.filter(select).distinct()
 
 class ElementBorrowWidget(ElementWidget):
     # TODO : filter is_unique ?
