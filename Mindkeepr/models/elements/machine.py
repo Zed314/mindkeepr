@@ -49,7 +49,11 @@ class Machine(Element):
     def refresh_custom_id_prefix_generic(self):
         self.custom_id_prefix_generic=self.machine_type[0]
 
-
+    def __str__(self):
+        if self.name and self.custom_id_prefix_generic and self.custom_id_generic:
+            return "{} ({}{:03d})".format(self.name,self.custom_id_prefix_generic,self.custom_id_generic)
+        else:
+            return "None"
 
     def refresh_barcode_effective(self):
         self.barcode_effective = self.id_barcode
