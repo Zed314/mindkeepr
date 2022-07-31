@@ -207,14 +207,27 @@ if os.environ.get("ENABLE_CACHE")=="true":
                 "SOCKET_TIMEOUT": 10,
             }
         },
+        "select2": {
+            "BACKEND": "django_redis.cache.RedisCache",
+            "LOCATION": "redis://"+os.environ.get("REDIS_URL","redis")+":6379",
+            'TIMEOUT': 60*60*2, # 2hours, for some reason, when cachemiss, throws 404 instead of refreshing
+            # It is expected behavior from select2 django lib...
+            # https://github.com/applegrew/django-select2/issues/349
+            "OPTIONS": {
+                "CLIENT_CLASS": "django_redis.client.DefaultClient",
+            }
+        }
     }
+
+# Tell select2 which cache configuration to use:
+SELECT2_CACHE_BACKEND = "select2"
 
 # Internationalization
 # https://docs.djangoproject.com/en/2.1/topics/i18n/
 
 LANGUAGE_CODE = 'fr-FR'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Europe/Paris'
 
 USE_I18N = True
 
