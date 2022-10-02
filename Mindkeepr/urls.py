@@ -71,7 +71,6 @@ urlpatterns = [
     path("element/print/remove/<int:pk>/<int:qty>",views.remove_from_print_list),
     path("element/print/all",views.print_print_list),
     path("printlist",views.print_list_disp),
-    path('formborroweventmodal', borrowing_view.BorrowEventViewModal.as_view()),
     path('formborroweventimmediatemodal', borrowing_view.BorrowEventImmediateViewModal.as_view()),
     path('formborroweventreservemodal', borrowing_view.BorrowEventReserveViewModal.as_view()),
     path('formbuyeventmodal', buy_view.BuyEventViewModal.as_view()),

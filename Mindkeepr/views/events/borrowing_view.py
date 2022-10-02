@@ -52,22 +52,7 @@ class BorrowingsView(LoginAndPermissionRequiredMixin,viewsets.ModelViewSet):
             if state is not None:
                 queryset = queryset.filter(state=state)
 
-        #elements = Element.objects.filter(Q(ean=barcode)|Q(id_barcode=barcode))
-        #return_list = []
-        #for element in elements:
-        #    return_list.append({"id":element.id,"name":element.name})
-
         return queryset
-
-class BorrowEventViewModal(EventViewModal):
-    template_name = 'events/borrow-event-detail-modal.html'
-    permission_required = "Mindkeepr.add_borrowevent"
-    form_class = BorrowEventForm
-    success_url = '/formborroweventmodal'
-
-    def form_valid(self, form):
-        response =  super(BorrowEventViewModal, self).form_valid(form)
-        return response
 
 class BorrowEventImmediateViewModal(EventViewModal):
     template_name = 'events/borrow-event-immediate-detail-modal.html'

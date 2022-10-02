@@ -952,26 +952,6 @@ function load_location_stock_table(id,
                     }
                 }},
                 {data:"element.type",title:"Type"},
-                /*{ data: 'id', title: "Borrow",
-                render: function(data, type, row, meta){
-                    project = "";
-                            if(row.project)
-                            {
-                                project = row.project.id;
-                            }
-                        if(type === 'display'){
-
-                            button = '<button type="button" class="btn btn-primary event" href="#" data-stock="'+data+'" data-event-type="borrow" data-'+src+'-id="'+id+'" data-form="/formborroweventmodal?stock='+data+'&project='+project+'" title="Borrow" ' ;
-                            if(!permission_borrow || row.status!="FREE")
-                            {
-                                button+="disabled";
-                            }
-                            button+= ">Borrow</button>";
-                            return button;
-                        }
-
-                        return "";
-                    }},*/
               { data: 'id', title: "Allocate",
                 render: function(data, type, row, meta){
                         if(type === 'display'){
