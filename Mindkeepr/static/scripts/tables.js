@@ -507,8 +507,6 @@ function load_borrow_table(id,is_unique,permission_borrow)
                     return "e"
                 }
             },
-
-     //       { data: "state", title: "State" },
         ]
 });
 
@@ -552,35 +550,35 @@ function load_borrowreserve_table(id,is_unique,permission_reserve)
                 }
             },
             { data: "quantity", title: "Quantity", visible: !is_unique },
-            {
-                data: "borrow_date_display", title: "From",
+            { data: "borrow_date_display", title: "From",
                 render: function (data, type, row, meta) {
-                        if (type === 'display') {
-                            if(data){
-                                return convertISO8601ToHumanDay(data);
-                            }
-                            else
-                            {
-                                return "Undefined";
-                            }
-                        } else {
-                            return data;
-                        }
-                    }},
-                    { data: "return_date_display", title: "To",
-                    render: function (data, type, row, meta) {
-                        if (type === 'display') {
-                            if(data){
-                                return convertISO8601ToHumanDay(data);
-                            }
-                            else
-                            {
-                                return "Undefined";
-                            }
-                        } else {
-                            return data;
-                        }
-                    }},
+                 if (type === 'display') {
+                     if(data){
+                         return convertISO8601ToHumanDay(data);
+                     }
+                     else
+                     {
+                         return "Undefined";
+                     }
+                 } else {
+                     return data;
+                 }
+             }},
+             { data: "return_date_display", title: "To",
+             render: function (data, type, row, meta) {
+                 if (type === 'display') {
+                     if(data){
+                         return convertISO8601ToHumanDay(data);
+                     }
+                     else
+                     {
+                         return "Undefined";
+                     }
+                 } else {
+                     return data;
+                 }
+             }},
+            { data: "comment", title: "Comment"},
             { data : "id", title: "Start",
             render:function(data,type,row,meta){
                     if (type === "display") {
