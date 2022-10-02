@@ -1,0 +1,70 @@
+<div class="container">
+    <div class="row">
+        <div class="col-sm-12">
+            <table id="reservation-table" class="table compact table-striped table-bordered element-borrowreserve-table" style="width:100%">
+                <thead>
+                <tr>
+                </tr>
+                </thead>
+            </table>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+
+    $('#reservation-table').DataTable({
+        'serverSide': true,
+        'ajax': '/api/v1/borrowings?user={{ object.id }}&state=NOT_STARTED&format=datatables',
+        'columns': [
+            {
+                data: 'element',
+                title: 'Element',
+                render: function (data, type, row, meta) {
+                    if (type === 'display') {
+                        url = "/element/" + data.id
+                        data = '<a href="' + url + '">' + data.name + '</a>';
+                        return data;
+                    } else {
+                        return data.name;
+                    }
+                }
+
+            },
+            {data: 'borrow_date_display', title: "From"},
+            {data: 'return_date_display', title: "To"},
+            {data: "comment", title: "Comment"},
+            { data : "id", title: "Start",
+            render:function(data,type,row,meta){
+                    if (type === "display") {
+                        disabled = false;
+                        button = '<button type="button" class="btn btn-primary borroweventaction" href="#" data-borrow-action="start" data-borrow-id="' + row.id + '" data-element-id="' + row.element.id + '" title="Start" ';
+                        if (disabled) {
+                            button += " disabled";
+                        }
+                        button += ">Start</button>";
+                        return button;
+                    }
+                    return "e"
+                }
+            },
+            {
+                data: "id", title: "Cancel",
+                render: function (data, type, row, meta) {
+                    if (type === "display") {
+                        disabled = false;
+                        button = '<button type="button" class="btn btn-primary borroweventaction" href="#" data-borrow-action="cancel" data-borrow-id="' + row.id + '" title="Cancel" ';
+                        if (disabled) {
+                            button += " disabled";
+                        }
+                        button += ">Cancel</button>";
+                        return button;
+                    }
+                    return "e"
+                }
+            },
+        ],
+        "order": [[ 2, "desc" ]]
+
+    });
+</script>
+

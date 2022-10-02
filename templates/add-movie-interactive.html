@@ -4,7 +4,7 @@
 {% endblock %}
 {% block body_content %}
 
-<div class="modal hide" id="movieCaseModal">
+<div class="modal hide" id="elementModal">
 </div>
 <div class="modal hide" id="movieCaseSuccess">
   <div class="modal-dialog modal-sm">
@@ -50,7 +50,7 @@ $(document).on("click",".movie", function(ev) { // for each edit contact url
     ev.preventDefault(); // prevent navigation
     var url = $(this).data("form"); // get form from url
 
-    $("#movieCaseModal").load(url, function() { // load the url into the modal
+    $("#elementModal").load(url, function() { // load the url into the modal
         $(this).modal('show'); // display the modal on url load
     });
     return false; // prevent the click propagation
@@ -89,7 +89,6 @@ $(".view-fav").on("click", function() {
     data.results.forEach(function (movie, index) {
   date = new Date(movie.release_date);
   year = date.getFullYear()
-      console.log(movie)
       title_encoded = encodeURIComponent(movie.title)
       gridHtml +=
     `<div class="card" style="width: 15rem;">
@@ -140,7 +139,6 @@ form.submit(loadData);
 $('#searchfieldmovie').on('input', function() {
     // do something
    // alert("ee")
-    console.log($('#searchfieldmovie').val())
     loadData($('#searchfieldmovie').val())
 });
 </script>

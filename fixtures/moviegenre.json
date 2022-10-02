@@ -1,6 +1,6 @@
 [
     {
-        "model": "Mindkeepr.MovieGenre",
+        "model": "Mindkeepr.MovieProductGenre",
         "pk": 28,
         "fields": {
             "name_en": "Action",
@@ -8,7 +8,7 @@
         }
     },
     {
-        "model": "Mindkeepr.MovieGenre",
+        "model": "Mindkeepr.MovieProductGenre",
         "pk": 12,
         "fields": {
             "name_en": "Adventure",
@@ -16,7 +16,7 @@
         }
     },
     {
-        "model": "Mindkeepr.MovieGenre",
+        "model": "Mindkeepr.MovieProductGenre",
         "pk": 16,
         "fields": {
             "name_en": "Animation",
@@ -24,7 +24,7 @@
         }
     },
     {
-        "model": "Mindkeepr.MovieGenre",
+        "model": "Mindkeepr.MovieProductGenre",
         "pk": 35,
         "fields": {
             "name_en": "Comedy",
@@ -32,7 +32,7 @@
         }
     },
     {
-        "model": "Mindkeepr.MovieGenre",
+        "model": "Mindkeepr.MovieProductGenre",
         "pk": 28,
         "fields": {
             "name_en": "Crime",
@@ -40,7 +40,7 @@
         }
     },
     {
-        "model": "Mindkeepr.MovieGenre",
+        "model": "Mindkeepr.MovieProductGenre",
         "pk": 80,
         "fields": {
             "name_en": "Comedy",
@@ -48,7 +48,7 @@
         }
     },
     {
-        "model": "Mindkeepr.MovieGenre",
+        "model": "Mindkeepr.MovieProductGenre",
         "pk": 99,
         "fields": {
             "name_en": "Documentary",
@@ -56,7 +56,7 @@
         }
     },
     {
-        "model": "Mindkeepr.MovieGenre",
+        "model": "Mindkeepr.MovieProductGenre",
         "pk": 18,
         "fields": {
             "name_en": "Drama",
@@ -64,7 +64,7 @@
         }
     },
     {
-        "model": "Mindkeepr.MovieGenre",
+        "model": "Mindkeepr.MovieProductGenre",
         "pk": 10751,
         "fields": {
             "name_en": "Family",
@@ -72,7 +72,7 @@
         }
     },
     {
-        "model": "Mindkeepr.MovieGenre",
+        "model": "Mindkeepr.MovieProductGenre",
         "pk": 14,
         "fields": {
             "name_en": "Fantasy",
@@ -80,7 +80,7 @@
         }
     },
     {
-        "model": "Mindkeepr.MovieGenre",
+        "model": "Mindkeepr.MovieProductGenre",
         "pk": 36,
         "fields": {
             "name_en": "History",
@@ -88,7 +88,7 @@
         }
     },
     {
-        "model": "Mindkeepr.MovieGenre",
+        "model": "Mindkeepr.MovieProductGenre",
         "pk": 27,
         "fields": {
             "name_en": "Horror",
@@ -96,7 +96,7 @@
         }
     },
     {
-        "model": "Mindkeepr.MovieGenre",
+        "model": "Mindkeepr.MovieProductGenre",
         "pk": 10402,
         "fields": {
             "name_en": "Music",
@@ -104,7 +104,7 @@
         }
     },
     {
-        "model": "Mindkeepr.MovieGenre",
+        "model": "Mindkeepr.MovieProductGenre",
         "pk": 9648,
         "fields": {
             "name_en": "Mystery",
@@ -112,7 +112,7 @@
         }
     },
     {
-        "model": "Mindkeepr.MovieGenre",
+        "model": "Mindkeepr.MovieProductGenre",
         "pk": 10749,
         "fields": {
             "name_en": "Romance",
@@ -120,7 +120,7 @@
         }
     },
     {
-        "model": "Mindkeepr.MovieGenre",
+        "model": "Mindkeepr.MovieProductGenre",
         "pk": 878,
         "fields": {
             "name_en": "Science Fiction",
@@ -128,7 +128,7 @@
         }
     },
     {
-        "model": "Mindkeepr.MovieGenre",
+        "model": "Mindkeepr.MovieProductGenre",
         "pk": 10770,
         "fields": {
             "name_en": "TV Movie",
@@ -136,7 +136,7 @@
         }
     },
     {
-        "model": "Mindkeepr.MovieGenre",
+        "model": "Mindkeepr.MovieProductGenre",
         "pk": 53,
         "fields": {
             "name_en": "Thriller",
@@ -144,7 +144,7 @@
         }
     },
     {
-        "model": "Mindkeepr.MovieGenre",
+        "model": "Mindkeepr.MovieProductGenre",
         "pk": 10752,
         "fields": {
             "name_en": "War",
@@ -152,7 +152,7 @@
         }
     },
     {
-        "model": "Mindkeepr.MovieGenre",
+        "model": "Mindkeepr.MovieProductGenre",
         "pk": 37,
         "fields": {
             "name_en": "Western",

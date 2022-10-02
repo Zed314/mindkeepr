@@ -1,18 +1,20 @@
 from django.http.response import JsonResponse
 from tmdbv3api import tmdb
-from Mindkeepr import models
+
 from rest_framework import viewsets
 from ..mixins import LoginRequiredMixin
 
 from ..search import searchFilter
 from . import ElementCreate
 
-from Mindkeepr.models.elements import MovieCase, Movie, MovieGenre
 from Mindkeepr.models.events import BuyEvent
 from Mindkeepr.models.location import Location
-from Mindkeepr.serializers.elements.movie import MovieSerializer, MovieGenreSerializer, MovieCaseSerializer
+from Mindkeepr.models.elements import MovieCase
+from Mindkeepr.models.products import MovieProduct, MovieProductGenre
+from Mindkeepr.serializers.elements.movie import  MovieCaseSerializer
 
-from Mindkeepr.forms import MovieCaseInteractiveForm, MovieForm, DisableFieldsMixin
+from Mindkeepr.forms.elements import MovieCaseInteractiveForm
+from Mindkeepr.forms.products import MovieProductForm
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
 from django.contrib.auth.mixins import PermissionRequiredMixin
@@ -22,16 +24,14 @@ import requests
 import tempfile
 from django.core import files
 import datetime
-from ...serializers.pagination import CustomPagination
+
 
 class PresetMovieMixin():
     def get_initial(self):
         initial = super().get_initial()
         initial_keys = [
-        "local_title",
-        "remote_api_id",
-]
-        print("en",flush=True)
+        "title",
+        "remote_api_id",]
         for key in initial_keys:
             try:
                 initial[key] = self.request.GET[key]
@@ -54,40 +54,20 @@ class MovieCasesView(LoginRequiredMixin, viewsets.ModelViewSet):
             queryset = queryset.filter(category=category)
         queryset = searchFilter(queryset, self.request)
         return queryset
-#todo : put back login
-class MoviesView( PresetMovieMixin, viewsets.ModelViewSet):
 
-    serializer_class = MovieSerializer
-    pagination_class = CustomPagination
-    def perform_create(self, serializer):
-        serializer.save(creator=self.request.user)
-
-    def get_queryset(self):
-        queryset = Movie.objects.all()
-        category = self.request.query_params.get('category', None)
-        if category is not None:
-            queryset = queryset.filter(category=category)
-        queryset = searchFilter(queryset, self.request)
-        return queryset
-
-#todo : put back login
-class MovieGenresView(viewsets.ModelViewSet):
-    serializer_class = MovieGenreSerializer
-    def get_queryset(self):
-        return MovieGenre.objects.all()
 
 class MovieCreate(LoginRequiredMixin, PermissionRequiredMixin, PresetMovieMixin, CreateView):
     permission_required = "Mindkeepr.add_movie"
     template_name = 'movie-detail.html'
     @property
     def form_class(self):
-        return MovieForm
+        return MovieProductForm
     success_url = None
 
 class MovieViewModal(LoginRequiredMixin, PermissionRequiredMixin,CreateView):
     template_name = 'movie-detail-modal.html'
     permission_required = "Mindkeepr.add_movie"
-    form_class = MovieForm
+    form_class = MovieProductForm
     success_url = '/'
 
 class PresetNameMixin():
@@ -108,16 +88,16 @@ class PresetNameMixin():
             self._disabled_fields.append("name")
         except KeyError:
             pass
-        try:
-            movieid = self.request.GET['movie']
-            movie = Movie.objects.get(id=movieid)
-
-            initial['movie'] = movie
-            self._disabled_fields.append("movie")
-            initial['externalapiid'] = movie.remote_api_id
-            self._disabled_fields.append("externalapiid")
-        except KeyError:
-            pass
+        #try:
+        #    movieid = self.request.GET['movie']
+        #    movie = Movie.objects.get(id=movieid)
+#
+        #    initial['movie'] = movie
+        #    self._disabled_fields.append("movie")
+        #    initial['externalapiid'] = movie.remote_api_id
+        #    self._disabled_fields.append("externalapiid")
+        #except KeyError:
+        #    pass
         if not "externalapiid" in initial:
             try:
                 externalapiid = self.request.GET['movieapiid']
@@ -127,24 +107,13 @@ class PresetNameMixin():
             except KeyError:
                 pass
         return initial
-#only for interactive add !!
-from itertools import count, filterfalse
-def get_movie_custom_id(moviecase):
-
-    if not moviecase.custom_id:
-        listid = list(MovieCase.objects.filter(format_disk="BLU").values_list('custom_id', flat=True))
-        print(listid)
-        newid = next(filterfalse(set(listid).__contains__, count(1)))
-        moviecase.custom_id = newid
 
 def get_movie_format(moviecase):
     if moviecase.subformat_disk[0] =="B":
-        moviecase.format = "BLU"
+        moviecase.format_disk = "BLU"
     elif moviecase.subformat_disk[0] =="D":
-        moviecase.format = "DVD"
+        moviecase.format_disk = "DVD"
 
-
-from django.http import HttpResponse
 #only for creation for now
 class MovieCaseViewModal(LoginRequiredMixin, PermissionRequiredMixin, PresetNameMixin, CreateView):
     template_name = 'moviecase-detail-modal.html'
@@ -155,8 +124,8 @@ class MovieCaseViewModal(LoginRequiredMixin, PermissionRequiredMixin, PresetName
     def form_valid(self, form):
         prev_id = form.instance.id
         try:
-            form.instance.movie = Movie.objects.get(remote_api_id = form.cleaned_data["externalapiid"])
-        except Movie.DoesNotExist:
+            form.instance.movie = MovieProduct.objects.get(remote_api_id = form.cleaned_data["externalapiid"])
+        except MovieProduct.DoesNotExist:
             movietmdb = tmdbv3api.Movie()
             movieapi = movietmdb.details(form.cleaned_data["externalapiid"])
             movie = create_movie_from_tmdb(movieapi)
@@ -165,8 +134,9 @@ class MovieCaseViewModal(LoginRequiredMixin, PermissionRequiredMixin, PresetName
         #TODO : change...
         location_destination = Location.objects.get(id=2)
         form.instance.creator = self.request.user
-        get_movie_custom_id(form.instance)
         get_movie_format(form.instance)
+        form.instance.set_custom_id()
+
         form.instance.save()
         #save_m2m ?
         BuyEvent.objects.create(creator=self.request.user,price=form.cleaned_data["price"],quantity=1,element=form.instance,location_destination=location_destination)
@@ -175,8 +145,8 @@ class MovieCaseViewModal(LoginRequiredMixin, PermissionRequiredMixin, PresetName
         response =  super(MovieCaseViewModal, self).form_valid(form)
         if form.instance.id  and not prev_id:
             #created ?
-            return JsonResponse({"custom_id":"{}{:03d}".format(form.instance.format[0],form.instance.custom_id),
-                                 "local_title":form.instance.name})
+            return JsonResponse({"custom_id_generic":"{}{:03d}".format(form.instance.format_disk[0],form.instance.custom_id_generic),
+                                 "title":form.instance.name})
 
         print(response)
         return response
@@ -202,16 +172,10 @@ def get_image_url(image_url):
         # If no more file then stop
         if not block:
             break
-
         # Write image block to temporary file
         lf.write(block)
     return file_name, files.File(lf)
-    # Create the model you want to save the image to
-    #image = Image()
-#
-    ## Save the temporary image to the model#
-    ## This saves the model so be sure that it is valid
-    #image.image.save(file_name, files.File(lf))
+
 
 def create_movie_from_tmdb(tmdb_movie):
 
@@ -226,7 +190,7 @@ def create_movie_from_tmdb(tmdb_movie):
 
     genres = []
     for genre in tmdb_movie.genres:
-        genres.append(MovieGenre.objects.get(id=genre.id))
+        genres.append(MovieProductGenre.objects.get(id=genre.id))
     if(len(tmdb_movie.production_countries)>=1):
         nationality=tmdb_movie.production_countries[0].name
     if(len(tmdb_movie.videos.results)>=1):
@@ -242,10 +206,10 @@ def create_movie_from_tmdb(tmdb_movie):
         poster_filename, poster = get_image_url(poster_url)
     if tmdb_movie.release_date:
         release_date = datetime.datetime.strptime(tmdb_movie.release_date, "%Y-%m-%d").date()
-    mov = Movie(
+    mov = MovieProduct(
         original_language=tmdb_movie.original_language,
         original_title=tmdb_movie.original_title,
-        local_title=tmdb_movie.title,
+        title=tmdb_movie.title,
         remote_api_id=tmdb_movie.id,
         catch_phrase=tmdb_movie.tagline,
         budget=tmdb_movie.budget,

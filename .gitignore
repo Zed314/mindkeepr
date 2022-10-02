@@ -9,8 +9,14 @@ footprint/
 Temporary/
 .keep
 PartAttachment/
-settings-secrets.py
+settings_secrets.py
 .env.prod
 .env.prod.db
 data/
 /static/
+private/
+docker-compose-prod.yml
+docker-compose-online-dev.yml
+.env.dev
+.env.dev.db
+db copy/

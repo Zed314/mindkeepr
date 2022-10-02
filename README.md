@@ -18,7 +18,7 @@ the main project :
 
 ## Class diagram
 
-Event : BuyEvent, SellEvent, UseEvent, ConsumeEvent, BorrowEvent, ReturnEvent, MaintenanceEvent (for Machine only)
+Event : BuyEvent, SellEvent, UseEvent, ConsumeEvent, BorrowEvent, MaintenanceEvent (for Machine only)
 Element  : Component, Machine
 
 Each element have several StockRepartitions (quantity, Location, Status, Project (NYI)).
@@ -47,4 +47,17 @@ python manage.py collectstatic
 
 ## Naming
 
-Name of project came from the initial project that inspired it : [Partkeepr](https://partkeepr.org/).
+Name of project came from the initial project that inspired it : [Partkeepr](https://partkeepr.org/)
+
+## First start
+
+`docker-compose -f docker-compose-local-dev.yml up`
+
+Create user on newly created instance :
+`python manage.py createsuperuser`
+
+Then, on container, load init data :
+`python manage.py loaddata fixtures/initdata.json`
+`python manage.py loaddata fixtures/initgroup.json`
+
+`python manage.py loaddata fixtures/moviegenre.json`

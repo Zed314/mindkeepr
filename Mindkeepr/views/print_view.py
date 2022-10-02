@@ -2,6 +2,8 @@
 from Mindkeepr.models import  Element
 from Mindkeepr.models.models import PrintList
 
+import csv
+
 from Mindkeepr.printer import Printer
 from django.shortcuts import render
 
@@ -57,7 +59,25 @@ def remove_from_print_list(request, pk, qty):
 
 @login_required(login_url='/accounts/login')
 def print_list_disp(request):
-    print_list, created = PrintList.objects.get_or_create(user=request.user)
+    # Temp fix
+    response = HttpResponse(
+        content_type='text/csv',
+      #  headers={'Content-Disposition': 'attachment; filename="export.csv"'},
+    )
+    response['Content-Disposition'] = 'attachment; filename="export.csv"'
+    writer = csv.writer(response)
+    for obj in Element.objects.all():
+        row = []
+        for field in ["id","name", "format_book","platform","__class__"]:
+            try:
+                row.append(str(getattr(obj, field)))
+            except AttributeError:
+                row.append("")
+        writer.writerow(row)
+    #writer.writerow(['First row', 'Foo', 'Bar', 'Baz'])
+    #writer.writerow(['Second row', 'A', 'B', 'C', '"Testing"', "Here's a quote"])
+    return response
+    #print_list, created = PrintList.objects.get_or_create(user=request.user)
     # todo
-    return render(request, "printlist.html", {"print_list": print_list.printelements.all()})
+    #return render(request, "printlist.html", {"print_list": print_list.printelements.all()})
 

@@ -3,9 +3,11 @@ from django.contrib.auth.models import User
 from django.shortcuts import redirect, render
 from django.views.generic import DetailView
 from Mindkeepr.serializers.user import UserDetailedSerializer
-
+from django.db.models import Q
 from rest_framework import viewsets
-
+from django.views.generic.edit import FormView
+from Mindkeepr.forms.forms import StaffUserDummyForm
+from django.contrib.auth.mixins import UserPassesTestMixin
 
 from .mixins import LoginRequiredMixin
 
@@ -24,24 +26,67 @@ def index(request):
     return response
 
 
-class UserView(LoginRequiredMixin, viewsets.ModelViewSet):
-    queryset = User.objects.get_queryset().order_by('id')
+class UserView(LoginRequiredMixin, UserPassesTestMixin, viewsets.ModelViewSet):
+    #queryset = User.objects.get_queryset().order_by('id')
     serializer_class = UserDetailedSerializer
 
-def is_bureau(user):
-    # print(user.groups)
-    # print(user.groups.filter(name='bureau').count())
-    return user.groups.filter(name='bureau').exists()
+    def test_func(self):
+        return is_staff(self.request.user)
 
-@user_passes_test(is_bureau)
-@login_required(login_url='/accounts/login')
-def bureau(request):
-    return render(request, "bureau.html")
+    def get_queryset(self):
+        queryset = User.objects.all()
+        search = self.request.query_params.get('search', None)
+        print(search,flush=True)
+        if search is not None:
+            queryset = queryset.filter(Q(first_name__unaccent__trigram_similar=search) | Q(last_name__unaccent__trigram_similar = search))
+
+        return queryset
+#from django_select2 import AutoResponseView
+#class UserSelect2View(LoginRequiredMixin,AutoResponseView):
+#    def get_queryset(self):
+#        queryset = User.objects.all()
+#        search = self.request.query_params.get('search', None)
+#        print(search,flush=True)
+#        if search is not None:
+#            queryset = queryset.filter(Q(first_name__unaccent__trigram_similar=search) | Q(last_name__unaccent__trigram_similar = search))
+
+#        return queryset
+
+
+
+def is_staff(user):
+    return user.groups.filter(name='staff').exists()
+
+
+
+#@user_passes_test(is_staff)
+#def staff(request):
+#    return render(request, "staff.html")
+
+
+class StaffView(LoginRequiredMixin,UserPassesTestMixin,FormView):
+    template_name = 'staff.html'
+    form_class = StaffUserDummyForm
+    success_url = ''
+    def test_func(self):
+        return is_staff(self.request.user)
 
 class ProfileView(LoginRequiredMixin, DetailView):
     model = User
     template_name = "profile/profile.html"
+    # 404 in case of non staff on other people profile, not perfect, I know
+    def get_queryset(self):
+        if self.request.user.groups.filter(name='staff').exists():
+            return super().get_queryset().all()
+        return super().get_queryset().filter(
+            pk=self.request.user.pk
+        )
 
 @login_required(login_url='/accounts/login')
 def addMovieInteractive(request):
     return render(request, "add-movie-interactive.html")
+
+
+@login_required(login_url='/accounts/login')
+def addBookInteractive(request):
+    return render(request, "add-book-interactive.html")

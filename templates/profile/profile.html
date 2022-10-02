@@ -7,27 +7,42 @@
 <div class="modal hide" id="profilemodal">
 </div>
 
-    <div style="padding: 1em; margin-top: 1em;">
         <!--- Left part of the page --->
         <div style="width: 70%;display: inline-block">
-                <h3>My borrowings: </h3>
-                {% include "profile/borrowings-list-component.html" %}
-            <br>
-           <div class="profile-events">
-                <h3>Last actions: </h3>
-                    {% include "profile/event-list-component.html" %}
+
+            <nav class="nav nav-tabs">
+                <a class="nav-item nav-link active" href="#borrows" data-toggle="tab">Borrows</a>
+                <a class="nav-item nav-link" href="#borrowhistory" data-toggle="tab">Borrow history</a>
+                <a class="nav-item nav-link" href="#reservations" data-toggle="tab">Reservations</a>
+                <a class="nav-item nav-link" href="#maintenances" data-toggle="tab">Maintenances</a>
+
+
+            </nav>
+            <div class="tab-content">
+
+                <div class="tab-pane active" id="borrows">
+                    {% include "profile/borrowings-list-component.html" %}
                 </div>
-            <div>
-                <h3>My assigned maintenances (uncompleted): </h3>
-                {% include "profile/maintenance-list-assignment.html" %}
+                <div class="tab-pane" id="borrowhistory">
+                    {% include "profile/borrowinghistory-component.html" %}
+                </div>
+                <div class="tab-pane" id="reservations">
+                    {% include "profile/reservation-list-component.html" %}
+                </div>
+                <div class="tab-pane" id="maintenances">
+                    {% include "profile/maintenance-list-assignment.html" %}
+                </div>
             </div>
+
+            <br>
+
         </div>
         <!--- Right part of the page --->
         <div style="width: 25%; display: inline-block; vertical-align: top">
             <!-- Profile infos --->
             <div class="card profile-card">
                 <h5 class="text-center card-title">
-                    My profile
+                    {{ object.first_name }} {{ object.last_name |title }}
                 </h5>
                 <div class="card-img-top text-center">
 
@@ -62,7 +77,7 @@
                 </div>
             {% endif %}
         </div>
-    </div>
+
     <script>
         $(".profile-edit").click(function(ev) {
             url = $(this).data("form");

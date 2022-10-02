@@ -7,4 +7,3 @@ from .reserve_view import *
 from .maintenance_view import *
 from .consume_view import *
 from .move_view import *
-from .return_view import *

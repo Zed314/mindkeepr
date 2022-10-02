@@ -1,0 +1,393 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load crispy_forms_tags %}
+{% block extra_headers %}
+{% endblock %}
+{% block body_content %}
+<script>
+    $(document).ready(function(){
+        // this is the id of the form
+        $("#formbarcode").submit(function(e) {
+
+        e.preventDefault(); // avoid to execute the actual submit of the form.
+       var form = $(this);
+
+
+        $.ajax({
+            type: "GET",
+            url: "api/v1/elements/search?barcode="+$("#barcodeinput").val(),
+            success: function(data)
+            {
+            console.log(data);
+            }
+        });
+
+
+        $('#active-borrowings-table').DataTable().ajax.url(
+            "/api/v1/borrowings/?barcode_extended="+$("#barcodeinput").val()+"&state=IN_PROGRESS&format=datatables"
+        ).load();
+        $('#reserve-borrowings-table').DataTable().ajax.url(
+            "/api/v1/borrowings/?barcode_extended="+$("#barcodeinput").val()+"&state=NOT_STARTED&format=datatables"
+        ).load();
+
+/*
+
+        table
+        .columns( 3 )
+        .search( this.value )
+        .draw();*/
+
+        });
+
+        $("#id_user").on('change', function (evt) {
+            value = this.value
+            $("#newborrowimmediate").data("beneficiary-id",value);
+            $('#active-borrowings-table').DataTable().ajax.url(
+            "/api/v1/borrowings/?user="+value+"&state=IN_PROGRESS&format=datatables"
+            ).load();
+         //   $('#active-borrowings-table').DataTable().column(5).search(value).draw();
+            $('#reserve-borrowings-table').DataTable().ajax.url(
+            "/api/v1/borrowings/?user="+value+"&state=NOT_STARTED&format=datatables"
+            ).load();
+            //$('#reserve-borrowings-table').DataTable().column(4).search(value).draw();
+        });
+    });
+</script>
+<h1>Staff</h1>
+<div class="modal hide" id="showEventModal">
+</div>
+<div class="container">
+    <nav class="nav nav-tabs">
+        <a class="nav-item nav-link active" href="#borrows" data-toggle="tab">Borrows</a>
+        <a class="nav-item nav-link" href="#reservations" data-toggle="tab">Reservations</a>
+        <a class="nav-item nav-link" href="#parameters" data-toggle="tab">Parameters</a>
+    </nav>
+    <div class="tab-content">
+        <div class="tab-pane active" id="borrows">
+            <div class="row">
+
+                <form id="formbarcode" class="form-inline my-2 my-lg-0" action="javascript:void(0);">
+
+                    <input id="barcodeinput" class="form-control mr-sm-2" name="search" type="search" placeholder="Barcode" aria-label="Search">
+
+                </form>
+
+                <button id="newborrowimmediate" type="button" class="btn btn-primary event" href="#" data-event-type="borrow" data-beneficiary-id="" data-form="/formborroweventimmediatemodal" title="Borrow"{% if not perms.Mindkeepr.add_borrow %}disabled{% endif %}>New borrow</button>
+                <button id="newborrowreserve" type="button" class="btn btn-primary event" href="#" data-event-type="borrow" data-beneficiary-id="" data-form="/formborroweventreservemodal" title="Reserve"{% if not perms.Mindkeepr.add_borrow %}disabled{% endif %}>New reservation</button>
+                <div class="col-md-12">
+                    {{ form|crispy }}
+                    {{ form.media.js }}
+                    <table id="active-borrowings-table" class="display compact table-striped table-bordered"
+                        style="width:100%">
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="tab-pane" id="reservations">
+            <div class="row">
+                <div class="col-md-12">
+                    <table id="reserve-borrowings-table" class="display compact table-striped table-bordered"
+                        style="width:100%">
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="tab-pane" id="parameters">
+
+            <div class="row">
+                <div class="col-md-12">
+
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+
+
+
+
+
+
+<script type="text/javascript">
+    permission_borrow = {% if perms.Mindkeepr.change_borrowevent %} true {% else %} false {% endif %};
+    function create_btn_borrowevent(action, display, btnclass, disabled, id) {
+
+        button = '<button type="button" class="btn ' + btnclass + ' btn-sm borroweventaction" href="#" data-borrow-action="' + action + '" data-borrow-id="' + id + '" title="Start" ';
+        if (disabled) {
+            button += " disabled";
+        }
+        button += ">" + display + "</button>";
+        return button;
+    }
+
+    $('#reserve-borrowings-table').DataTable({
+        'serverSide': true,
+        "responsive": true,
+        'ajax': '/api/v1/borrowings/?state=NOT_STARTED&format=datatables',
+        "order": [[0, "desc"]],
+        "iDisplayLength": 50,
+        'columns': [
+            { data: 'id', title: "ID", visible: false },
+            {
+                data: "element.custom_id_display",
+                title: "Id",
+                orderable: false,
+                searchable: true
+            },
+            {
+                data: "element",
+                title: "Name",
+                orderable: true,
+                searchable:false,
+                render: function (data, type, row, meta) {
+                    if (type === 'display') {
+                        url = "/element/" + data.id
+                        data = '<a href="' + url + '">' + data.name + '</a>';
+                        return data;
+                    } else {
+                        return data.name;
+                    }
+                }
+            },
+            {
+                data: "element.name",
+                title: "Name",
+                visible:false,
+                orderable: false,
+                searchable: true,
+            },
+            {
+                data: "beneficiary.id",
+                title: "Beneficiary Id ",
+                visible: false
+            },
+            {
+                data: "beneficiary.first_name",
+                title: "Beneficiary first name",
+                visible: false
+            },
+
+            {
+                data: "beneficiary.last_name",
+                title: "Beneficiary last name",
+                visible: false
+            },
+            { data: "beneficiary.get_full_name", visible: true, searchable:false, title: "For",
+            render: function (data, type, row, meta) {
+                if (type === 'display') {
+                    if (data) {
+                        return "<a href='/profile/"+row.beneficiary.id+"'"+" >"+data+"</a>";
+                    }
+                    else {
+                        return "Undefined";
+                    }
+                } else {
+                    return data;
+                }
+            }},
+            {
+                data: "element.barcode_effective",
+                title: "Name",
+                visible:false,
+                orderable: false,
+            },
+            {
+                data: "comment",
+                title: "Comment",
+                orderable: true,
+                responsivePriority: 10009,
+            },
+            {
+                data: "borrow_date_display", title: "From",searchable:false,
+                render: function (data, type, row, meta) {
+                    if (type === 'display') {
+                        if (data) {
+                            return convertISO8601ToHumanDay(data);
+                        }
+                        else {
+                            return "Undefined";
+                        }
+                    } else {
+                        return data;
+                    }
+                },
+                responsivePriority: 10007,
+            },
+            {
+                data: "return_date_display", title: "to",searchable:false,
+                render: function (data, type, row, meta) {
+                    if (type === 'display') {
+                        if (data) {
+                            return convertISO8601ToHumanDay(data);
+                        }
+                        else {
+                            return "Undefined";
+                        }
+                    } else {
+                        return data;
+                    }
+                },
+                responsivePriority: 10006,
+            },
+            {
+                data: "id", title: "Start", searchable: "false", orderable: "false",
+                render: function (data, type, row, meta) {
+                    if (type === "display") {
+                        return create_btn_borrowevent("start", "Start", "btn-success", !permission_borrow, row.id);
+                    }
+                    return false;
+                }
+            },
+            {
+                data: "id", title: "Cancel", searchable: "false", orderable: "false",
+                render: function (data, type, row, meta) {
+                    if (type === "display") {
+                        return create_btn_borrowevent("cancel", "Cancel", "btn-danger", !permission_borrow, row.id);
+                    }
+                    return false;
+                }
+            },
+
+        ],
+
+
+    });
+
+    $('#active-borrowings-table').DataTable({
+        'serverSide': true,
+        "responsive": true,
+        'ajax': '/api/v1/borrowings/?state=IN_PROGRESS&format=datatables',
+        "order": [[0, "desc"]],
+        "iDisplayLength": 50,
+        'columns': [
+            { data: 'id', title: "ID", visible: false, searchable:false },
+            {
+                data: "element.custom_id_display",
+                title: "Id",
+                orderable: false,
+                searchable: true
+            },
+            {
+                data: "element",
+                title: "Name",
+                orderable: false,
+                searchable: false,
+                render: function (data, type, row, meta) {
+                    if (type === 'display') {
+                        url = "/element/" + data.id
+                        data = '<a href="' + url + '">' + data.name + '</a>';
+                        return data;
+                    } else {
+                        return data.name;
+                    }
+                }
+            },
+            {
+                data: "element.name",
+                title: "Name",
+                visible:false,
+                orderable: false,
+                searchable: true,
+            },
+            {
+                data: "element.barcode_effective",
+                title: "Barcode",
+                visible:false,
+                orderable: false,
+                searchable: true
+            },
+            {
+                data: "beneficiary.id",
+                title: "Beneficiary Id ",
+                visible: false
+            },
+            {
+                data: "beneficiary.first_name",
+                title: "Beneficiary first name",
+                visible: false
+            },
+
+            {
+                data: "beneficiary.last_name",
+                title: "Beneficiary last name",
+                visible: false
+            },
+            { data: "beneficiary.get_full_name", visible: true, searchable:false, title: "For",
+            render: function (data, type, row, meta) {
+                if (type === 'display') {
+                    if (data) {
+                        return "<a href='/profile/"+row.beneficiary.id+"'"+" >"+data+"</a>";
+                    }
+                    else {
+                        return "Undefined";
+                    }
+                } else {
+                    return data;
+                }
+            }},
+            {
+                data: "comment",
+                title: "Comment",
+                orderable: true,
+                responsivePriority: 10010,
+            },
+            {
+                data: "borrow_date_display", title: "From",
+                searchable: false,
+                render: function (data, type, row, meta) {
+                    if (type === 'display') {
+                        if (data) {
+                            return convertISO8601ToHumanDay(data);
+                        }
+                        else {
+                            return "Undefined";
+                        }
+                    } else {
+                        return data;
+                    }
+                },
+                responsivePriority: 10008,
+            },
+            {
+                data: "return_date_display", title: "to",
+                searchable: false,
+                render: function (data, type, row, meta) {
+                    if (type === 'display') {
+                        if (data) {
+                            return convertISO8601ToHumanDay(data);
+                        }
+                        else {
+                            return "Undefined";
+                        }
+                    } else {
+                        return data;
+                    }
+                },
+                responsivePriority: 10007,
+            },
+            { data : "id", title: "Return", searchable: "false", orderable: "false",
+            render:function(data,type,row,meta){
+            if(type==="display")
+            {
+                return create_btn_borrowevent("return", "Return", "btn-success", !permission_borrow, row.id);
+            }
+            return false;
+        }},
+                { data : "id", title: "Extend", searchable: "false", orderable: "false",
+                render:function(data,type,row,meta){
+                if(type==="display")
+                {
+                    return create_btn_borrowevent("extend", "Extend", "btn-primary", !permission_borrow, row.id);
+                }
+                return false;
+            }},
+        ],
+    });
+
+</script>
+
+
+{% endblock %}

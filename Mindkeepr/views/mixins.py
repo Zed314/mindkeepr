@@ -7,7 +7,7 @@ from Mindkeepr.models.elements.element import Element
 from Mindkeepr.models.project import Project
 from Mindkeepr.models.location import Location
 from Mindkeepr.models.events.borrow_event import BorrowEvent
-
+from django.contrib.auth.models import User
 #"from .mixins import PermissionRequiredAtFormValidMixin
 
 class LoginRequiredMixin():
@@ -69,7 +69,12 @@ class PresetElementQuantitySourceMixin():
             self._disabled_fields.append('element')
         except KeyError:
             pass
-
+        try:
+            idbeneficiary = int(self.request.GET['beneficiary'])
+            initial['beneficiary'] = get_object_or_404(User, pk=idbeneficiary)
+        except (KeyError,ValueError):
+            #TODO : Value error is just in case empty get parameter. Add for other parameters ?
+            pass
         try:
             idlocationsrc = int(self.request.GET['locationsrc'])
             initial['location_source'] = get_object_or_404(
@@ -89,6 +94,18 @@ class PresetElementQuantitySourceMixin():
             if(elt.is_unique):
                 initial['quantity'] = 1
                 self._disabled_fields.append('quantity')
+                try:
+                    initial["location_source"] = elt.stock_repartitions.first().location
+                    self._disabled_fields.append('location_source')
+                except AttributeError:
+                    # Try to buy unique object for instance
+                    pass
+        except KeyError:
+            pass
+        try:
+            state = self.request.GET['state']
+            self._disabled_fields.append('state')
+            initial["state"] = state
         except KeyError:
             pass
         try:
@@ -106,16 +123,16 @@ class PresetElementQuantitySourceMixin():
             self._disabled_fields.append("project")
         except KeyError:
             pass
-        try:
-            idborrowsrc = int(self.request.GET['borrow'])
-            if (idborrowsrc != 0):
-                initial['borrow_associated'] = get_object_or_404(
-                    BorrowEvent, pk=idborrowsrc)
-                self._disabled_fields.append('borrow_associated')
-                if(initial['borrow_associated'].element.is_unique):
-                    initial['location_destination'] = initial['borrow_associated'].location_source
-                    self._disabled_fields.append('location_destination')
-        except KeyError:
-            pass
-        # except ValueError:
+        #try:
+        #    idborrowsrc = int(self.request.GET['borrow'])
+        #    if (idborrowsrc != 0):
+        #        initial['borrow_associated'] = get_object_or_404(
+        #            BorrowEvent, pk=idborrowsrc)
+        #        self._disabled_fields.append('borrow_associated')
+        #        if(initial['borrow_associated'].element.is_unique):
+        #            initial['location_destination'] = initial['borrow_associated'].location_source
+        #            self._disabled_fields.append('location_destination')
+        #except KeyError:
+        #    pass
+
         return initial

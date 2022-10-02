@@ -3,18 +3,18 @@ from rest_framework import serializers
 from Mindkeepr.models.elements.element import Element
 from Mindkeepr.models.category import Category
 from ..category import CategorySerializerShortShort
-from ..stock_repartition import StockRepartitionSerializer
-from ..events.borrow_event import BorrowEventSerializer
-from ..events.buy_event import BuyEventSerializer
-from ..events.sell_event import SellEventSerializer
+#from ..stock_repartition import StockRepartitionSerializer
+#from ..events.borrow_event import BorrowEventSerializer
+#from ..events.buy_event import BuyEventSerializer
+#from ..events.sell_event import SellEventSerializer
 from ..serializer_factory import SerializerFactory
 
 class ElementFieldMixin(serializers.Serializer):
     category = CategorySerializerShortShort()
-    stock_repartitions = StockRepartitionSerializer(many=True, read_only=True)
-    buy_history = BuyEventSerializer(many=True, read_only=True)
-    sell_history = SellEventSerializer(many=True, read_only=True)
-    borrow_history = BorrowEventSerializer(many=True, read_only=True)
+   # stock_repartitions = StockRepartitionSerializer(many=True, read_only=True)
+   # buy_history = BuyEventSerializer(many=True, read_only=True)
+   # sell_history = SellEventSerializer(many=True, read_only=True)
+   # borrow_history = BorrowEventSerializer(many=True, read_only=True)
     def get_category(self, validated_data):
         try:
             category = Category.objects.get(id=validated_data.pop("category")["id"])
@@ -27,8 +27,8 @@ class ElementSerializer(serializers.HyperlinkedModelSerializer, SerializerFactor
 
     class Meta:
         model = Element
-        fields = ("id", "name", "description", "comment", "category", "quantity_owned",
-                  "type", "stock_repartitions", "image","buy_history", "sell_history", "borrow_history")
+        fields = ("id", "name", "description", "id_barcode", "comment", "category","quantity_available",# "quantity_owned",
+                  "type", "image")#,"buy_history", "sell_history", "borrow_history")
         depth = 2
         extra_kwargs = {
             "type": {
@@ -38,7 +38,7 @@ class ElementSerializer(serializers.HyperlinkedModelSerializer, SerializerFactor
 
     def to_representation(self, obj):
         """
-        Because Event is Polymorphic
+        Because Element is Polymorphic
         """
         type = obj.__class__.__name__
         serializer = SerializerFactory.create_serializer(type, context=self.context)
@@ -49,7 +49,7 @@ class ElementSerializer(serializers.HyperlinkedModelSerializer, SerializerFactor
 
     def to_internal_value(self, data):
         """
-        Because Event is Polymorphic
+        Because Element is Polymorphic
         """
         type = data.get('type')
         serializer = SerializerFactory.create_serializer(type,context=self.context)

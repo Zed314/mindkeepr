@@ -5,7 +5,6 @@ from .event import EventSerializer
 from .incident_event import IncidentEventSerializer
 from .maintenance_event import MaintenanceEventSerializer
 from .move_event import MoveEventSerializer
-from .return_event import ReturnEventSerializer
 from .sell_event import SellEventSerializer
 from .unuse_event import UnUseEventSerializer
 from .use_event import UseEventSerializer

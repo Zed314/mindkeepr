@@ -1,0 +1,29 @@
+version: '3.7'
+
+services:
+
+  mindkeepr:
+    build: ./
+    command : python manage.py runserver 0.0.0.0:80
+    ports:
+      - "8000:80"
+    links:
+      - db:db
+    depends_on:
+      - db
+    env_file:
+      - ./.env.local.dev
+    volumes:
+      - ./MindkeeprMain:/code/MindkeeprMain
+      - ./Mindkeepr:/code/Mindkeepr
+      - ./fixtures:/code/fixtures
+      - ./templates:/code/templates
+      - ./data/media:/code/media
+      - ./static:/code/static
+  db:
+    image: postgres:latest
+    volumes:
+      - ./data/db:/var/lib/postgresql/data/
+    env_file:
+      - ./.env.local.dev.db
+

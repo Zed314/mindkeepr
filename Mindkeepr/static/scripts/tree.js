@@ -10,31 +10,18 @@ $(document).ready(function() {
         return res;
     }
     function get_children_node_call(node_id){
-        // do this as temporary as jstree is lazy loading and we need all
-        // children for a node for our research
-       // var children_array = null;
-        return $.ajax({ url: "/api/v1/categoriesFull/"+node_id});
-       // children_array.shift();
-       // return children_array;
+
+        return $.ajax({ url: "/api/v1/categoriesFull/"+node_id+"/"});
     }
     function get_children_locations_node_call(node_id){
-        // do this as temporary as jstree is lazy loading and we need all
-        // children for a node for our research
-       // var children_array = null;
-        return $.ajax({ url: "/api/v1/locationsFull/"+node_id});
-       // children_array.shift();
-       // return children_array;
+        return $.ajax({ url: "/api/v1/locationsFull/"+node_id}+"/");
     }
-    //get_children_node("1");
+
 
     $("#jstree_category").jstree({
         "core": {
             "html_titles": true,
             /* To get children of nodes when selected */
-            //"whole_node" :true,
-            /*"keep_selected_style": true,
-            "cascade":"down",*/
-
             "data": function(node, cb) {
                 if (node.id === "#") {
                     id = "1"
@@ -42,7 +29,7 @@ $(document).ready(function() {
                     id = node.id
                 }
 
-                $.ajax({ url: "/api/v1/categories/" + id }).done(function(json) {
+                $.ajax({ url: "/api/v1/categories/" + id +"/" }).done(function(json) {
                     res = {
                         id: json["id"],
                         text: json["name"],
@@ -58,8 +45,10 @@ $(document).ready(function() {
         },
         "plugins": ["themes", "ui", "cookies", "crrm", "sort"]
     });
+//    $("#jstree_category").jstree("open_node", $("#1"));
+
     $('#jstree_category').on("select_node.jstree", function(e, data) {
-        // caution : lazy loading cause grandchildren not to be rendered (unless they were rendered previously)…
+        // caution : lazy loading cause grandchildren not to be rendered (unless they were rendered previously)...
         id = data.node.id;
 
          get_children_node_call(id).done(function(json) {
@@ -71,24 +60,14 @@ $(document).ready(function() {
                     search_string+="|"+child.id;
                 });
             search_string+=")$"
-
-
-            $('#element-table').DataTable().column( 3 ).search(
+                // no cache due to sEcho used for keeping track of orders of requests.
+            $('#element-table').DataTable().column( 7 ).search(
                 search_string , true,
                    false
                ).draw();
         });
-        // children includes current node
-
 
     });
-    /*
-    $('#jstree_category').on('click', '.jstree-clicked', function () {
-        $("#jstree_category").jstree().deselect_all(true);
-        $('#element-table').DataTable().column( 3 ).search("").draw();
-      });*/
-
-
 
     $("#jstree_locations").jstree({
         "core": {
@@ -100,7 +79,7 @@ $(document).ready(function() {
                     id = node.id
                 }
 
-                $.ajax({ url: "/api/v1/locationsFull/" + id }).done(function(json) {
+                $.ajax({ url: "/api/v1/locationsFull/" + id +"/"}).done(function(json) {
                     res = {
                         id: json["id"],
                         text: json["name"],
@@ -135,19 +114,8 @@ $(document).ready(function() {
                ).draw();
         });
 
-       /* $('#location-table').DataTable().column( 3 ).search(
+    });
 
-            '^'+id+'$' , true,
-               false
-           ).draw();*/
-    });/*
-    $('#jstree_locations').on('click', '.jstree-clicked', function () {
-        $("#jstree_locations").jstree().deselect_all(true);
-        $('#location-table').DataTable().column( 3 ).search("").draw();
-      });*/
-
-
-
-    console.log("My body is ready");
+    console.log("My body is ready ;)");
 
 });

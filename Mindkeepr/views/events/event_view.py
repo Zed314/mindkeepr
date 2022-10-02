@@ -5,7 +5,7 @@ from django.core.exceptions import PermissionDenied
 from django.urls import reverse_lazy
 from django.views.generic.edit import CreateView
 from Mindkeepr.models.events import *
-from Mindkeepr.forms import *
+from Mindkeepr.forms.events import *
 
 from django.contrib.auth.mixins import PermissionRequiredMixin
 from ..mixins import PresetElementQuantitySourceMixin
@@ -38,7 +38,6 @@ class EventUpdate(LoginRequiredMixin, UpdateView):
     model = Event
     form_class = {
         BorrowEvent: BorrowEventForm,
-        ReturnEvent: ReturnEventForm,
         MaintenanceEvent: MaintenanceEventForm,
         IncidentEvent: IncidentEventForm,
         UseEvent: UseEventForm,
@@ -49,7 +48,6 @@ class EventUpdate(LoginRequiredMixin, UpdateView):
     }
     _permission_required = {
         BorrowEvent : "Mindkeepr.change_borrowevent",
-        ReturnEvent : "Mindkeepr.change_returnevent",
         MaintenanceEvent : "Mindkeepr.change_maintenanceevent",
         IncidentEvent : "Mindkeepr.change_incidentevent",
         UseEvent : "Mindkeepr.change_useevent",
@@ -58,7 +56,6 @@ class EventUpdate(LoginRequiredMixin, UpdateView):
         BuyEvent : "Mindkeepr.change_buyevent",
         MoveEvent : "Mindkeepr.change_moveevent"
         #BorrowEvent: "Mindkeepr.change_event",
-        #ReturnEvent: "Mindkeepr.change_event",
         #MaintenanceEvent: "Mindkeepr.change_event",
         #IncidentEvent: "Mindkeepr.change_event",
         #UseEvent: "Mindkeepr.change_event",
@@ -71,7 +68,6 @@ class EventUpdate(LoginRequiredMixin, UpdateView):
     }
     templates = {
         BorrowEvent: "event-detail-modal.html",
-        ReturnEvent: "event-detail-modal.html",
         MaintenanceEvent: "event-detail-modal.html",
         IncidentEvent: "event-detail-modal.html",
         UseEvent: "event-detail-modal.html",

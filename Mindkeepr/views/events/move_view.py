@@ -1,6 +1,6 @@
 
 from . import EventViewModal
-from Mindkeepr.forms import MoveEventForm
+from Mindkeepr.forms.events import MoveEventForm
 
 class MoveEventViewModal(EventViewModal):
     template_name = 'events/move-event-detail-modal.html'

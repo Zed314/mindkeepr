@@ -11,11 +11,11 @@
    <script src="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.3.9/jstree.min.js"></script>
    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.2.1/themes/default/style.min.css" />
    <script
-          src="http://code.jquery.com/ui/1.12.1/jquery-ui.min.js"
+          src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"
           integrity="sha256-VazP97ZCwtekAsvgPBSUwPFKdrwD3unUfSGVYrahUqU="
           crossorigin="anonymous"></script>
 
-   <link rel="stylesheet" href="http://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css" />
+   <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css" />
    <link rel="shortcut icon" type="image/png" href="{% static '/icons/favicon.ico' %}"/>
    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.formset/1.2.2/jquery.formset.min.js">
    </script>
@@ -80,60 +80,72 @@ table.dataTable thead .sorting_desc {
       <li class="nav-item">
         <a class="nav-link" href="{% url 'elements-list' %}">Home<span class="sr-only">(current)</span></a>
       </li>
-      <li class="nav-item">
-        <a class="nav-link" href="{% url 'components-list' %}">Components</a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link" href="{% url 'machines-list' %}">Machines</a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link" href="{% url 'tools-list' %}">Tools</a>
-      </li>
+
       <li class="nav-item">
         <a class="nav-link" href="{% url 'books-list' %}">Books</a>
       </li>
+
+
+
       <li class="nav-item">
-        <a class="nav-link" href="/locations">Locations</a>
+        <a class="nav-link" href="{% url 'videogames-list' %}">Video Games</a>
       </li>
+
+
       <li class="nav-item">
-        <a class="nav-link" href="/projects">Projects</a>
+        <a class="nav-link" href="/moviecases">Movies</a>
       </li>
 
-
-
+      <li class="nav-item">
+        <a class="nav-link" href="{% url 'machines-list' %}">Hardware</a>
+      </li>
 
     </ul>
     <ul class="navbar-nav ml-auto">
-    <form id="formsearch" class="form-inline my-2 my-lg-0" action='/{% block searchtarget %}elements{% endblock %}?do=search'>
-      <input id="searchinput" class="form-control mr-sm-2" name="search" type="search" placeholder="Search" aria-label="Search">
+      <form id="formsearch" class="form-inline my-2 my-lg-0" action='/{% block searchtarget %}elements{% endblock %}?do=search'>
+        <input id="searchinput" class="form-control mr-sm-2" name="search" type="search" placeholder="Search" aria-label="Search">
 
-      <!--<button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>-->
-    </form>
-    <div class="dropdown">
-      {% if user.is_authenticated %}
-    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+        <!--<button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>-->
+      </form>
 
-      {{ user.get_full_name }}
+        {% if user.is_authenticated %}
+        <div class="dropdown">
+          <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown"
+            aria-haspopup="true" aria-expanded="false">
+            {{ request.user.get_full_name }}
+          </a>
+          <div class="dropdown-menu dropdown-menu-right " aria-labelledby="navbarDropdown">
+            <a class="dropdown-item" href="{% url 'view_profile' request.user.id %}">Profile</a>
+            <!--<a class="dropdown-item" href="/printlist">Print list</a> -->
+            {% if request.user|has_group:"staff" %}
+            <div class="dropdown-divider"></div>
+            <li class="nav-item">
+              <a class="dropdown-item" href="/staff">Staff</a>
+            </li>
+            {% endif %}
+            <div class="dropdown-divider"></div>
+            <li class="nav-item">
+              <a class="dropdown-item" href="{% url 'components-list' %}">Components</a>
+            </li>
+            <div class="dropdown-divider"></div>
+            <li class="nav-item">
+              <a class="dropdown-item" href="/locations">Locations</a>
+            </li>
+            <li class="nav-item">
+              <a class="dropdown-item" href="/projects">Projects</a>
+            </li>
+            <div class="dropdown-divider"></div>
+            <a class="dropdown-item" href="{% url "logout" %}">Logout</a>
+          </div>
+        </div>
+      {% else %}
+        {% if USE_SSO %}
+        <a class="btn btn-success" href="{% url 'oidc_authentication_init' %}">Login</a>
+        {% else %}
+        <a class="btn btn-success" href="{% url 'loginlocal' %}" >Login</a>
+        {% endif %}
 
-
-    </a>
-    <div class="dropdown-menu dropdown-menu-right " aria-labelledby="navbarDropdown">
-
-      <a class="dropdown-item" href="{% url 'view_profile' request.user.id %}">Profile</a>
-      <a class="dropdown-item" href="/printlist">Print list</a>
-      {% if request.user|has_group:"bureau" %}
-      <div class="dropdown-divider"></div>
-      <li class="nav-item">
-        <a class="dropdown-item" href="/bureau">Bureau</a>
-      </li>
       {% endif %}
-      <div class="dropdown-divider"></div>
-      <a class="dropdown-item" href=" {% url "logout" %}">Logout</a>
-
-    </div>
-    {% else %}
-    <a class="nav-link" href=" {% url 'login' %}">Login</a>
-    {% endif %}
     </ul>
   </div>
 
@@ -145,9 +157,9 @@ table.dataTable thead .sorting_desc {
 
 <div class="modal hide" id="eventModal">
 </div>
-
+<div style="padding: 2em; margin-top: 1em;">
 {% block body_content %}
 {% endblock %}
-
+</div>
 </body>
 </html>

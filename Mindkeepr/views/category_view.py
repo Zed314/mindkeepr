@@ -3,10 +3,16 @@ from Mindkeepr.serializers.category import CategorySerializer,CategorySerializer
 from Mindkeepr.models.category import Category
 from rest_framework import viewsets
 
+
+from django.utils.decorators import method_decorator
+from django.views.decorators.cache import cache_page
+
 class CategoryView(LoginRequiredMixin, viewsets.ModelViewSet):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
-
+    @method_decorator(cache_page(60*5))
+    def dispatch(self, *args, **kwargs):
+       return super(CategoryView, self).dispatch(*args, **kwargs)
 
 class CategoryViewShort(LoginRequiredMixin, viewsets.ModelViewSet):
     queryset = Category.objects.all()
@@ -16,3 +22,6 @@ class CategoryViewShort(LoginRequiredMixin, viewsets.ModelViewSet):
 class CategoryViewFull(LoginRequiredMixin, viewsets.ModelViewSet):
     queryset = Category.objects.all()
     serializer_class = CategorySerializerFull
+    @method_decorator(cache_page(60*5))
+    def dispatch(self, *args, **kwargs):
+       return super(CategoryViewFull, self).dispatch(*args, **kwargs)

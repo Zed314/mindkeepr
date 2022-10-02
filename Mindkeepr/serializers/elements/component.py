@@ -17,6 +17,5 @@ class ComponentSerializer(ElementFieldMixin, serializers.HyperlinkedModelSeriali
 
     def create(self, validated_data):
         category = self.get_category(validated_data)
-        component = Component.objects.create(
-            **validated_data, **category)#, category=category)
-        return component
+        return Component.objects.create(
+            **validated_data, **category)

@@ -18,8 +18,13 @@ class Event(PolymorphicModel):
     def type(self):
         return self.__class__.__name__
 
+    @property
+    def is_move_handled_at_save(self):
+        return True
+
     def save(self, *args, **kwargs):
-        if not self.id:
-            if not self._add_to_element():
-                raise ValueError("Event can not be added")
+        if self.is_move_handled_at_save:
+            if not self.id:
+                if not self._add_to_element():
+                    raise ValueError("Event can not be added")
         super().save(*args, **kwargs)

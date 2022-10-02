@@ -6,5 +6,9 @@
     title: 'Status',
 },
 {% endblock %}
+{% block topblock %}
+<a class=" btn btn-primary  {% if not perms.Mindkeepr.add_machine %}disabled{% endif%}" href="/machine"
+title="Add HW">Add Hardware</a>
+{% endblock %}
 {% block typeapi %}machines{% endblock %}
 {% block title_extra %} - Machines{% endblock %}

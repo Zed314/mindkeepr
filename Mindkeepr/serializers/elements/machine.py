@@ -19,7 +19,7 @@ class MachineSerializer(ElementFieldMixin, serializers.HyperlinkedModelSerialize
     )
     class Meta:
         model = Machine
-        fields = ElementSerializer.Meta.fields + ("maintenance_history","status")
+        fields = ElementSerializer.Meta.fields + ("maintenance_history", "machine_type", "custom_id_generic","custom_id_display", "barcode_effective","status")
         depth = 1
 
     def create(self, validated_data):

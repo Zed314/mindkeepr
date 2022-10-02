@@ -5,7 +5,7 @@ from Mindkeepr.serializers.events.maintenance_event import MaintenanceEventSeria
 from django.views.generic.edit import UpdateView
 from Mindkeepr.models.events import MaintenanceEvent
 from . import EventViewModal
-from Mindkeepr.forms import MaintenanceEventForm
+from Mindkeepr.forms.events import MaintenanceEventForm
 from django.contrib.auth.mixins import PermissionRequiredMixin
 
 class MaintenancesView(LoginAndPermissionRequiredMixin,viewsets.ModelViewSet):
@@ -16,6 +16,9 @@ class MaintenancesView(LoginAndPermissionRequiredMixin,viewsets.ModelViewSet):
         user = self.request.query_params.get('user', None)
         if user is not None:
             queryset = queryset.filter(assignee_id=user).filter(is_done=False)
+        element = self.request.query_params.get('element', None)
+        if element is not None:
+            queryset = queryset.filter(element_id=element)
         return queryset
 
 

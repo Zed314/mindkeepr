@@ -1,27 +1,26 @@
 {% extends 'base.html' %}
 {% load static %}
+{% load auth_extras %}
 {% block extra_headers %}
 <script src="{% static "scripts/tree.js" %}"></script>
 {% endblock %}
 {% block body_content %}
 
 
-<div class="modal hide" id="deleteModal">
-</div>
+<div class="modal hide" id="deleteModal"></div>
 <div class="container-fluid">
-
+<!--
   <a class=" btn btn-primary  {% if not perms.Mindkeepr.add_component %}disabled{% endif%}" href="/component"
     title="Add component">Add component</a>
   <a class=" btn btn-primary   {% if not perms.Mindkeepr.add_machine %}disabled{% endif%}" href="/machine"
-    title="Add machine">Add machine</a>
-  <a class=" btn btn-primary  {% if not perms.Mindkeepr.add_tool %}disabled{% endif%}" href="/tool"
-    title="Add tool">Add tool</a>
-  <a class=" btn btn-primary  {% if not perms.Mindkeepr.add_book %}disabled{% endif%}" href="/book"
+    title="Add machine">Add machine</a>-->
+    {% block topblock %}
+    <a class=" btn btn-primary  {% if not perms.Mindkeepr.add_book %}disabled{% endif%}" href="/book"
     title="Add book">Add book</a>
-  <a class=" btn btn-primary  {% if not perms.Mindkeepr.add_movie %}disabled{% endif%}" href="/movie"
-    title="Add book">Add movie</a>
-  <a class=" btn btn-primary  {% if not perms.Mindkeepr.add_moviecase %}disabled{% endif%}" href="/moviecase"
-    title="Add book">Add movie case</a>
+    <a class=" btn btn-primary  {% if not perms.Mindkeepr.add_movie %}disabled{% endif%}" href="/addMovie"
+    title="Add movie">Add movie</a>
+    {% endblock %}
+
   <div class="row">
     <div class="col-md-2">
       <div class="card ">
@@ -41,46 +40,56 @@
 
 
   var searchString = findGetParameter("search");
-  $('#searchinput').val(searchString);
-
+  if(searchString === null)
+  {
+    searchString = ""
+  }
+  $('#searchinput').val(searchString.replace(/\+/g, " "));
+{% block elt_table_js %}
+var draw = 0;
   var elt_table = $('#element-table').DataTable({
-              "dom": '<"top">rt<"bottom"lip><"clear">',
+              "dom": '<"top">frt<"bottom"lip><"clear">',
               'serverSide': true,
               "responsive": true,
-              'ajax': '/api/v1/{% block typeapi %}elements{% endblock %}/?format=datatables',
-              "oSearch": {"sSearch": searchString},
+              'ajax': {url:'/api/v1/{% block typeapi %}elements{% endblock %}/?format=datatables'
+            ,cache:true},
+              "iDisplayLength": 50,
+
+              "oSearch": {"sSearch": searchString.replace(/\+/g, " ")},
               "fnCreatedRow": function( nRow, aData, iDataIndex ) {
                   $(nRow).attr('id', "row-elt-"+aData.id);
                   //$(nRow).attr("id","ee")
               },
               "columnDefs": [
                 {
-                    "targets": [ 3 ],
-                    "visible": false,
-                    "searchable": true
-                },
-                {
                     "targets": '_all',
                     "defaultContent": ""
                 }
               ],
               'columns': [
-                  { data: 'id', title: "ID" },
+                  { data: 'id', title: "ID", visible:false, orderable: false, searchable:false},
+                  { data: "custom_id_generic", title: "Id", visible:false, searchable:false},
+                  { data: "custom_id_display", title: "Id", orderable: true, visible:true, searchable:true},
                   { data: 'name', title: "Name" },
-                  { data: 'category.name', title: "Category"},
-                  { data: 'category.id', title: "Category ID"},
-                  { data: 'description', title: "Description" },
+                  { data: "id_barcode", title: "Barcode ID", visible:false},
+                  { data: "barcode_effective", title: "Barcode", visible:{% if request.user|has_group:"staff" %}true{%else%}false{% endif %}, searchable:true,
+                  responsivePriority: 10005},
+                  { data: 'category.name', title: "Category", visible:false},
+                  { data: 'category.id', title: "Category ID", visible: false, searchable: true},
+                  /*{ data: 'description', title: "Description" },*/
                   {% block extracolumns %}
                   {
                       data:"type",
                       title: "Type",
                       orderable: false,
-                      bSearchable:false
+                      bSearchable:false,
+                      responsivePriority: 10009,
                   },
                   {% endblock %}
                   {% block qtycolumn %}
-                  { data: "quantity_owned", title: "Quantity", orderable: false,bSearchable:false},
+               /*   { data: "quantity_owned", title: "Quantity", orderable: false,bSearchable:false, visible:false},*/
                   {% endblock %}
+                  { data: "quantity_available", title: "Quantity", orderable: false,bSearchable:false, visible:false},
                   /*{
                             data: 'id',
                             title: 'View',
@@ -115,31 +124,55 @@
                       title:"Direct link",
                       render: function(data, type, row, meta){
                           if(type === 'display'){
-                               // var full_url = window.location.pathname;
-                                //var base_url = full_url.substring(full_url.lastIndexOf('/'));
                                 var base_url =  window.location.protocol+"//"+ window.location.host;
                                 var url = base_url+"/element/"+data;
-                                //data='<button type="button" class="btn btn-primary delete" href="#" data-form="'+url+'" title="Delete">Delete</button>'
-                                //data = '<a href="' + url + '">' + 'Delete' + '</a>';
-                                data = '<a href="#" class="copy-link" data-link="';
-                                data+= url.toString();
-                                data+= '">Copy</a>';
-
+                                data = '<a href="'+url.toString()+'" target="_blank">More</a>';
                             }
 
                             return data;
                           },
                           orderable: false,
+                          visible: {% if  perms.Mindkeepr.change_element %}true{%else%}false{% endif %},
+                          responsivePriority: 10003},
+                    {% if perms.Mindkeepr.add_borrow %}
+                    {
+                      data: 'id',
+                      title: 'Reserve',
+                      render: function(data, type, row, meta){
+                      if(type === 'display'){
+                          data = '<button type="button" class="btn btn-primary btn-sm event" href="#" data-element-id="'+data+'" data-event-type="borrow" data-form="/formborroweventreservemodal?element='+data+'&state=NOT_THERE" title="Reserve"{% if not perms.Mindkeepr.add_borrow %}disabled{% endif %}>Reserve</button>';
 
+                      }
+                      return data;
                     },
-                    {% if perms.Mindkeepr.delete_element %}
+                    orderable: false,
+                    },
+                    {
+                            data: 'id',
+                            title: 'Borrow',
+                            render: function(data, type, row, meta){
+                            if(type === 'display'){
+                              if(row.quantity_available ==0)
+                              {
+                                data = "Unavailable";
+                              }
+                              else
+                              {
+                                      data = '<button type="button" class="btn btn-primary btn-sm event" href="#" data-element-id="'+data+'" data-event-type="borrow"  data-form="/formborroweventimmediatemodal?element='+data+'&state=NOT_STARTED" title="Borrow"{% if not perms.Mindkeepr.add_borrow %}disabled{% endif %}>Borrow</button>';
+                              }
+                            }
+                            return data;
+                          },
+                          orderable: false,
+                    },
+                    {% endif %}
+                 /*   {% if perms.Mindkeepr.delete_element %}
                     {
                             data: 'id',
                             title: 'Delete',
                             render: function(data, type, row, meta){
                             if(type === 'display'){
                                 url = "/element/delete/"+data
-                                //data='<button type="button" class="btn btn-primary delete" href="#" data-form="'+url+'" title="Delete">Delete</button>'
                                 data = '<a href="#" class="delete" data-form="'+url+'"  >' + 'Delete' + '</a>';
                             }
 
@@ -148,12 +181,13 @@
                           orderable: false,
 
                     },
-                    {% endif %}
+                    {% endif %}*/
                     {
                       "className":      'details-control',
                       "title": "More",
                       "orderable":      false,
                       "data":           null,
+                      visible: false,
                       render: function(data,type,row,meta){
                         return '<a href="#">Open</a>';
                       },
@@ -176,13 +210,22 @@
               }
 
           });
-
+ {% endblock %}
           $( "#formsearch" ).submit(function( event ) {
-            elt_table.search($('#searchinput').val()).draw();
-            event.preventDefault();
+        //    event.preventDefault();
+            str_search = $('#searchinput').val();
+            if(str_search.length==13 && Number.isInteger(Number(str_search)))
+            {
+              elt_table.search("^"+str_search+"$", true).draw() ;
+            }
+            else
+            {
+              elt_table.search(str_search).draw();
+            }
+
           });
 
-          elt_table.on("click",".copy-link", function(event) { // for each edit contact url
+          elt_table.on("click",".copy-link", function(event) {
         var $temp = $("<input>");
             $("body").append($temp);
             $temp.val( $(this).data("link")).select();

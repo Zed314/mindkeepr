@@ -1,3 +1,130 @@
 {% extends 'element-list.html' %}
+{% load auth_extras %}
 {% load static %}
+{% block topblock %}
+<a class=" btn btn-primary  {% if not perms.Mindkeepr.add_movie %}disabled{% endif%}" href="/addMovie"
+title="Add movie">Add movie</a>
+{% endblock %}
 {% block typeapi %}moviecases{% endblock %}
+{% block elt_table_js %}
+ var elt_table = $('#element-table').DataTable({
+              "dom": '<"top">rt<"bottom"lip><"clear">',
+              'serverSide': true,
+              "responsive": true,
+              'ajax': '/api/v1/moviecases/?format=datatables',
+              "order": [[ 0, "desc" ]],
+              "pageLength": 50,
+              "oSearch": {"sSearch": searchString},
+              "fnCreatedRow": function( nRow, aData, iDataIndex ) {
+                  $(nRow).attr('id', "row-elt-"+aData.id);
+                  //$(nRow).attr("id","ee")
+              },
+              "columnDefs": [
+                {
+                    "targets": [ 0 ],
+                    "visible": false,
+                    "searchable": true
+                },
+                {
+                    "targets": '_all',
+                    "defaultContent": ""
+                }
+              ],
+              'columns': [
+                  { data: "custom_id_generic", title: "Id",  searchable:false},
+                  { data: "custom_id_display", title: "Id",  searchable:false, orderable: false,
+                  render: function(data, type, row, meta){
+                    if(type === 'display'){
+                          if(row.is_new)
+                          {
+                            data = data + "*";
+                          }
+                      }
+
+                      return data;
+                    },
+
+
+                },
+                  { data: 'name', title: "Name" },
+                  { data: "nb_disk", title: "Nb disk"},
+                  { data: "ean", title: "EAN", visible:false},
+                  { data: "barcode_effective", title: "Barcode", visible:{% if request.user|has_group:"staff" %}true{%else%}false{% endif %}},
+                  { data: 'category.name', title: "Category", visible:false},
+                  { data: 'category.id', title: "Category ID", visible: false, searchable: true},
+                  { data: "is_new", title: "New", visible:false},
+                  { data: "category_box_display", title: "Cat.", orderable: false,  searchable:false},
+                    {
+                      data:"id",
+                      title:"Direct link",
+                      visible: {% if  perms.Mindkeepr.change_element %}true{%else%}false{% endif %},
+                      render: function(data, type, row, meta){
+                          if(type === 'display'){
+                                var base_url =  window.location.protocol+"//"+ window.location.host;
+                                var url = base_url+"/element/"+data;
+                                data = '<a href="'+url.toString()+'" target="_blank">More</a>';
+                            }
+
+                            return data;
+                          },
+                          orderable: false,
+
+                    },
+                    {% if perms.Mindkeepr.delete_element %}
+                    {
+                            data: 'id',
+                            title: 'Delete',
+                            render: function(data, type, row, meta){
+                            if(type === 'display'){
+                                url = "/element/delete/"+data
+                                data = '<a href="#" class="delete" data-form="'+url+'"  >' + 'Delete' + '</a>';
+                            }
+
+                            return data;
+                          },
+                          orderable: false,
+
+                    },
+                    {% endif %}
+              {
+                      data: 'id',
+                      title: 'Reserve',
+                      render: function(data, type, row, meta){
+                      if(type === 'display'){
+                          data = '<button type="button" class="btn btn-primary event" href="#" data-element-id="'+data+'" data-event-type="borrow" data-form="/formborroweventreservemodal?element='+data+'&state=NOT_THERE" title="Reserve"{% if not perms.Mindkeepr.add_borrow %}disabled{% endif %}>Reserve</button>';
+                      }
+                      return data;
+                    },
+                    orderable: false,
+
+              },
+              {
+                data: 'id',
+                title: 'Borrow',
+                render: function(data, type, row, meta){
+                if(type === 'display'){
+                    data = '<button type="button" class="btn btn-primary event" href="#" data-element-id="'+data+'" data-event-type="borrow"  data-form="/formborroweventimmediatemodal?element='+data+'&state=NOT_STARTED" title="Borrow"{% if not perms.Mindkeepr.add_borrow %}disabled{% endif %}>Borrow</button>';
+                }
+                return data;
+              },
+              orderable: false,
+
+        },
+
+              ],
+              "drawCallback": function(settings, json) {
+                {% if perms.Mindkeepr.delete_element %}
+                $(".delete").click(function(ev) { // for each delete
+                  ev.preventDefault(); // prevent navigation
+                  var url = $(this).data("form"); // get the link form url
+                  $("#deleteModal").load(url, function() { // load the url into the modal
+                    $(this).modal('show'); // display the modal on url load
+                  });
+                return false; // prevent the click propagation
+                });
+                {% endif %}
+
+              }
+
+          });
+{% endblock %}

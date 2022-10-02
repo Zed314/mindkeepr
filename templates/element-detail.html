@@ -3,7 +3,8 @@
 {% load display_shortcuts %}
 
 {% block body_content %}
-
+{% block extra_js_content %}
+{% endblock %}
 <div class="container">
     <div class="card">
         <div class="card-header">
@@ -24,12 +25,16 @@
 <nav class="nav nav-tabs">
   <a class="nav-item nav-link active" href="#elt-{{form.instance.id}}-main" data-toggle="tab">Element</a>
   {% if form.instance.id %}
-  <a class="nav-item nav-link" href="#elt-{{form.instance.id}}-location" data-toggle="tab">Locations</a>
+  <a class="nav-item nav-link" href="#elt-product" data-toggle="tab">Product</a>
+  <a class="nav-item nav-link" href="#elt-{{form.instance.id}}-borrowreserve" data-toggle="tab">Reservations</a>
+  <a class="nav-item nav-link" href="#elt-{{form.instance.id}}-borrowhistory" data-toggle="tab">Borrows</a>
+  {% if not  form.instance.is_unique %}
+
+  {% endif %}
   <a class="nav-item nav-link" href="#elt-{{form.instance.id}}-buy" data-toggle="tab">Buy History</a>
-  <a class="nav-item nav-link" href="#elt-{{form.instance.id}}-sell" data-toggle="tab">Sell History</a>
-  <a class="nav-item nav-link" href="#elt-{{form.instance.id}}-borrow" data-toggle="tab">Borrow History</a>
-  <a class="nav-item nav-link" href="#elt-{{form.instance.id}}-potentialborrow" data-toggle="tab">Potential Borrow History</a>
-  <a class="nav-item nav-link" href="#elt-{{form.instance.id}}-reservation" data-toggle="tab">Reservation History</a>
+  <!--<a class="nav-item nav-link" href="#elt-{{form.instance.id}}-sell" data-toggle="tab">Sell History</a> -->
+  <!--<a class="nav-item nav-link" href="#elt-{{form.instance.id}}-reservation" data-toggle="tab">Allocation History</a> -->
+  <a class="nav-item nav-link" href="#elt-{{form.instance.id}}-location" data-toggle="tab">Locations</a>
   {% if form.instance.is_consummable %}
   <a class="nav-item nav-link" href="#elt-{{form.instance.id}}-consume" data-toggle="tab">Consume History</a>
   {% endif %}
@@ -38,8 +43,16 @@
 </nav>
 <div class="tab-content">
     <div class="tab-pane active" id="elt-{{form.instance.id}}-main">
-        <a href="/element/barcode/{{ form.instance.id }}">Barcode</a>
-         <a class="btn btn-primary" href="/element/print/add/{{ form.instance.id }}/1" role="button">Add one to print list !</a>
+      {% if form.instance.pk %}
+        <button type="button" class="btn btn-primary event" href="#" data-event-type="buy" data-element-id="{{form.instance.id}}" data-form="/formbuyeventmodal?element={{form.instance.id}}" title="Buy"
+        {% if not perms.Mindkeepr.add_buyevent or form.instance.is_unique_and_there %}disabled{% endif %}>Buy</button>
+        <button type="button" class="btn btn-primary event" href="#" data-element-id="{{form.instance.id}}" data-event-type="borrow" data-src-id="{{form.instance.id}}" data-form="/formborroweventreservemodal?element={{form.instance.id}}&state=NOT_THERE" title="Reserve"
+        {% if not perms.Mindkeepr.add_borrow %}disabled{% endif %}>Reserve</button>
+        <button type="button" class="btn btn-primary event" href="#" data-element-id="{{form.instance.id}}" data-event-type="borrow" data-src-id="{{form.instance.id}}" data-form="/formborroweventimmediatemodal?element={{form.instance.id}}&state=NOT_STARTED" title="Borrow"
+        {% if not perms.Mindkeepr.add_borrow %}disabled{% endif %}>Borrow</button>
+      {% endif %}
+        <!--<a href="/element/barcode/{{ form.instance.id }}">Barcode</a>
+         <a class="btn btn-primary" href="/element/print/add/{{ form.instance.id }}/1" role="button">Add one to print list !</a> -->
          {% if form.instance.image %}
          <a href="{{form.instance.image.url}}"><img width=100px src="{{ form.instance.image.url }}"/></a>
          {% endif %}
@@ -47,7 +60,7 @@
         {% csrf_token %}
         <table>
 
-            {{ form.as_p }}
+            {{ form|crispy}}
 
             {{ attributes.management_form }}
 
@@ -76,9 +89,9 @@
 
         </table>
             {% if  request.resolver_match.kwargs.pk %}
-            <input type="submit" value="Update">
+            <input type="submit" name="save_element" value="Update">
             {% else %}
-            <input type="submit" value="Save">
+            <input type="submit"  value="Save">
             {% endif %}
         </form>
         {{ form.media.js }}
@@ -87,8 +100,11 @@
     <div class="tab-pane" id="elt-{{form.instance.id}}-location">
         <button type="button" class="btn btn-primary event" href="#" data-event-type="buy" data-element-id="{{form.instance.id}}" data-form="/formbuyeventmodal?element={{form.instance.id}}" title="Buy"
         {% if not perms.Mindkeepr.add_buyevent or form.instance.is_unique_and_there %}disabled{% endif %}>Buy</button>
-        <button type="button" class="btn btn-primary event" href="#" data-event-type="potentialborrow" data-element-id="{{form.instance.id}}" data-form="/formpotentialborroweventmodal?element={{form.instance.id}}" title="Future borrow"
-        {% if  not form.instance.is_unique %}disabled{% endif %}>Potential borrow</button>
+        <button type="button" class="btn btn-primary event" href="#" data-element-id="{{form.instance.id}}" data-event-type="borrow" data-src-id="{{form.instance.id}}" data-form="/formborroweventreservemodal?element={{form.instance.id}}&state=NOT_THERE" title="Reserve"
+        {% if not perms.Mindkeepr.add_borrow %}disabled{% endif %}>Reserve</button>
+        <button type="button" class="btn btn-primary event" href="#" data-element-id="{{form.instance.id}}" data-event-type="borrow" data-src-id="{{form.instance.id}}" data-form="/formborroweventimmediatemodal?element={{form.instance.id}}&state=NOT_STARTED" title="Borrow"
+        {% if not perms.Mindkeepr.add_borrow %}disabled{% endif %}>Borrow</button>
+
         <table
         data-element-id="{{form.instance.id}}"
         class="table compact table-striped table-bordered element-stock-table"
@@ -109,16 +125,40 @@
     class="table compact table-striped table-bordered element-sell-table"
     style="width:100%"></table>
   </div>
-  <div class="tab-pane" id="elt-{{form.instance.id}}-borrow">
+  <div class="tab-pane" id="elt-product">
+     <form id="form-element-selectproduct" enctype="multipart/form-data" method="post">
+     {% csrf_token %}
+    <table>
+            {{ f_product_select|crispy}}
+            <input type="submit" name="save_product_select" value="Update">
+    </table>
+    </form>
+     <form id="form-element-product" enctype="multipart/form-data" method="post">
+     {% csrf_token %}
+    <table>
+            {{ f_product|crispy}}
+            {% if  f_product.instance.id %}
+            <input type="submit" name="save_product" value="Update">
+            {% else %}
+            <input type="submit" name="save_product" value="Create">
+            {% endif %}
+    </table>
+    </form>
+  </div>
+  <div class="tab-pane" id="elt-{{form.instance.id}}-borrowreserve">
+    <table
+    data-element-id="{{form.instance.id}}"
+    class="table compact table-striped table-bordered element-borrowreserve-table"
+    style="width:100%"></table>
+  </div>
+  <div class="tab-pane" id="elt-{{form.instance.id}}-borrowhistory">
     <table
     data-element-id="{{form.instance.id}}"
     class="table compact table-striped table-bordered element-borrow-table"
     style="width:100%"></table>
-  </div>
-  <div class="tab-pane" id="elt-{{form.instance.id}}-potentialborrow">
     <table
     data-element-id="{{form.instance.id}}"
-    class="table compact table-striped table-bordered element-potentialborrow-table"
+    class="table compact table-striped table-bordered element-borrowhistory-table"
     style="width:100%"></table>
   </div>
   <div class="tab-pane" id="elt-{{form.instance.id}}-reservation">
@@ -141,12 +181,6 @@
 
 
         </div>
-
-
-<!--
-    </div>
-</div>
--->
 
 <script type="text/javascript">
 
@@ -175,13 +209,16 @@ load_sell_table({{form.instance.id}},
             {% if form.instance.is_unique %} true {% else %} false {% endif %},
             {% if perms.Mindkeepr.add_sellevent  %} true {% else %} false {% endif %});
 
-load_potentialborrow_table({{form.instance.id}});
-
 load_borrow_table({{form.instance.id}},
                 {% if form.instance.is_unique %} true {% else %} false {% endif %},
-                {% if perms.Mindkeepr.add_borrowevent  %} true {% else %} false {% endif %},
-                {% if perms.Mindkeepr.add_returnevent  %} true {% else %} false {% endif %});
+                {% if perms.Mindkeepr.add_borrowevent  %} true {% else %} false {% endif %});
 
+load_borrowreserve_table({{form.instance.id}},
+                {% if form.instance.is_unique %} true {% else %} false {% endif %},
+                {% if perms.Mindkeepr.add_borrowevent  %} true {% else %} false {% endif %});
+
+load_borrowhistory_table({{form.instance.id}},
+                {% if form.instance.is_unique %} true {% else %} false {% endif %})
 
 load_reserve_table({{form.instance.id}},
                 {% if form.instance.is_unique %} true {% else %} false {% endif %},
@@ -193,6 +230,7 @@ load_consume_table({{form.instance.id}});
 
 
                 load_element_stock_table({{form.instance.id}},
+                {% if form.instance.is_consummable %}true{% else %}false{% endif %},
                 {% if perms.Mindkeepr.add_borrowevent  %} true {% else %} false {% endif %},
                 {% if perms.Mindkeepr.add_useevent  %} true {% else %} false {% endif %},
                 {% if perms.Mindkeepr.add_unuseevent  %} true {% else %} false {% endif %},

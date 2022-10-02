@@ -16,5 +16,5 @@ class UserDetailedSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         ordering = ['-id']
-        fields = ("id", "first_name", "last_name", "email", "projects")
+        fields = ("id", "first_name", "last_name", "projects")
         depth = 1

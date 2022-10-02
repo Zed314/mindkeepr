@@ -3,19 +3,17 @@ $(document).on('hide.bs.modal',"#eventModal", function (evt) {
     // Assuming that an update just got completed
     if($(evt.target).data("element-id"))
     {
-        console.log($(evt.target).data("element-id"));
         $(".element-"+$(evt.target).data("event-type")+"-table[data-element-id="+$(evt.target).data("element-id")+"]").DataTable().rows().invalidate().draw();
         $(".element-stock-table[data-element-id="+$(evt.target).data("element-id")+"]").DataTable().rows().invalidate().draw();
     }
 });
 
-$(document).on('hide.bs.modal',"#eventModal[data-event-type=return]", function (evt) {
+$(document).on('hide.bs.modal',"#eventModal[data-event-type=borrow]", function (evt) {
     // Assuming that an update just got completed
-    if($(evt.target).data("element-id"))
-    {
-        $(".element-borrow-table[data-element-id="+$(evt.target).data("element-id")+"]").DataTable().rows().invalidate().draw();
-        $(".element-stock-table[data-element-id="+$(evt.target).data("element-id")+"]").DataTable().rows().invalidate().draw();
-    }
+    $(".element-borrowreserve-table").DataTable().rows().invalidate().draw();
+    $("#active-borrowings-table").DataTable().rows().invalidate().draw();
+    $("#reserve-borrowings-table").DataTable().rows().invalidate().draw();
+    //$(".element-borrow-table").DataTable().rows().invalidate().draw();
 });
 
 //
@@ -35,12 +33,37 @@ $(document).on('hide.bs.modal',"#eventModal", function (evt) {
     }
 });
 
-$(document).on("click",".event", function(ev) { // for each edit contact url
-    ev.preventDefault(); // prevent navigation
-    var url = $(this).data("form"); // get form from url
-
-    $("#eventModal").load(url, function() { // load the url into the modal
-        $(this).modal('show'); // display the modal on url load
+$(document).on("click",".event", function(ev) {
+    ev.preventDefault();
+    var url = $(this).data("form");
+    //ugly, I know.
+    // TODO : refactor to add other parameters that are currently passed in url into data attributes
+    var n = url.indexOf('?');
+    base_url= url.substring(0, n != -1 ? n : url.length);
+    //base_url = url.slice(0, url.lastIndexOf('?') + 1)
+    param =""
+    if(n==-1)
+    {
+        base_url+="?";
+        param=""
+    }
+    else
+    {
+        param = url.slice(n+1);
+        base_url+="?";
+    }
+    let searchParams = new URLSearchParams(param);
+    var beneficiary_id=$(this).data("beneficiary-id");
+    if(beneficiary_id === undefined)
+    {
+        // Do nothing
+    }
+    else
+    {
+        searchParams.set('beneficiary', beneficiary_id);
+    }
+    $("#eventModal").load(base_url+searchParams, function() {
+        $(this).modal('show');
     });
     var evttype=$(this).data("event-type");
 
@@ -72,6 +95,63 @@ $(document).on("click",".event", function(ev) { // for each edit contact url
     $("#eventModal").attr("data-project-id",idproject);
     return false; // prevent the click propagation
 });
+
+
+function getCookie(name) {
+    var cookieValue = null;
+    if (document.cookie && document.cookie != '') {
+        var cookies = document.cookie.split(';');
+        for (var i = 0; i < cookies.length; i++) {
+            var cookie = jQuery.trim(cookies[i]);
+            // Does this cookie string begin with the name we want?
+            if (cookie.substring(0, name.length + 1) == (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+var csrftoken = getCookie('csrftoken');
+
+//[data-borrow-action=start]
+$(document).on("click",".borroweventaction", function(ev) {
+    ev.preventDefault(); // prevent navigation
+    //var url = ("form"); // get form from url
+    $("#active-borrowings-table").DataTable().rows().invalidate().draw();
+
+    $("#reserve-borrowings-table").DataTable().rows().invalidate().draw();
+    $.ajax({
+        type: "POST",
+        url: "/api/v1/borrowevent/"+$(this).data("borrow-id")+"/"+$(this).data("borrow-action"),
+        headers: {'X-CSRFToken': csrftoken},
+        data: {},
+        success: function(data, status) {
+            /*console.log(data);
+            console.log(status);*/
+
+            $(".element-borrow-table").DataTable().rows($("#row-borrow-evt-"+$(ev.target).data("borrow-id"))).invalidate().draw();
+            $(".element-borrowreserve-table").DataTable().rows().invalidate().draw();
+            $(".element-borrowhistory-table").DataTable().rows().invalidate().draw();
+            $(".element-stock-table").DataTable().rows().invalidate().draw();
+            $("#active-borrowings-table").DataTable().rows().invalidate().draw();
+            $("#reserve-borrowings-table").DataTable().rows().invalidate().draw();
+
+        },
+        fail: function(data,status){
+          console.log(status);
+        },
+        statusCode: {
+          500: function() {
+            alert("ERROR 500");
+          }
+        }
+        });
+
+    return;
+});
+
 
 function load_buy_table(id,is_unique,permission_buy)
 {
@@ -301,14 +381,16 @@ function load_reserve_table(id,is_unique,permission_useevent,permission_unuseeve
 }
 
 
-function load_borrow_table(id,is_unique,permission_borrow,permission_return)
+function load_borrow_table(id,is_unique,permission_borrow)
 {
     $(".element-borrow-table[data-element-id="+id+"]").DataTable({
         "dom": '<"top">rt<"bottom"lip><"clear">',
         'serverSide': true,
         "responsive": true,
-        'ajax': '/api/v1/borrowings?element='+id+'&format=datatables',
-        "order": [[ 6, "desc"],[ 2, "desc" ]],
+        'ajax': '/api/v1/borrowings?state=IN_PROGRESS&element='+id+'&format=datatables',
+        "fnCreatedRow": function( nRow, aData, iDataIndex ) {
+            $(nRow).attr('id', "row-borrow-evt-"+aData.id);
+        },
         "columnDefs": [
           {
               "targets": '_all',
@@ -316,141 +398,134 @@ function load_borrow_table(id,is_unique,permission_borrow,permission_return)
           }
         ],
         columns: [
-            { data: "id", title: "ID", visible:false},
-            { data: "beneficiary.get_full_name", title: "For"},
-            { data: "recording_date", title: "Date",
-            render: function (data, type, row, meta) {
-                    if (type === 'display') {
-                        if(data){
-                            return convertISO8601ToHumanDay(data);
-                        }
-                        else
-                        {
-                            return "Undefined";
-                        }
-                    } else {
-                        return data;
-                    }
-                }},
-                { data: "quantity", title: "Quantity", visible: !is_unique },
-                { data: "scheduled_return_date", title: "Return before",
-            render: function (data, type, row, meta) {
-                    if (type === 'display') {
-                        if(data){
-                            return convertISO8601ToHumanDay(data);
-                        }
-                        else
-                        {
-                            return "Undefined";
-                        }
-                    } else {
-                        return data;
-                    }
-                }},
-            { data: "location_source.id", title: "Source",
-              render: function(data,type,row,meta){
-              if(type === "display"){
-                  link = "<a href=\"/location/"+row.location_source.id+"\">"+row.location_source.name+"</a>";
-                  return link;
-              }
-              return row.location_source.name;
-            },visible: !is_unique},
-            //{ data: "comment", title: "Comment"},
-            { data: "return_event.recording_date", title: "Returned on",
-            render: function (data, type, row, meta) {
-                if (type === 'display') {
-
-                if(data){
-                    ret = convertISO8601ToHumanDay(data);
-                    ret +=" ";
-                    if(Date.parse(data)>Date.parse(row.scheduled_return_date))
-                    {
-                        ret+= "(LATE)";
-                    }
-                    else
-                    {
-                        ret+= "(ON TIME)"
-                    }
-                    return ret;
-                }
-                else
-                {
-                    disabled = false;
-                    comment = ""
-                    btn = ""
-                    if(!permission_return || row.return_event )
-                    {
-                        disabled = true;
-                    }
-                    if(Date.now()>Date.parse(row.scheduled_return_date))
-                    {
-                        comment = "(Late !)";
-                        btn = "btn-danger"
-                    }
-                    else
-                    {
-                        comment = "(On Time !)"
-                        btn = "btn-success"
-                    }
-                    button = '<button type="button" class="btn '+btn+' event" href="#" data-event-type="return" data-element-id=" '+id+'" data-form="/formreturneventmodal?&borrow='+row.id+'" title="Return '+comment+'" ' ;
-                    if(disabled)
-                    {
-                        button+=" disabled";
-                    }
-                    button+= ">Return "+comment+"</button>";
-                    return button;
-                }
-
-            }
-            else
+            { data: "id", title: "ID", visible: false },
+            { data: "element.id", title: "element-id", visible: false },
+            { data: "beneficiary.get_full_name", visible: true, title: "For" },
             {
-                return data;
-            }
-                ret = ""
-                if (type === 'display') {
-
-                    return ret;
-                } else {
-                    return data;
+                data: "recording_date", visible: false, title: "Date",
+                render: function (data, type, row, meta) {
+                    if (type === 'display') {
+                        if (data) {
+                            return convertISO8601ToHumanDay(data);
+                        }
+                        else {
+                            return "Undefined";
+                        }
+                    } else {
+                        return data;
+                    }
                 }
+            },
+            { data: "quantity", title: "Quantity", visible: !is_unique },
+            {
+                data: "scheduled_borrow_date", visible: false, title: "From",
+                render: function (data, type, row, meta) {
+                    if (type === 'display') {
+                        if (data) {
+                            return convertISO8601ToHumanDay(data);
+                        }
+                        else {
+                            return "Undefined";
+                        }
+                    } else {
+                        return data;
+                    }
+                }
+            },
+            {
+                data: "effective_return_date", visible: false, title: "To",
+                render: function (data, type, row, meta) {
+                    if (type === 'display') {
+                        if (data) {
+                            return convertISO8601ToHumanDay(data);
+                        }
+                        else {
+                            return "Undefined";
+                        }
+                    } else {
+                        return data;
+                    }
+                }
+            },
+            {
+                data: "borrow_date_display", title: "From",
+                render: function (data, type, row, meta) {
+                        if (type === 'display') {
+                            if(data){
+                                return convertISO8601ToHumanDay(data);
+                            }
+                            else
+                            {
+                                return "Undefined";
+                            }
+                        } else {
+                            return data;
+                        }
+                    }},
+                    { data: "return_date_display", title: "To",
+                    render: function (data, type, row, meta) {
+                        if (type === 'display') {
+                            if(data){
+                                return convertISO8601ToHumanDay(data);
+                            }
+                            else
+                            {
+                                return "Undefined";
+                            }
+                        } else {
+                            return data;
+                        }
+                    }},
+                    { data: "comment", title: "Comment"},
+                    {
+                        data: "id", title: "Extend",
+                        render: function (data, type, row, meta) {
+                            if (type === "display") {
+                                disabled = false;
+                                button = '<button type="button" class="btn btn-primary borroweventaction" href="#" data-borrow-action="extend" data-borrow-id="' + row.id + '" data-element-id="' + row.element.id + '" title="Extend" ';
+                                if (disabled) {
+                                    button += " disabled";
+                                }
+                                button += ">Extend</button>";
+                                return button;
+                            }
+                            return "e"
+                        }
+                    },
+            {
+                data: "id", title: "Return",
+                render: function (data, type, row, meta) {
+                    if (type === "display") {
+                        disabled = false;
+                        button = '<button type="button" class="btn btn-primary borroweventaction" href="#" data-borrow-action="return" data-borrow-id="' + row.id + '" data-element-id="' + row.element.id + '" title="Return" ';
+                        if (disabled) {
+                            button += " disabled";
+                        }
+                        button += ">Return</button>";
+                        return button;
+                    }
+                    return "e"
+                }
+            },
 
-                }},
-
-            { data: "return_event.location_destination.id", title: "Destination",
-              render: function(data,type,row,meta){
-              if(type === "display"){
-                  if(row.return_event)
-                  {
-                      link = "<a href=\"/location/"+data+"\">"+row.return_event.location_destination.name+"</a>";
-                      return link;
-                  }
-                  return "-";
-
-              }
-              if(row.return_event)
-              {
-                  return row.return_event.location_destination.name;
-              }
-              return "";
-
-            },visible: !is_unique},
-            { data: "return_event.comment", title: "Feedback"},
+     //       { data: "state", title: "State" },
         ]
 });
 
 }
 
 
-function load_potentialborrow_table(id)
+
+function load_borrowreserve_table(id,is_unique,permission_reserve)
 {
-
-
-    $(".element-potentialborrow-table[data-element-id="+id+"]").DataTable({
+    $(".element-borrowreserve-table[data-element-id="+id+"]").DataTable({
         "dom": '<"top">rt<"bottom"lip><"clear">',
         'serverSide': true,
         "responsive": true,
-        'ajax': '/api/v1/potentialborrowings?element='+id+'&format=datatables',
-        //"order": [[ 6, "desc"],[ 2, "desc" ]],
+        'ajax': '/api/v1/borrowings?state=NOT_STARTED&element='+id+'&format=datatables',
+        "fnCreatedRow": function( nRow, aData, iDataIndex ) {
+            $(nRow).attr('id', "row-borrowreserve-evt-"+aData.id);
+        },
         "columnDefs": [
           {
               "targets": '_all',
@@ -458,55 +533,195 @@ function load_potentialborrow_table(id)
           }
         ],
         columns: [
-            { data: "id", title: "ID", visible:false},
-            { data: "beneficiary.get_full_name", title: "For"},
-            { data: "recording_date", title: "Date",
-            render: function (data, type, row, meta) {
+            { data: "id", title: "ID", visible: false },
+            { data: "element.id", title: "element-id", visible: false },
+            { data: "beneficiary.get_full_name", visible: true, title: "For" },
+            {
+                data: "recording_date", visible: false, title: "Date",
+                render: function (data, type, row, meta) {
                     if (type === 'display') {
-                        if(data){
+                        if (data) {
                             return convertISO8601ToHumanDay(data);
                         }
-                        else
-                        {
+                        else {
                             return "Undefined";
                         }
                     } else {
                         return data;
                     }
-                }},
-                { data: "scheduled_borrow_date", title: "From",
-            render: function (data, type, row, meta) {
-                    if (type === 'display') {
-                        if(data){
-                            return convertISO8601ToHumanDay(data);
+                }
+            },
+            { data: "quantity", title: "Quantity", visible: !is_unique },
+            {
+                data: "borrow_date_display", title: "From",
+                render: function (data, type, row, meta) {
+                        if (type === 'display') {
+                            if(data){
+                                return convertISO8601ToHumanDay(data);
+                            }
+                            else
+                            {
+                                return "Undefined";
+                            }
+                        } else {
+                            return data;
                         }
-                        else
-                        {
-                            return "Undefined";
+                    }},
+                    { data: "return_date_display", title: "To",
+                    render: function (data, type, row, meta) {
+                        if (type === 'display') {
+                            if(data){
+                                return convertISO8601ToHumanDay(data);
+                            }
+                            else
+                            {
+                                return "Undefined";
+                            }
+                        } else {
+                            return data;
                         }
-                    } else {
-                        return data;
+                    }},
+            { data : "id", title: "Start",
+            render:function(data,type,row,meta){
+                    if (type === "display") {
+                        disabled = false;
+                        button = '<button type="button" class="btn btn-primary borroweventaction" href="#" data-borrow-action="start" data-borrow-id="' + row.id + '" data-element-id="' + row.element.id + '" title="Start" ';
+                        if (disabled) {
+                            button += " disabled";
+                        }
+                        button += ">Start</button>";
+                        return button;
                     }
-                }},
-                { data: "scheduled_return_date", title: "To",
-            render: function (data, type, row, meta) {
-                    if (type === 'display') {
-                        if(data){
-                            return convertISO8601ToHumanDay(data);
+                    return "e"
+                }
+            },
+            {
+                data: "id", title: "Cancel",
+                render: function (data, type, row, meta) {
+                    if (type === "display") {
+                        disabled = false;
+                        button = '<button type="button" class="btn btn-primary borroweventaction" href="#" data-borrow-action="cancel" data-borrow-id="' + row.id + '" title="Cancel" ';
+                        if (disabled) {
+                            button += " disabled";
                         }
-                        else
-                        {
-                            return "Undefined";
-                        }
-                    } else {
-                        return data;
+                        button += ">Cancel</button>";
+                        return button;
                     }
-                }}
-
+                    return "e"
+                }
+            },
         ]
 });
 
 }
+
+function load_borrowhistory_table(id,is_unique)
+{
+    $(".element-borrowhistory-table[data-element-id="+id+"]").DataTable({
+        "dom": '<"top">rt<"bottom"lip><"clear">',
+        'serverSide': true,
+        "responsive": true,
+        'ajax': '/api/v1/borrowings?state=DONE&element='+id+'&format=datatables',
+        "fnCreatedRow": function( nRow, aData, iDataIndex ) {
+            $(nRow).attr('id', "row-borrowreserve-evt-"+aData.id);
+        },
+        "columnDefs": [
+          {
+              "targets": '_all',
+              "defaultContent": ""
+          }
+        ],
+        columns: [
+            { data: "id", title: "ID", visible: false },
+            { data: "element.id", title: "element-id", visible: false },
+            {
+                data: "beneficiary.id",
+                title: "Beneficiary Id ",
+                visible: false
+            },
+            {
+                data: "beneficiary.first_name",
+                title: "Beneficiary first name",
+                visible: false
+            },
+
+            {
+                data: "beneficiary.last_name",
+                title: "Beneficiary last name",
+                visible: false
+            },
+            { data: "beneficiary.get_full_name", visible: true, title: "For",
+            render: function (data, type, row, meta) {
+                if (type === 'display') {
+                    if (data) {
+                        return "<a href='/profile/"+row.beneficiary.id+"'"+" >"+data+"</a>";
+                    }
+                    else {
+                        return "Undefined";
+                    }
+                } else {
+                    return data;
+                }
+            }},
+            {
+                data: "recording_date", visible: false, title: "Date",
+                render: function (data, type, row, meta) {
+                    if (type === 'display') {
+                        if (data) {
+                            return convertISO8601ToHumanDay(data);
+                        }
+                        else {
+                            return "Undefined";
+                        }
+                    } else {
+                        return data;
+                    }
+                }
+            },
+            { data: "quantity", title: "Quantity", visible: !is_unique },
+            {
+                data: "scheduled_return_date", title: "To (scheduled)",visible:false
+            },
+            {
+                data: "borrow_date_display", title: "From",
+                render: function (data, type, row, meta) {
+                        if (type === 'display') {
+                            if(data){
+                                comment = ""
+                                if(data>row.scheduled_return_date)
+                                {
+                                    comment = " (LATE)"
+                                }
+                                return convertISO8601ToHumanDay(data) + comment;
+                            }
+                            else
+                            {
+                                return "Undefined";
+                            }
+                        } else {
+                            return data;
+                        }
+                    }},
+                    { data: "return_date_display", title: "To",
+                    render: function (data, type, row, meta) {
+                        if (type === 'display') {
+                            if(data){
+                                return convertISO8601ToHumanDay(data);
+                            }
+                            else
+                            {
+                                return "Undefined";
+                            }
+                        } else {
+                            return data;
+                        }
+                    }},
+                    { data: "comment", title: "Comment"},
+        ]
+});
+
+}
+
 
 function load_incident_table(id,permission)
 {
@@ -626,6 +841,7 @@ function load_maintenance_table(id,permission)
 }
 
 function load_element_stock_table(id,
+    is_consummable,
     permission_borrow,
     permission_use,
     permission_unuse,
@@ -634,6 +850,7 @@ function load_element_stock_table(id,
     permission_move)
 {
     load_location_stock_table(id,
+        is_consummable,
         permission_borrow,
         permission_use,
         permission_unuse,
@@ -652,6 +869,7 @@ function load_project_stock_table(id,
     permission_move)
 {
     load_location_stock_table(id,
+        false, /** Maybe fetch for each element if it is consummable*/
         permission_borrow,
         permission_use,
         permission_unuse,
@@ -661,6 +879,7 @@ function load_project_stock_table(id,
         src="project")
 }
 function load_location_stock_table(id,
+    is_consummable,
     permission_borrow,
     permission_use,
     permission_unuse,
@@ -735,7 +954,7 @@ function load_location_stock_table(id,
                     }
                 }},
                 {data:"element.type",title:"Type"},
-                { data: 'id', title: "Borrow",
+                /*{ data: 'id', title: "Borrow",
                 render: function(data, type, row, meta){
                     project = "";
                             if(row.project)
@@ -754,28 +973,28 @@ function load_location_stock_table(id,
                         }
 
                         return "";
-                    }},
-              { data: 'id', title: "Reserve",
+                    }},*/
+              { data: 'id', title: "Allocate",
                 render: function(data, type, row, meta){
                         if(type === 'display'){
                             button = "";
                             if(row.project)//if not reserved
                             {
-                                button = '<button type="button" class="btn btn-primary event" href="#" data-'+src+'-id="'+id+'" data-event-type="unreserve" data-stock="'+data+'"  data-form="/formunuseeventmodal?stock='+data+'" title="Unreserve"'
+                                button = '<button type="button" class="btn btn-primary event" href="#" data-'+src+'-id="'+id+'" data-event-type="unreserve" data-stock="'+data+'"  data-form="/formunuseeventmodal?stock='+data+'" title="Unallocate"'
                                 if(!permission_unuse)
                                 {
                                     button +=  "disabled";
                                 }
-                                button += '>Unreserve</button>';
+                                button += '>Unallocate</button>';
                             }
                             else
                             {
-                                button = '<button type="button" class="btn btn-primary event" href="#" data-stock="'+data+'" data-'+src+'-id="'+id+'" data-event-type="reserve" data-form="/formuseeventmodal?stock='+data+'" title="Reserve"'
+                                button = '<button type="button" class="btn btn-primary event" href="#" data-stock="'+data+'" data-'+src+'-id="'+id+'" data-event-type="reserve" data-form="/formuseeventmodal?stock='+data+'" title="Allocate"'
                                 if(!permission_use)
                                 {
                                     button +=  "disabled";
                                 }
-                                button += '>Reserve</button>';
+                                button += '>Allocate</button>';
                             }
                             return button;
                         }
@@ -784,7 +1003,7 @@ function load_location_stock_table(id,
                     }},
 
 
-                    { data: "id", title: "Consume",
+                    { data: "id", title: "Consume", visible: is_consummable,
                     render: function(data,type,row,meta){
                     if(type === 'display'){
                             button = '<button type="button" class="btn btn-primary event" href="#" data-stock="'+data+'" data-'+src+'-id="'+id+'" data-event-type="consume"  data-form="/formconsumeeventmodal?stock='+data+'" title="Consume"';

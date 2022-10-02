@@ -1,0 +1,184 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block extra_headers %}
+{% endblock %}
+{% block body_content %}
+
+<div class="modal hide" id="elementModal"  (mousedown)="stopEvent($event)">
+</div>
+<div class="modal hide" id="bookSuccess">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Success</h5>
+        <button type="button" class="close" data-dismiss="modal">×</button>
+      </div>
+
+      <div class="modal-body">
+      <span id="modal-success-book"></span> successfully added.
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class ='bg'> </div>
+<div class = 'container'>
+<div class ='favourite'>
+
+  </div>
+  <form class ='form'>
+  <input id="searchfieldbook" type = 'search' placeholder ='search a book'>
+  <button type ='submit'> Search </button>
+
+
+  </form>
+    <div class ='error'> </div>
+</div>
+<div class = 'selectedBook'> </div>
+<div class ='container'>
+
+  <div class ='books'/>
+</div>
+<div id ='result'> </div>
+
+<script>
+
+$(document).on("click",".book", function(ev) {
+    ev.preventDefault(); // prevent navigation
+    var url = $(this).data("form"); // get form from url
+    $("#elementModal").load(url, function() { // load the url into the modal
+        $(this).modal('show'); // display the modal on url load
+    });
+    return false; // prevent the click propagation
+});
+
+function loadData(search) {
+  //event.preventDefault();
+
+
+
+
+
+  // api and end points
+  // create search with user input
+  /*const api = "&api_key=feb6f0eeaa0a72662967d77079850353";
+  const endpoint = `https://api.themoviedb.org/3/search/movie?query=${search}${api}&language=fr`;
+  const poster = "https://image.tmdb.org/t/p/w400/";*/
+  const poster = "https://covers.openlibrary.org/b/id/"
+  const endpoint =`https://openlibrary.org/search.json?isbn=${search}` /*?isbn=9782377314768"*/ /* title = */
+  let gridHtml = "";
+  let selectedHtml = "";
+/*
+  $.getJSON(endpoint, function(data) {
+
+    //https://www.googleapis.com/books/v1/volumes?q=isbn:9782909589442
+    // if no results display error message
+    if (data.docs.length == 0) {
+      $(".error").html("No data found, search again.");
+    }
+    gridHtml=`<div class="row mt-5">`
+
+    data.docs.forEach(function (book, index) {
+      console.log(book)
+      title_encoded = encodeURIComponent(book.title)
+
+      gridHtml +=
+    `<div class="card" style="width: 15rem;">
+      <img class="card-img-top" src="${poster}${book.cover_i}-L.jpg" alt="Card image cap">
+      <div class="card-body">
+        <h5 class="card-title">${book.title}</h5>
+
+        <button type="button" class="btn btn-primary book" href="#" data-title="${title_encoded}"
+        data-form="/formbookmodal?bookapiid=${book.edition_key[0]}&name=${title_encoded}&ean=${book.isbn[0]}" title="Add book" >Add book
+        </button>
+      </div>
+    </div>`
+
+
+      });
+
+
+
+
+  });*/
+  endpoint_google_book = ``
+  preset_ean = false;
+  if (/^\d{13}$/.test(search))
+  {
+    endpoint_google_book = `https://www.googleapis.com/books/v1/volumes?q=isbn:${search}`;
+    preset_ean = true;
+  }
+  else
+  {
+    endpoint_google_book = `https://www.googleapis.com/books/v1/volumes?q=title:${search}`;
+  }
+
+  $.getJSON(endpoint_google_book, function(data) {
+
+      gridHtml=`<div class="row mt-5">`
+      data.items.forEach(function (book, index) {
+
+    /* if(!book.volumeInfo.readingModes.text && !book.volumeInfo.readingModes.image) // sort out epub
+      {*/
+      if(book.volumeInfo.industryIdentifiers != null)
+      {
+      ean13 = book.volumeInfo.industryIdentifiers.find(o => o.type === 'ISBN_13');
+      if(ean13 != null)
+      {
+      ean_identifier = preset_ean? ean13.identifier:""
+      title_encoded = encodeURIComponent(book.volumeInfo.title)
+      imgurl=""
+      if(book.volumeInfo.imageLinks)
+      {
+        imgurl=book.volumeInfo.imageLinks.thumbnail;
+      }
+      year = "";
+      if(book.volumeInfo.publishedDate)
+      {
+        year = book.volumeInfo.publishedDate.substring(0,4);
+      }
+      description = book.volumeInfo.description ? book.volumeInfo.description.substring(0,50) + "…": ""
+      gridHtml +=
+      `<div class="card" style="width: 15rem;">
+
+        <div class="card-body">
+          <img class="card-img-top" src="${imgurl}" alt="Card image cap">
+          <h5 class="card-title">${book.volumeInfo.title} (${year})</h5>
+          <p>${description}</p>
+          <button type="button" class="btn btn-primary book" href="#" data-title="${title_encoded}"
+          data-form="/formbookmodal?bookapiid=${book.id}&name=${title_encoded}&ean=${ean_identifier}" title="Add book" >Add book
+          </button>
+          <button type="button" class="btn btn-primary book" href="#" data-title="${title_encoded}"
+          data-form="/formbookproductmodal?bookapiid=${book.id}&name=${title_encoded}&ean=${ean_identifier}" title="Add abstract" >Add abstract
+          </button>
+
+        </div>
+      </div>`
+    //}
+  }
+}
+      });
+      gridHtml+=` </div>`
+    $(".books").html(gridHtml);
+    });
+
+}
+
+// use submit to load the data
+const form = $(".form");
+
+
+form.on("submit", function(e){
+  e.preventDefault();
+})
+
+$('#searchfieldbook').on('input', function() {
+    // do something
+   // alert("ee")
+    loadData($('#searchfieldbook').val())
+});
+</script>
+{% endblock %}
