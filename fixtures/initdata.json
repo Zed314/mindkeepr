@@ -15,6 +15,46 @@
       }
     },
     {
+      "model": "Mindkeepr.category",
+      "pk": 3,
+      "fields": {
+        "name": "Books",
+        "parent": 1
+      }
+    },
+    {
+      "model": "Mindkeepr.category",
+      "pk": 4,
+      "fields": {
+        "name": "Novels",
+        "parent": 3
+      }
+    },
+    {
+      "model": "Mindkeepr.category",
+      "pk": 5,
+      "fields": {
+        "name": "Comic Books",
+        "parent": 3
+      }
+    },
+    {
+      "model": "Mindkeepr.category",
+      "pk": 6,
+      "fields": {
+        "name": "Video Games",
+        "parent": 1
+      }
+    },
+    {
+      "model": "Mindkeepr.category",
+      "pk": 7,
+      "fields": {
+        "name": "Action games",
+        "parent": 1
+      }
+    },
+    {
       "model":"Mindkeepr.location",
       "pk": 1,
       "fields":{
@@ -26,10 +66,9 @@
       "model":"Mindkeepr.location",
       "pk": 2,
       "fields":{
-        "name": "Movie library",
-        "description": "Where all movies are stored",
+        "name": "Library",
+        "description": "Library",
         "parent":1
       }
-    }
-
+    },
   ]
