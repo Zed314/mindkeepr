@@ -1,6 +1,11 @@
 # Mindkeepr
 
 Minkeepr is an inventory software written in Django.
+Its purpose is to manage easily Movies, Books, Video Games, Electronic components and so on.
+
+It is a work in progress, any contribution is welcome !
+
+Project is in Alpha version.
 
 
 ## Project structure
@@ -59,5 +64,4 @@ Create user on newly created instance :
 Then, on container, load init data :
 `python manage.py loaddata fixtures/initdata.json`
 `python manage.py loaddata fixtures/initgroup.json`
-
 `python manage.py loaddata fixtures/moviegenre.json`
