@@ -119,7 +119,6 @@ REST_FRAMEWORK = {
        # 'rest_framework.permissions.IsAuthenticated',
     ],
     'DEFAULT_AUTHENTICATION_CLASSES': [
-        "mozilla_django_oidc.contrib.drf.OIDCAuthentication",
         'rest_framework.authentication.BasicAuthentication',
         'rest_framework.authentication.SessionAuthentication',
     ],
@@ -134,6 +133,8 @@ REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'rest_framework_datatables.pagination.DatatablesPageNumberPagination',
     'PAGE_SIZE': 20,
 }
+if USE_SSO:
+    REST_FRAMEWORK["DEFAULT_AUTHENTICATION_CLASSES"].insert(0,"mozilla_django_oidc.contrib.drf.OIDCAuthentication")
 
 # Database
 # https://docs.djangoproject.com/en/2.1/ref/settings/#databases
