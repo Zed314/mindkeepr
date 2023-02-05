@@ -14,7 +14,7 @@ from Mindkeepr.models.models import UserProfile
 from Mindkeepr.models.category import Category
 from Mindkeepr.models.elements.attachment import Attachment
 from Mindkeepr.models.staff_settings import StaffSettings, Days, DayException
-
+from Mindkeepr.models.products.book_product_page_sample import BookProductPageSample
 
 class ProfiletInline(admin.TabularInline):
     model = UserProfile
@@ -30,6 +30,9 @@ class ConsumeEventInline(admin.TabularInline):
 
 class AttachmentInline(admin.TabularInline):
     model = Attachment
+
+class BookProductPageSampleInline(admin.TabularInline):
+    model = BookProductPageSample
 
 #class MovieInline(admin.TabularInline):
 #    model = Movie
@@ -62,6 +65,9 @@ class ElementAdmin(admin.ModelAdmin):
     inlines = (BuyEventInline,UseEventInline, ConsumeEventInline, AttachmentInline)
     pass
 
+@admin.register(BookProduct)
+class BookProductAdmin(admin.ModelAdmin):
+    inlines = (BookProductPageSampleInline,)
 
 @admin.register(Book)
 class BookAdmin(admin.ModelAdmin):

@@ -10,9 +10,9 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.AddField(
-            model_name='product',
-            name='is_new',
-            field=models.BooleanField(default=False, null=True, verbose_name='Is new ?'),
-        ),
+        #migrations.AddField(
+        #    model_name='product',
+        #    name='is_new',
+        #    field=models.BooleanField(default=False, null=True, verbose_name='Is new ?'),
+        #),
     ]
