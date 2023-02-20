@@ -132,7 +132,7 @@ REST_FRAMEWORK = {
         'rest_framework_datatables.filters.DatatablesFilterBackend',
     ),
     'DEFAULT_PAGINATION_CLASS': 'rest_framework_datatables.pagination.DatatablesPageNumberPagination',
-    'PAGE_SIZE': 20,
+    'PAGE_SIZE': 24,
 }
 if USE_SSO:
     REST_FRAMEWORK["DEFAULT_AUTHENTICATION_CLASSES"].insert(0,"mozilla_django_oidc.contrib.drf.OIDCAuthentication")
