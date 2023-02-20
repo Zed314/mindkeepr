@@ -11,6 +11,8 @@ class VideoGame(Element):
     PLATFORM = [
        ('WIU', "Wii U"),
        ('PS4', "Playstation 4"),
+       ('PS5', "Playstation 5"),
+       ('XBO', "Xbox One"),
        ('SWI', "Switch")
        #("UNK", "UNKNOWN")
     ]
