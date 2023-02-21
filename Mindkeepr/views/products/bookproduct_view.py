@@ -6,6 +6,12 @@ from ..mixins import LoginRequiredMixin
 from ...serializers.pagination import CustomPagination
 from ..search import searchFilter
 from django.db.models import Q
+from rest_framework.decorators import action
+from django.forms import ValidationError
+import json 
+from django.http import HttpResponse
+from django.shortcuts import get_object_or_404
+
 
 class BookProductsView(LoginRequiredMixin, viewsets.ModelViewSet):
 
@@ -13,6 +19,17 @@ class BookProductsView(LoginRequiredMixin, viewsets.ModelViewSet):
     pagination_class = CustomPagination
     def perform_create(self, serializer):
         serializer.save(creator=self.request.user)
+    @action(detail=True, methods=['post'])
+    def upload_cover(self,request,pk=None):
+        try:
+            cover = request.data['file']
+        except KeyError:
+            raise ValidationError('Request has no resource file attached')
+        
+        book_product = get_object_or_404(BookProduct, pk=pk)
+        book_product.cover = cover
+        book_product.save()
+        return HttpResponse(json.dumps({'message': "Uploaded"}), status=200)
 
     def get_queryset(self):
         queryset = BookProduct.objects.all()
