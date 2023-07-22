@@ -19,3 +19,4 @@ django-cors-headers==3.8.0
 #djangorestframework-simplejwt==4.8.0
 openlibrary-client==0.0.30
 django_redis==5.2.0
+lxml
