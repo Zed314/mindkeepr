@@ -19,17 +19,6 @@ class BookProductsView(LoginRequiredMixin, viewsets.ModelViewSet):
     pagination_class = CustomPagination
     def perform_create(self, serializer):
         serializer.save(creator=self.request.user)
-    @action(detail=True, methods=['post'])
-    def upload_cover(self,request,pk=None):
-        try:
-            cover = request.data['file']
-        except KeyError:
-            raise ValidationError('Request has no resource file attached')
-        
-        book_product = get_object_or_404(BookProduct, pk=pk)
-        book_product.cover = cover
-        book_product.save()
-        return HttpResponse(json.dumps({'message': "Uploaded"}), status=200)
 
     def get_queryset(self):
         queryset = BookProduct.objects.all()
@@ -46,5 +35,19 @@ class BookProductsView(LoginRequiredMixin, viewsets.ModelViewSet):
         book_type = self.request.query_params.get('booktype', None)
         if book_type is not None:
             queryset = queryset.filter(book_type=book_type)
-        queryset = searchFilter(queryset, self.request)
+        ordering = self.request.query_params.get('ordering', None)
+        if ordering is not None:
+            orderingquery = ""
+            if ordering.startswith("-"):
+                orderingquery="-"
+                ordering = ordering[1:]
+            if ordering=="TITLE":
+                orderingquery+="title"
+            elif ordering=="DATE":
+                orderingquery+="release_date"
+            else:
+                pass
+            if len(orderingquery) >1:
+                queryset = queryset.order_by(orderingquery)
+       # queryset = searchFilter(queryset, self.request)
         return queryset
