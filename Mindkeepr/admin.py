@@ -67,11 +67,14 @@ class ElementAdmin(admin.ModelAdmin):
 
 @admin.register(BookProduct)
 class BookProductAdmin(admin.ModelAdmin):
-    inlines = (BookProductPageSampleInline,)
+    inlines = (BookProductPageSampleInline,BookInline,)
+    search_fields = ['title',"author","publisher"]
+    list_display = ("title",'publisher',"ean","is_new")
 
 @admin.register(Book)
 class BookAdmin(admin.ModelAdmin):
     inlines = (BuyEventInline,UseEventInline, ConsumeEventInline, AttachmentInline)
+    search_fields = ['name']
     pass
 
 @admin.register(Product)
