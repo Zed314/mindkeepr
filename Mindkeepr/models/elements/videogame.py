@@ -47,7 +47,7 @@ class VideoGame(Element):
     def set_custom_id(self):
 
         if not self.custom_id_generic:
-            listid = list(VideoGame.objects.filter(platform=self.platform).values_list('custom_id_generic', flat=True))
+            listid = list(VideoGame.objects.filter(platform__startswith=self.platform[0]).values_list('custom_id_generic', flat=True))
             newid = next(filterfalse(set(listid).__contains__, count(1)))
             self.custom_id_generic = newid
 
